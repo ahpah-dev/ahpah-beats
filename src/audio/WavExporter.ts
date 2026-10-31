@@ -105,11 +105,12 @@ export class WavExporter {
             }
           } else {
             const note = step.note || 'C4';
+            const noteDuration = Math.max(0.08, (step.duration || 1) * stepDuration * 0.95);
             synthVoice.playNote(
               track.sound as SynthSoundType,
               note,
               stepTime,
-              stepDuration * 1.5,
+              noteDuration,
               vel,
               trackGain,
               project.synth,

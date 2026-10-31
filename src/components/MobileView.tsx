@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ProjectData, Track } from '../types';
+import { ProjectData, Track, SynthSettings, SynthSoundType } from '../types';
 import { MobilePads } from './MobilePads';
 import { MobileKeys } from './MobileKeys';
 import { MobileXYPad } from './MobileXYPad';
@@ -17,7 +17,8 @@ import {
   Sliders,
   Monitor,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Clock
 } from 'lucide-react';
 
 interface MobileViewProps {
@@ -38,6 +39,10 @@ interface MobileViewProps {
   onRandomizeBeat: () => void;
   onOpenDesktopModal: () => void;
   onToggleViewMode: () => void;
+  onUpdateSynth: (synth: Partial<SynthSettings>) => void;
+  onAddTrack: (type: 'drum' | 'synth') => void;
+  onChangeTrackSound: (trackId: string, sound: SynthSoundType) => void;
+  onResizeNote?: (trackIndex: number, stepIndex: number, duration: number) => void;
 }
 
 export type MobileTab = 'pads' | 'keys' | 'seq' | 'xy' | 'mix';
@@ -59,7 +64,11 @@ export const MobileView: React.FC<MobileViewProps> = ({
   onSaveProject,
   onRandomizeBeat,
   onOpenDesktopModal,
-  onToggleViewMode
+  onToggleViewMode,
+  onUpdateSynth,
+  onAddTrack,
+  onChangeTrackSound,
+  onResizeNote
 }) => {
   const [activeTab, setActiveTab] = useState<MobileTab>('pads');
   const [selectedSeqTrack, setSelectedSeqTrack] = useState<number>(0);
@@ -71,8 +80,25 @@ export const MobileView: React.FC<MobileViewProps> = ({
     audioEngine.triggerSound(track, 'C4', velocity);
   };
 
+  const handleCycleMobileStepDuration = (e: React.MouseEvent, stepIdx: number) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const track = project.tracks[selectedSeqTrack];
+    if (track && track.type === 'synth') {
+      const step = track.steps[stepIdx];
+      if (step && step.active) {
+        const durations = [1, 2, 4, 8];
+        const curDur = step.duration || 1;
+        const nextDur = durations[(durations.indexOf(curDur) + 1) % durations.length];
+        if (onResizeNote) {
+          onResizeNote(selectedSeqTrack, stepIdx, nextDur);
+        }
+      }
+    }
+  };
+
   return (
-    <div className="w-full min-h-screen bg-[#080a0f] text-slate-100 flex flex-col justify-between pb-20 select-none">
+    <div className="w-full min-h-screen bg-[#080a0f] text-slate-100 flex flex-col justify-between pb-28 select-none">
       {/* Mobile Top Header */}
       <header className="w-full bg-[#0b0e14]/95 backdrop-blur-md border-b border-slate-800 px-3 py-2 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-2">
@@ -83,7 +109,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
             <h1 className="text-xs font-black tracking-wider uppercase text-white font-['Inter'] leading-tight">
               AhPah Beats
             </h1>
-            <span className="text-[9px] text-cyan-400 font-mono">Mobile Studio</span>
+            <span className="text-[9px] text-cyan-400 font-mono font-semibold">Mobile Studio</span>
           </div>
         </div>
 
@@ -134,7 +160,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
       </header>
 
       {/* Main Content Area based on Tab */}
-      <main className="p-3 flex-1 flex flex-col justify-start">
+      <main className="p-3 flex-1 flex flex-col justify-start overflow-y-auto">
         {activeTab === 'pads' && (
           <MobilePads
             tracks={project.tracks}
@@ -148,7 +174,11 @@ export const MobileView: React.FC<MobileViewProps> = ({
             selectedTrackIndex={selectedSynthTrack}
             scaleName={project.scale}
             rootKey={project.key}
+            synthSettings={project.synth}
             onSelectTrack={(i) => setSelectedSynthTrack(i)}
+            onUpdateSynth={onUpdateSynth}
+            onAddSynthTrack={() => onAddTrack('synth')}
+            onChangeTrackSound={onChangeTrackSound}
           />
         )}
 
@@ -227,6 +257,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                   <button
                     key={stepIdx}
                     onClick={() => onToggleStep(selectedSeqTrack, stepIdx)}
+                    onContextMenu={(e) => handleCycleMobileStepDuration(e, stepIdx)}
                     className={`h-16 rounded-xl flex flex-col items-center justify-between p-2 border transition-all active:scale-95 ${
                       isCurrent
                         ? 'border-cyan-400 ring-2 ring-cyan-400/50'
@@ -252,8 +283,8 @@ export const MobileView: React.FC<MobileViewProps> = ({
                       {isActive
                         ? step.isRoll
                           ? 'ROLL'
-                          : track.type === 'synth'
-                          ? step.note || 'C4'
+                          : track?.type === 'synth'
+                          ? `${step.note || 'C4'}${step.duration && step.duration > 1 ? ` (${step.duration})` : ''}`
                           : 'HIT'
                         : ''}
                     </span>

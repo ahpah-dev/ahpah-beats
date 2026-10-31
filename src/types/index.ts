@@ -26,6 +26,7 @@ export interface NoteStep {
   velocity: number; // 0 to 1
   pitchOffset?: number; // semitones +/- 12
   isRoll?: boolean; // 1/32 roll
+  duration?: number; // note length in steps (1 = 16th, 2 = 8th, 4 = quarter, etc.)
 }
 
 export interface Track {

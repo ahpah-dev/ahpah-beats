@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Track, NoteStep } from '../types';
 import { SCALES } from '../audio/presets';
 import { audioEngine } from '../audio/AudioEngine';
-import { Music, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
+import { Music, ChevronUp, ChevronDown, Sparkles, Clock, Plus, Minus } from 'lucide-react';
 
 interface PianoRollProps {
   tracks: Track[];
@@ -12,7 +12,8 @@ interface PianoRollProps {
   scaleName: string;
   rootKey: string;
   onSelectTrack: (index: number) => void;
-  onSetNote: (trackIndex: number, stepIndex: number, note: string | null) => void;
+  onSetNote: (trackIndex: number, stepIndex: number, note: string | null, duration?: number) => void;
+  onResizeNote?: (trackIndex: number, stepIndex: number, duration: number) => void;
 }
 
 const ALL_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -25,10 +26,15 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
   scaleName,
   rootKey,
   onSelectTrack,
-  onSetNote
+  onSetNote,
+  onResizeNote
 }) => {
   const [octaveOffset, setOctaveOffset] = useState<number>(3); // base octave: 3 (C3 to B4)
-  const synthTracks = tracks.map((t, idx) => ({ track: t, originalIdx: idx })).filter((t) => t.track.type === 'synth');
+  const [selectedDuration, setSelectedDuration] = useState<number>(1); // 1, 2, 4, 8 steps
+
+  const synthTracks = tracks
+    .map((t, idx) => ({ track: t, originalIdx: idx }))
+    .filter((t) => t.track.type === 'synth');
 
   const currentTrack = tracks[selectedTrackIndex];
   const isSynth = currentTrack && currentTrack.type === 'synth';
@@ -57,13 +63,52 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
   const handleCellClick = (stepIdx: number, note: string) => {
     if (!currentTrack) return;
     const step = currentTrack.steps[stepIdx];
+
     if (step && step.active && step.note === note) {
-      // Toggle off
+      // If clicking head of existing note, toggle off
       onSetNote(selectedTrackIndex, stepIdx, null);
     } else {
-      // Toggle on with this note
-      onSetNote(selectedTrackIndex, stepIdx, note);
+      // Toggle on with this note and selected duration
+      onSetNote(selectedTrackIndex, stepIdx, note, selectedDuration);
       audioEngine.triggerSound(currentTrack, note, 0.85);
+    }
+  };
+
+  const handleCycleDuration = (e: React.MouseEvent, stepIdx: number) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!currentTrack) return;
+    const step = currentTrack.steps[stepIdx];
+    if (step && step.active) {
+      // Cycle: 1 -> 2 -> 4 -> 8 -> 1
+      const durations = [1, 2, 4, 8];
+      const curDur = step.duration || 1;
+      const nextIdx = (durations.indexOf(curDur) + 1) % durations.length;
+      const newDur = durations[nextIdx];
+      if (onResizeNote) {
+        onResizeNote(selectedTrackIndex, stepIdx, newDur);
+      } else {
+        onSetNote(selectedTrackIndex, stepIdx, step.note || 'C4', newDur);
+      }
+    }
+  };
+
+  const handleStepDurationAdjust = (
+    e: React.MouseEvent,
+    stepIdx: number,
+    delta: number
+  ) => {
+    e.stopPropagation();
+    if (!currentTrack) return;
+    const step = currentTrack.steps[stepIdx];
+    if (step && step.active) {
+      const curDur = step.duration || 1;
+      const newDur = Math.max(1, Math.min(16 - stepIdx, curDur + delta));
+      if (onResizeNote) {
+        onResizeNote(selectedTrackIndex, stepIdx, newDur);
+      } else {
+        onSetNote(selectedTrackIndex, stepIdx, step.note || 'C4', newDur);
+      }
     }
   };
 
@@ -94,19 +139,19 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
     <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/80 p-4 shadow-2xl flex flex-col gap-3">
       {/* Header Strip */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <Music className="w-4 h-4 text-pink-400" />
             <h3 className="text-sm font-bold text-slate-200">Piano Roll Melody Editor</h3>
           </div>
 
           {/* Synth Track Selector Tabs */}
-          <div className="flex items-center gap-1.5 bg-[#121622] p-1 rounded-xl border border-slate-800">
+          <div className="flex items-center gap-1.5 bg-[#121622] p-1 rounded-xl border border-slate-800 overflow-x-auto max-w-full">
             {synthTracks.map(({ track, originalIdx }) => (
               <button
                 key={track.id}
                 onClick={() => onSelectTrack(originalIdx)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                   selectedTrackIndex === originalIdx
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
                     : 'text-slate-400 hover:text-slate-200'
@@ -118,10 +163,36 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
           </div>
         </div>
 
-        {/* Octave Controls */}
-        <div className="flex items-center gap-2">
+        {/* Note Length & Resizing Controls */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Note Duration Picker */}
+          <div className="flex items-center gap-1 bg-[#121622] px-2.5 py-1 rounded-xl border border-slate-800 text-xs">
+            <Clock className="w-3.5 h-3.5 text-cyan-400 mr-1" />
+            <span className="text-[10px] text-slate-400 font-mono font-bold mr-1">LENGTH:</span>
+            {[
+              { steps: 1, label: '1/16' },
+              { steps: 2, label: '1/8' },
+              { steps: 4, label: '1/4' },
+              { steps: 8, label: '1/2' }
+            ].map(({ steps, label }) => (
+              <button
+                key={steps}
+                onClick={() => setSelectedDuration(steps)}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-all ${
+                  selectedDuration === steps
+                    ? 'bg-cyan-400 text-slate-950 shadow-sm shadow-cyan-400/50'
+                    : 'text-slate-400 hover:text-white bg-slate-800/60'
+                }`}
+                title={`Set new notes duration to ${steps} steps (${label})`}
+              >
+                {label} ({steps})
+              </button>
+            ))}
+          </div>
+
+          {/* Octave Controls */}
           <div className="flex items-center gap-1 bg-[#121622] px-2 py-1 rounded-xl border border-slate-800 text-xs">
-            <span className="text-[10px] text-slate-500 font-mono font-bold">OCTAVE:</span>
+            <span className="text-[10px] text-slate-500 font-mono font-bold">OCT:</span>
             <span className="text-cyan-400 font-mono font-bold">C{octaveOffset}-C{octaveOffset + 2}</span>
             <button
               onClick={() => setOctaveOffset((o) => Math.max(1, o - 1))}
@@ -139,15 +210,21 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[11px] font-mono text-cyan-400 bg-cyan-950/40 px-2.5 py-1 rounded-xl border border-cyan-800/40">
+          <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-mono text-cyan-400 bg-cyan-950/40 px-2.5 py-1 rounded-xl border border-cyan-800/40">
             <Sparkles className="w-3 h-3" />
-            <span>Scale Locked: {rootKey} {scaleName}</span>
+            <span>{rootKey} {scaleName}</span>
           </div>
         </div>
       </div>
 
+      {/* Instructions pill */}
+      <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
+        <span>Click grid to place note. Click note to delete. Right-click or use [+] / [-] on note to resize duration.</span>
+        <span className="text-cyan-400 font-mono">Active Length: {selectedDuration} {selectedDuration === 1 ? 'Step' : 'Steps'}</span>
+      </div>
+
       {/* Piano Roll Grid Container */}
-      <div className="w-full max-h-[340px] overflow-y-auto scrollbar-thin rounded-xl border border-slate-800 bg-[#080b11]">
+      <div className="w-full max-h-[360px] overflow-y-auto scrollbar-thin rounded-xl border border-slate-800 bg-[#080b11]">
         <div className="flex flex-col">
           {displayNotes.map((note) => {
             const pitchName = note.replace(/\d+/, '');
@@ -177,22 +254,42 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                 </button>
 
                 {/* 16 Step Cells */}
-                <div className="flex flex-1 items-center">
+                <div className="flex flex-1 items-center relative">
                   {Array.from({ length: 16 }).map((_, stepIdx) => {
                     const step = currentTrack.steps[stepIdx];
-                    const isActive = step && step.active && step.note === note;
+                    const isNoteHead = step && step.active && step.note === note;
                     const isCurrent = isPlaying && currentStep === stepIdx;
                     const isBeatQuarter = stepIdx % 4 === 0;
 
+                    // Check if this cell is covered by a sustained note starting at an earlier step
+                    let isSustainedTail = false;
+                    for (let prevIdx = 0; prevIdx < stepIdx; prevIdx++) {
+                      const prevStep = currentTrack.steps[prevIdx];
+                      if (
+                        prevStep &&
+                        prevStep.active &&
+                        prevStep.note === note &&
+                        prevIdx + (prevStep.duration || 1) > stepIdx
+                      ) {
+                        isSustainedTail = true;
+                        break;
+                      }
+                    }
+
+                    const noteDuration = isNoteHead ? (step?.duration || 1) : 1;
+
                     return (
-                      <button
+                      <div
                         key={stepIdx}
                         onClick={() => handleCellClick(stepIdx, note)}
-                        className={`flex-1 h-7 border-r border-slate-900/60 transition-all ${
-                          isCurrent ? 'bg-cyan-950/50' : ''
+                        onContextMenu={(e) => isNoteHead && handleCycleDuration(e, stepIdx)}
+                        className={`flex-1 h-7 border-r border-slate-900/60 transition-all relative flex items-center justify-between px-0.5 cursor-pointer ${
+                          isCurrent ? 'bg-cyan-950/40' : ''
                         } ${
-                          isActive
-                            ? 'bg-gradient-to-r from-pink-500 to-purple-500 shadow-md shadow-pink-500/30 font-bold text-[9px] text-white flex items-center justify-center'
+                          isNoteHead
+                            ? 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-md shadow-pink-500/40 text-white z-10'
+                            : isSustainedTail
+                            ? 'bg-purple-900/50 border-t border-b border-purple-500/40'
                             : isInScale
                             ? isBeatQuarter
                               ? 'hover:bg-slate-800/60 bg-slate-900/20'
@@ -201,10 +298,42 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                             ? 'hover:bg-slate-800/40 bg-slate-950/40'
                             : 'hover:bg-slate-800/30 bg-slate-950/70'
                         }`}
-                        title={`${note} at step ${stepIdx + 1}`}
+                        title={
+                          isNoteHead
+                            ? `${note} (Duration: ${noteDuration} steps) - Right click or [+] / [-] to resize`
+                            : isSustainedTail
+                            ? `${note} (Sustained tail)`
+                            : `${note} at step ${stepIdx + 1}`
+                        }
                       >
-                        {isActive && <span>♪</span>}
-                      </button>
+                        {isNoteHead && (
+                          <>
+                            <span className="text-[9px] font-mono font-bold leading-none select-none pl-0.5 truncate">
+                              ♪ {noteDuration > 1 ? `${noteDuration}` : ''}
+                            </span>
+                            {/* Inline Note Resizer Buttons */}
+                            <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={(e) => handleStepDurationAdjust(e, stepIdx, -1)}
+                                className="w-3.5 h-3.5 flex items-center justify-center rounded bg-black/40 hover:bg-black/80 text-[8px] leading-none"
+                                title="Shorten note duration (-1 step)"
+                              >
+                                -
+                              </button>
+                              <button
+                                onClick={(e) => handleStepDurationAdjust(e, stepIdx, 1)}
+                                className="w-3.5 h-3.5 flex items-center justify-center rounded bg-black/40 hover:bg-black/80 text-[8px] leading-none"
+                                title="Lengthen note duration (+1 step)"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </>
+                        )}
+                        {isSustainedTail && (
+                          <div className="w-full h-1 bg-pink-400/50 rounded-full mx-auto" />
+                        )}
+                      </div>
                     );
                   })}
                 </div>

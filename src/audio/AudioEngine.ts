@@ -377,12 +377,13 @@ export class AudioEngine {
           }
         } else {
           const note = stepData.note || 'C4';
-          const duration = (60.0 / this.bpm) * 0.45;
+          const stepBase = (60.0 / this.bpm) * 0.25;
+          const noteDuration = Math.max(0.08, (stepData.duration || 1) * stepBase * 0.95);
           this.synthVoice.playNote(
             track.sound as SynthSoundType,
             note,
             time,
-            duration,
+            noteDuration,
             vel,
             bus.gain,
             this.synthSettings,

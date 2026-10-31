@@ -181,7 +181,12 @@ export const App: React.FC = () => {
   };
 
   // Set melodic note in Piano Roll
-  const handleSetNote = (trackIndex: number, stepIndex: number, note: string | null) => {
+  const handleSetNote = (
+    trackIndex: number,
+    stepIndex: number,
+    note: string | null,
+    duration?: number
+  ) => {
     setProject((prev) => {
       const newTracks = [...prev.tracks];
       const track = { ...newTracks[trackIndex] };
@@ -194,7 +199,8 @@ export const App: React.FC = () => {
           active: true,
           note: note,
           velocity: 0.85,
-          pitchOffset: 0
+          pitchOffset: 0,
+          duration: duration || newSteps[stepIndex]?.duration || 1
         };
       }
 
@@ -202,6 +208,38 @@ export const App: React.FC = () => {
       newTracks[trackIndex] = track;
       return { ...prev, tracks: newTracks };
     });
+  };
+
+  // Resize existing note duration
+  const handleResizeNote = (trackIndex: number, stepIndex: number, duration: number) => {
+    setProject((prev) => {
+      const newTracks = [...prev.tracks];
+      const track = { ...newTracks[trackIndex] };
+      const newSteps = [...track.steps];
+      if (newSteps[stepIndex] && newSteps[stepIndex].active) {
+        newSteps[stepIndex] = {
+          ...newSteps[stepIndex],
+          duration: Math.max(1, Math.min(16 - stepIndex, duration))
+        };
+        track.steps = newSteps;
+        newTracks[trackIndex] = track;
+      }
+      return { ...prev, tracks: newTracks };
+    });
+  };
+
+  // Change Track Sound Type
+  const handleChangeTrackSound = (trackId: string, sound: any) => {
+    setProject((prev) => {
+      const newTracks = prev.tracks.map((t) => {
+        if (t.id === trackId) {
+          return { ...t, sound };
+        }
+        return t;
+      });
+      return { ...prev, tracks: newTracks };
+    });
+    showToast(`Switched synth to ${sound}! 🎹`);
   };
 
   // Track volume update
@@ -434,6 +472,13 @@ export const App: React.FC = () => {
           onRandomizeBeat={handleRandomizeBeat}
           onOpenDesktopModal={() => setIsDesktopModalOpen(true)}
           onToggleViewMode={() => setViewMode('desktop')}
+          onUpdateSynth={(syn) => {
+            setProject((p) => ({ ...p, synth: { ...p.synth, ...syn } }));
+            audioEngine.synthSettings = { ...project.synth, ...syn };
+          }}
+          onAddTrack={handleAddTrack}
+          onChangeTrackSound={handleChangeTrackSound}
+          onResizeNote={handleResizeNote}
         />
       ) : (
         <div className="flex flex-col min-h-screen">
@@ -490,6 +535,7 @@ export const App: React.FC = () => {
               rootKey={project.key}
               onSelectTrack={(i) => setSelectedTrackIndex(i)}
               onSetNote={handleSetNote}
+              onResizeNote={handleResizeNote}
             />
 
             {/* FX Rack & Sound Design */}
