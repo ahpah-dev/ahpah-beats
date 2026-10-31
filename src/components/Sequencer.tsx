@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Track, NoteStep, DrumSoundType, SynthSoundType } from '../types';
 import {
   Volume2,
@@ -10,12 +10,16 @@ import {
   SlidersHorizontal,
   Flame,
   Music,
-  Disc
+  Disc,
+  Copy,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface SequencerProps {
   tracks: Track[];
   currentStep: number;
+  stepCount: number; // 16, 32, 64, 128
   isPlaying: boolean;
   onToggleStep: (trackIndex: number, stepIndex: number) => void;
   onToggleRoll: (trackIndex: number, stepIndex: number) => void;
@@ -27,11 +31,15 @@ interface SequencerProps {
   onClearTrack: (trackIndex: number) => void;
   onAddTrack: (type: 'drum' | 'synth') => void;
   onRemoveTrack: (trackIndex: number) => void;
+  onAddBar?: () => void;
+  onDuplicateBar?: (sourceBar: number, targetBar: number) => void;
+  onChangeStepCount?: (count: number) => void;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
   tracks,
   currentStep,
+  stepCount,
   isPlaying,
   onToggleStep,
   onToggleRoll,
@@ -42,29 +50,132 @@ export const Sequencer: React.FC<SequencerProps> = ({
   onPreviewSound,
   onClearTrack,
   onAddTrack,
-  onRemoveTrack
+  onRemoveTrack,
+  onAddBar,
+  onDuplicateBar,
+  onChangeStepCount
 }) => {
-  const stepCount = 16;
+  const [activeBar, setActiveBar] = useState<number>(0);
+  const [followPlayhead, setFollowPlayhead] = useState<boolean>(false);
+  const totalBars = Math.max(1, Math.ceil(stepCount / 16));
   const anySoloActive = tracks.some((t) => t.solo);
+
+  // Auto follow playhead if active
+  useEffect(() => {
+    if (isPlaying && followPlayhead) {
+      const playingBar = Math.floor(currentStep / 16);
+      if (playingBar !== activeBar && playingBar < totalBars) {
+        setActiveBar(playingBar);
+      }
+    }
+  }, [isPlaying, currentStep, followPlayhead, activeBar, totalBars]);
 
   return (
     <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/80 p-4 shadow-2xl flex flex-col gap-3">
       {/* Sequencer Header Strip */}
-      <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+      <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 pb-3 gap-3">
         <div className="flex items-center gap-2">
           <Disc className="w-5 h-5 text-cyan-400 animate-spin-slow" />
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-200">
             Pattern Sequencer & Drum Matrix
           </h2>
-          <span className="text-[11px] text-slate-500 font-mono">16 Steps (4/4 Bar)</span>
+          <span className="text-[11px] text-cyan-400 font-mono font-bold bg-cyan-950/60 border border-cyan-800/60 px-2 py-0.5 rounded-lg">
+            {totalBars} {totalBars === 1 ? 'Bar' : 'Bars'} ({stepCount} Steps)
+          </span>
         </div>
 
-        {/* Step Indicator Numbers (1 to 16) */}
-        <div className="hidden md:flex items-center gap-1.5 ml-auto mr-4">
-          <div className="text-[10px] text-slate-500 font-mono mr-2">BAR 1:</div>
-          {Array.from({ length: stepCount }).map((_, i) => {
+        {/* Bar Selector Strip & Song Navigation */}
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full">
+          {Array.from({ length: totalBars }).map((_, barIdx) => {
+            const isPlayingBar = isPlaying && Math.floor(currentStep / 16) === barIdx;
+            const isSelected = activeBar === barIdx;
+
+            return (
+              <button
+                key={barIdx}
+                onClick={() => setActiveBar(barIdx)}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all relative ${
+                  isSelected
+                    ? 'bg-cyan-500 text-slate-950 shadow-md font-black'
+                    : 'bg-slate-800 text-slate-300 border border-slate-700/60 hover:bg-slate-700'
+                }`}
+              >
+                {isPlayingBar && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                )}
+                <span>Bar {barIdx + 1}</span>
+              </button>
+            );
+          })}
+
+          {onAddBar && (
+            <button
+              onClick={onAddBar}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-bold active:scale-95 transition-all"
+              title="Add 1 more bar (16 steps)"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Bar</span>
+            </button>
+          )}
+
+          {onDuplicateBar && totalBars > 1 && (
+            <button
+              onClick={() => {
+                const nextBar = (activeBar + 1) % totalBars;
+                onDuplicateBar(activeBar, nextBar);
+              }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+              title="Duplicate current bar notes to next bar"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              <span>Copy to Bar {((activeBar + 1) % totalBars) + 1}</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setFollowPlayhead(!followPlayhead)}
+            className={`px-2 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+              followPlayhead
+                ? 'bg-emerald-500 text-slate-950 font-black shadow-sm'
+                : 'bg-slate-800 text-slate-400 border border-slate-700/60'
+            }`}
+            title="Auto-switch view to playing bar"
+          >
+            Follow
+          </button>
+        </div>
+
+        {/* Add Track Action */}
+        <div className="flex items-center gap-1.5 ml-auto">
+          <button
+            onClick={() => onAddTrack('drum')}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Drum</span>
+          </button>
+          <button
+            onClick={() => onAddTrack('synth')}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-pink-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Synth</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Step Numbers Strip for the active bar (1-16) */}
+      <div className="flex items-center justify-between text-xs text-slate-400 px-2">
+        <span className="font-mono text-[11px] text-cyan-400">
+          Viewing Bar {activeBar + 1} (Steps {activeBar * 16 + 1}–{activeBar * 16 + 16})
+        </span>
+        <div className="hidden sm:flex items-center gap-1.5">
+          {Array.from({ length: 16 }).map((_, i) => {
+            const globalIdx = activeBar * 16 + i;
             const isBeatStart = i % 4 === 0;
-            const isCurrent = isPlaying && currentStep === i;
+            const isCurrent = isPlaying && currentStep === globalIdx;
+
             return (
               <div
                 key={i}
@@ -80,24 +191,6 @@ export const Sequencer: React.FC<SequencerProps> = ({
               </div>
             );
           })}
-        </div>
-
-        {/* Add Track Action */}
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => onAddTrack('drum')}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Drum</span>
-          </button>
-          <button
-            onClick={() => onAddTrack('synth')}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-pink-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Synth</span>
-          </button>
         </div>
       </div>
 
@@ -198,21 +291,22 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 </div>
               </div>
 
-              {/* Step Buttons (16 Steps) */}
+              {/* Step Buttons for the active bar (16 Steps) */}
               <div className="flex items-center gap-1.5 flex-1 justify-start">
-                {Array.from({ length: stepCount }).map((_, stepIdx) => {
-                  const step = track.steps[stepIdx];
+                {Array.from({ length: 16 }).map((_, localIdx) => {
+                  const globalStepIdx = activeBar * 16 + localIdx;
+                  const step = track.steps[globalStepIdx];
                   const isActive = step && step.active;
-                  const isCurrent = isPlaying && currentStep === stepIdx;
-                  const isBeatQuarter = stepIdx % 4 === 0;
+                  const isCurrent = isPlaying && currentStep === globalStepIdx;
+                  const isBeatQuarter = localIdx % 4 === 0;
 
                   return (
                     <button
-                      key={stepIdx}
-                      onClick={() => onToggleStep(trackIndex, stepIdx)}
+                      key={localIdx}
+                      onClick={() => onToggleStep(trackIndex, globalStepIdx)}
                       onContextMenu={(e) => {
                         e.preventDefault();
-                        onToggleRoll(trackIndex, stepIdx);
+                        onToggleRoll(trackIndex, globalStepIdx);
                       }}
                       className={`relative h-11 w-8 sm:w-9 rounded-lg flex flex-col items-center justify-between p-1 transition-all active:scale-95 border ${
                         isCurrent
@@ -231,7 +325,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                         backgroundColor: isActive ? track.color : undefined,
                         boxShadow: isActive ? `0 0 14px ${track.color}66` : undefined
                       }}
-                      title={`${track.name} - Step ${stepIdx + 1}${
+                      title={`${track.name} - Bar ${activeBar + 1}, Step ${localIdx + 1}${
                         step?.isRoll ? ' (1/32 Roll)' : ''
                       } (Right-click to toggle roll)`}
                     >
@@ -256,7 +350,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                           ? step.isRoll
                             ? 'ROLL'
                             : track.type === 'synth'
-                            ? step.note || 'C4'
+                            ? `${step.note || 'C4'}${step.duration && step.duration > 1 ? ` (${step.duration})` : ''}`
                             : ''
                           : ''}
                       </span>

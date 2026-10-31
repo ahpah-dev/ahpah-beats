@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ProjectData, Track, SynthSettings, SynthSoundType } from '../types';
 import { MobilePads } from './MobilePads';
 import { MobileKeys } from './MobileKeys';
+import { MobilePianoRoll } from './MobilePianoRoll';
 import { MobileXYPad } from './MobileXYPad';
 import { MobileMixer } from './MobileMixer';
 import { audioEngine } from '../audio/AudioEngine';
@@ -18,6 +19,7 @@ import {
   Monitor,
   ChevronLeft,
   ChevronRight,
+  Layers,
   Clock
 } from 'lucide-react';
 
@@ -42,10 +44,14 @@ interface MobileViewProps {
   onUpdateSynth: (synth: Partial<SynthSettings>) => void;
   onAddTrack: (type: 'drum' | 'synth') => void;
   onChangeTrackSound: (trackId: string, sound: SynthSoundType) => void;
+  onSetNote: (trackIndex: number, stepIndex: number, note: string | null, duration?: number) => void;
   onResizeNote?: (trackIndex: number, stepIndex: number, duration: number) => void;
+  onAddBar?: () => void;
+  onDuplicateBar?: (sourceBar: number, targetBar: number) => void;
+  onChangeStepCount?: (newCount: number) => void;
 }
 
-export type MobileTab = 'pads' | 'keys' | 'seq' | 'xy' | 'mix';
+export type MobileTab = 'pads' | 'keys' | 'roll' | 'seq' | 'xy' | 'mix';
 
 export const MobileView: React.FC<MobileViewProps> = ({
   project,
@@ -68,7 +74,11 @@ export const MobileView: React.FC<MobileViewProps> = ({
   onUpdateSynth,
   onAddTrack,
   onChangeTrackSound,
-  onResizeNote
+  onSetNote,
+  onResizeNote,
+  onAddBar,
+  onDuplicateBar,
+  onChangeStepCount
 }) => {
   const [activeTab, setActiveTab] = useState<MobileTab>('pads');
   const [selectedSeqTrack, setSelectedSeqTrack] = useState<number>(0);
@@ -98,7 +108,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#080a0f] text-slate-100 flex flex-col justify-between pb-28 select-none">
+    <div className="w-full min-h-screen bg-[#080a0f] text-slate-100 flex flex-col justify-between pb-24 select-none">
       {/* Mobile Top Header */}
       <header className="w-full bg-[#0b0e14]/95 backdrop-blur-md border-b border-slate-800 px-3 py-2 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-2">
@@ -116,7 +126,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
         {/* 4-Beat Light Tracker */}
         <div className="flex items-center gap-1">
           {Array.from({ length: 4 }).map((_, i) => {
-            const isCurrentBeat = isPlaying && Math.floor(currentStep / 4) === i;
+            const isCurrentBeat = isPlaying && Math.floor((currentStep % 16) / 4) === i;
             return (
               <span
                 key={i}
@@ -179,6 +189,24 @@ export const MobileView: React.FC<MobileViewProps> = ({
             onUpdateSynth={onUpdateSynth}
             onAddSynthTrack={() => onAddTrack('synth')}
             onChangeTrackSound={onChangeTrackSound}
+          />
+        )}
+
+        {activeTab === 'roll' && (
+          <MobilePianoRoll
+            tracks={project.tracks}
+            selectedTrackIndex={selectedSynthTrack}
+            currentStep={currentStep}
+            stepCount={project.stepCount}
+            isPlaying={isPlaying}
+            scaleName={project.scale}
+            rootKey={project.key}
+            onSelectTrack={(i) => setSelectedSynthTrack(i)}
+            onSetNote={onSetNote}
+            onResizeNote={onResizeNote}
+            onAddBar={onAddBar}
+            onDuplicateBar={onDuplicateBar}
+            onChangeStepCount={onChangeStepCount}
           />
         )}
 
@@ -250,7 +278,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                 const track = project.tracks[selectedSeqTrack];
                 const step = track?.steps[stepIdx];
                 const isActive = step && step.active;
-                const isCurrent = isPlaying && currentStep === stepIdx;
+                const isCurrent = isPlaying && (currentStep % 16) === stepIdx;
                 const isBeatQuarter = stepIdx % 4 === 0;
 
                 return (
@@ -313,16 +341,17 @@ export const MobileView: React.FC<MobileViewProps> = ({
             onSaveProject={onSaveProject}
             onOpenDesktopModal={onOpenDesktopModal}
             onRandomizeBeat={onRandomizeBeat}
+            onChangeStepCount={onChangeStepCount}
           />
         )}
       </main>
 
-      {/* Tactile Mobile Bottom Navigation Bar */}
+      {/* Tactile Mobile Bottom Navigation Bar with dedicated Piano Roll tab */}
       <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#0b0e14]/95 backdrop-blur-lg border-t border-slate-800/90 flex items-center justify-around px-2 z-50">
         <button
           onClick={() => setActiveTab('pads')}
           className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'pads' ? 'text-cyan-400' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'pads' ? 'text-cyan-400 font-bold' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <Flame className="w-5 h-5" />
@@ -332,7 +361,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
         <button
           onClick={() => setActiveTab('keys')}
           className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'keys' ? 'text-pink-400' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'keys' ? 'text-pink-400 font-bold' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <Music className="w-5 h-5" />
@@ -340,9 +369,19 @@ export const MobileView: React.FC<MobileViewProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveTab('roll')}
+          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+            activeTab === 'roll' ? 'text-purple-400 font-bold' : 'text-slate-500 hover:text-slate-300'
+          }`}
+        >
+          <Layers className="w-5 h-5" />
+          <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-mono">Roll</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('seq')}
           className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'seq' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'seq' ? 'text-emerald-400 font-bold' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <Disc className="w-5 h-5" />
@@ -352,7 +391,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
         <button
           onClick={() => setActiveTab('xy')}
           className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'xy' ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'xy' ? 'text-amber-400 font-bold' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <Zap className="w-5 h-5" />
@@ -362,7 +401,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
         <button
           onClick={() => setActiveTab('mix')}
           className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'mix' ? 'text-indigo-400' : 'text-slate-500 hover:text-slate-300'
+            activeTab === 'mix' ? 'text-indigo-400 font-bold' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
           <Sliders className="w-5 h-5" />

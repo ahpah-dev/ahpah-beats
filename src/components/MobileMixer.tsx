@@ -21,6 +21,7 @@ interface MobileMixerProps {
   onSaveProject: () => void;
   onOpenDesktopModal: () => void;
   onRandomizeBeat: () => void;
+  onChangeStepCount?: (newCount: number) => void;
 }
 
 export const MobileMixer: React.FC<MobileMixerProps> = ({
@@ -32,7 +33,8 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
   onExportWav,
   onSaveProject,
   onOpenDesktopModal,
-  onRandomizeBeat
+  onRandomizeBeat,
+  onChangeStepCount
 }) => {
   const anySoloActive = project.tracks.some((t) => t.solo);
 
@@ -56,6 +58,41 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
           <span>AI Randomizer</span>
         </button>
       </div>
+
+      {/* Song Length / Bars Selector */}
+      {onChangeStepCount && (
+        <div className="bg-[#121622] p-3 rounded-xl border border-slate-800 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+              <Layers className="w-4 h-4 text-cyan-400" />
+              <span>Song Length (Bars)</span>
+            </div>
+            <span className="text-[10px] font-mono text-cyan-400">
+              {project.stepCount} Steps
+            </span>
+          </div>
+          <div className="grid grid-cols-4 gap-1.5">
+            {[
+              { count: 16, label: '1 Bar' },
+              { count: 32, label: '2 Bars' },
+              { count: 64, label: '4 Bars' },
+              { count: 128, label: '8 Bars' }
+            ].map(({ count, label }) => (
+              <button
+                key={count}
+                onClick={() => onChangeStepCount(count)}
+                className={`py-1.5 rounded-lg text-xs font-mono font-bold transition-all active:scale-95 ${
+                  project.stepCount === count
+                    ? 'bg-cyan-500 text-slate-950 font-black shadow-md'
+                    : 'bg-slate-800 text-slate-300 border border-slate-700/60'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Preset Selector */}
       <div className="bg-[#121622] p-3 rounded-xl border border-slate-800 flex flex-col gap-2">

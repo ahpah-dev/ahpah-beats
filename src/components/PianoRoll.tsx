@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Track, NoteStep } from '../types';
 import { SCALES } from '../audio/presets';
 import { audioEngine } from '../audio/AudioEngine';
-import { Music, ChevronUp, ChevronDown, Sparkles, Clock, Plus, Minus } from 'lucide-react';
+import {
+  Music,
+  ChevronUp,
+  ChevronDown,
+  Sparkles,
+  Clock,
+  Plus,
+  Minus,
+  Copy,
+  Layers
+} from 'lucide-react';
 
 interface PianoRollProps {
   tracks: Track[];
   selectedTrackIndex: number;
   currentStep: number;
+  stepCount: number; // e.g. 16, 32, 64, 128
   isPlaying: boolean;
   scaleName: string;
   rootKey: string;
   onSelectTrack: (index: number) => void;
   onSetNote: (trackIndex: number, stepIndex: number, note: string | null, duration?: number) => void;
   onResizeNote?: (trackIndex: number, stepIndex: number, duration: number) => void;
+  onAddBar?: () => void;
+  onDuplicateBar?: (sourceBar: number, targetBar: number) => void;
 }
 
 const ALL_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -22,15 +35,20 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
   tracks,
   selectedTrackIndex,
   currentStep,
+  stepCount,
   isPlaying,
   scaleName,
   rootKey,
   onSelectTrack,
   onSetNote,
-  onResizeNote
+  onResizeNote,
+  onAddBar,
+  onDuplicateBar
 }) => {
   const [octaveOffset, setOctaveOffset] = useState<number>(3); // base octave: 3 (C3 to B4)
   const [selectedDuration, setSelectedDuration] = useState<number>(1); // 1, 2, 4, 8 steps
+  const [activeBar, setActiveBar] = useState<number>(0);
+  const [followPlayhead, setFollowPlayhead] = useState<boolean>(false);
 
   const synthTracks = tracks
     .map((t, idx) => ({ track: t, originalIdx: idx }))
@@ -38,6 +56,17 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
 
   const currentTrack = tracks[selectedTrackIndex];
   const isSynth = currentTrack && currentTrack.type === 'synth';
+  const totalBars = Math.max(1, Math.ceil(stepCount / 16));
+
+  // Follow playhead if enabled
+  useEffect(() => {
+    if (isPlaying && followPlayhead) {
+      const playingBar = Math.floor(currentStep / 16);
+      if (playingBar !== activeBar && playingBar < totalBars) {
+        setActiveBar(playingBar);
+      }
+    }
+  }, [isPlaying, currentStep, followPlayhead, activeBar, totalBars]);
 
   // Build 2 octaves of notes from top to bottom (e.g. B4 down to C3)
   const displayNotes: string[] = [];
@@ -60,54 +89,54 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
     }
   };
 
-  const handleCellClick = (stepIdx: number, note: string) => {
+  const handleCellClick = (localStepIdx: number, note: string) => {
     if (!currentTrack) return;
-    const step = currentTrack.steps[stepIdx];
+    const globalStepIdx = activeBar * 16 + localStepIdx;
+    const step = currentTrack.steps[globalStepIdx];
 
     if (step && step.active && step.note === note) {
       // If clicking head of existing note, toggle off
-      onSetNote(selectedTrackIndex, stepIdx, null);
+      onSetNote(selectedTrackIndex, globalStepIdx, null);
     } else {
       // Toggle on with this note and selected duration
-      onSetNote(selectedTrackIndex, stepIdx, note, selectedDuration);
+      onSetNote(selectedTrackIndex, globalStepIdx, note, selectedDuration);
       audioEngine.triggerSound(currentTrack, note, 0.85);
     }
   };
 
-  const handleCycleDuration = (e: React.MouseEvent, stepIdx: number) => {
+  const handleCycleDuration = (e: React.MouseEvent, globalStepIdx: number) => {
     e.stopPropagation();
     e.preventDefault();
     if (!currentTrack) return;
-    const step = currentTrack.steps[stepIdx];
+    const step = currentTrack.steps[globalStepIdx];
     if (step && step.active) {
-      // Cycle: 1 -> 2 -> 4 -> 8 -> 1
       const durations = [1, 2, 4, 8];
       const curDur = step.duration || 1;
       const nextIdx = (durations.indexOf(curDur) + 1) % durations.length;
       const newDur = durations[nextIdx];
       if (onResizeNote) {
-        onResizeNote(selectedTrackIndex, stepIdx, newDur);
+        onResizeNote(selectedTrackIndex, globalStepIdx, newDur);
       } else {
-        onSetNote(selectedTrackIndex, stepIdx, step.note || 'C4', newDur);
+        onSetNote(selectedTrackIndex, globalStepIdx, step.note || 'C4', newDur);
       }
     }
   };
 
   const handleStepDurationAdjust = (
     e: React.MouseEvent,
-    stepIdx: number,
+    globalStepIdx: number,
     delta: number
   ) => {
     e.stopPropagation();
     if (!currentTrack) return;
-    const step = currentTrack.steps[stepIdx];
+    const step = currentTrack.steps[globalStepIdx];
     if (step && step.active) {
       const curDur = step.duration || 1;
-      const newDur = Math.max(1, Math.min(16 - stepIdx, curDur + delta));
+      const newDur = Math.max(1, Math.min(16 - (globalStepIdx % 16), curDur + delta));
       if (onResizeNote) {
-        onResizeNote(selectedTrackIndex, stepIdx, newDur);
+        onResizeNote(selectedTrackIndex, globalStepIdx, newDur);
       } else {
-        onSetNote(selectedTrackIndex, stepIdx, step.note || 'C4', newDur);
+        onSetNote(selectedTrackIndex, globalStepIdx, step.note || 'C4', newDur);
       }
     }
   };
@@ -161,6 +190,68 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Bar Selector Strip & Song Navigation */}
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          {Array.from({ length: totalBars }).map((_, barIdx) => {
+            const isPlayingBar = isPlaying && Math.floor(currentStep / 16) === barIdx;
+            const isSelected = activeBar === barIdx;
+
+            return (
+              <button
+                key={barIdx}
+                onClick={() => setActiveBar(barIdx)}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all relative ${
+                  isSelected
+                    ? 'bg-cyan-500 text-slate-950 shadow-md font-black'
+                    : 'bg-slate-800 text-slate-300 border border-slate-700/60 hover:bg-slate-700'
+                }`}
+              >
+                {isPlayingBar && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                )}
+                <span>Bar {barIdx + 1}</span>
+              </button>
+            );
+          })}
+
+          {onAddBar && (
+            <button
+              onClick={onAddBar}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-bold active:scale-95 transition-all"
+              title="Add 1 more bar (16 steps)"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Bar</span>
+            </button>
+          )}
+
+          {onDuplicateBar && totalBars > 1 && (
+            <button
+              onClick={() => {
+                const nextBar = (activeBar + 1) % totalBars;
+                onDuplicateBar(activeBar, nextBar);
+              }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+              title="Duplicate current bar notes to next bar"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              <span>Copy Bar</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setFollowPlayhead(!followPlayhead)}
+            className={`px-2 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+              followPlayhead
+                ? 'bg-emerald-500 text-slate-950 font-black shadow-sm'
+                : 'bg-slate-800 text-slate-400 border border-slate-700/60'
+            }`}
+            title="Auto-switch view to playing bar"
+          >
+            Follow
+          </button>
         </div>
 
         {/* Note Length & Resizing Controls */}
@@ -218,9 +309,9 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
       </div>
 
       {/* Instructions pill */}
-      <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
-        <span>Click grid to place note. Click note to delete. Right-click or use [+] / [-] on note to resize duration.</span>
-        <span className="text-cyan-400 font-mono">Active Length: {selectedDuration} {selectedDuration === 1 ? 'Step' : 'Steps'}</span>
+      <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 font-mono">
+        <span>Editing Bar {activeBar + 1} (Steps {activeBar * 16 + 1}–{activeBar * 16 + 16}). Click to place note. Right-click or use [+] / [-] on note to resize duration.</span>
+        <span className="text-cyan-400">Total Song Steps: {stepCount}</span>
       </div>
 
       {/* Piano Roll Grid Container */}
@@ -253,26 +344,29 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                   )}
                 </button>
 
-                {/* 16 Step Cells */}
+                {/* 16 Step Cells for the active bar */}
                 <div className="flex flex-1 items-center relative">
-                  {Array.from({ length: 16 }).map((_, stepIdx) => {
-                    const step = currentTrack.steps[stepIdx];
+                  {Array.from({ length: 16 }).map((_, localStepIdx) => {
+                    const globalStepIdx = activeBar * 16 + localStepIdx;
+                    const step = currentTrack.steps[globalStepIdx];
                     const isNoteHead = step && step.active && step.note === note;
-                    const isCurrent = isPlaying && currentStep === stepIdx;
-                    const isBeatQuarter = stepIdx % 4 === 0;
+                    const isCurrent = isPlaying && currentStep === globalStepIdx;
+                    const isBeatQuarter = localStepIdx % 4 === 0;
 
-                    // Check if this cell is covered by a sustained note starting at an earlier step
+                    // Check if this cell is covered by a sustained note starting earlier
                     let isSustainedTail = false;
-                    for (let prevIdx = 0; prevIdx < stepIdx; prevIdx++) {
-                      const prevStep = currentTrack.steps[prevIdx];
-                      if (
-                        prevStep &&
-                        prevStep.active &&
-                        prevStep.note === note &&
-                        prevIdx + (prevStep.duration || 1) > stepIdx
-                      ) {
-                        isSustainedTail = true;
-                        break;
+                    if (!isNoteHead && currentTrack) {
+                      for (let prevIdx = Math.max(0, globalStepIdx - 15); prevIdx < globalStepIdx; prevIdx++) {
+                        const prevStep = currentTrack.steps[prevIdx];
+                        if (
+                          prevStep &&
+                          prevStep.active &&
+                          prevStep.note === note &&
+                          prevIdx + (prevStep.duration || 1) > globalStepIdx
+                        ) {
+                          isSustainedTail = true;
+                          break;
+                        }
                       }
                     }
 
@@ -280,9 +374,9 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
 
                     return (
                       <div
-                        key={stepIdx}
-                        onClick={() => handleCellClick(stepIdx, note)}
-                        onContextMenu={(e) => isNoteHead && handleCycleDuration(e, stepIdx)}
+                        key={localStepIdx}
+                        onClick={() => handleCellClick(localStepIdx, note)}
+                        onContextMenu={(e) => isNoteHead && handleCycleDuration(e, globalStepIdx)}
                         className={`flex-1 h-7 border-r border-slate-900/60 transition-all relative flex items-center justify-between px-0.5 cursor-pointer ${
                           isCurrent ? 'bg-cyan-950/40' : ''
                         } ${
@@ -300,10 +394,10 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                         }`}
                         title={
                           isNoteHead
-                            ? `${note} (Duration: ${noteDuration} steps) - Right click or [+] / [-] to resize`
+                            ? `${note} (Bar ${activeBar + 1}, Duration: ${noteDuration} steps) - Right click or [+] / [-] to resize`
                             : isSustainedTail
                             ? `${note} (Sustained tail)`
-                            : `${note} at step ${stepIdx + 1}`
+                            : `${note} at Bar ${activeBar + 1}, Step ${localStepIdx + 1}`
                         }
                       >
                         {isNoteHead && (
@@ -314,14 +408,14 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                             {/* Inline Note Resizer Buttons */}
                             <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
                               <button
-                                onClick={(e) => handleStepDurationAdjust(e, stepIdx, -1)}
+                                onClick={(e) => handleStepDurationAdjust(e, globalStepIdx, -1)}
                                 className="w-3.5 h-3.5 flex items-center justify-center rounded bg-black/40 hover:bg-black/80 text-[8px] leading-none"
                                 title="Shorten note duration (-1 step)"
                               >
                                 -
                               </button>
                               <button
-                                onClick={(e) => handleStepDurationAdjust(e, stepIdx, 1)}
+                                onClick={(e) => handleStepDurationAdjust(e, globalStepIdx, 1)}
                                 className="w-3.5 h-3.5 flex items-center justify-center rounded bg-black/40 hover:bg-black/80 text-[8px] leading-none"
                                 title="Lengthen note duration (+1 step)"
                               >

@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ProjectData, Track, EffectsSettings, SynthSettings } from './types';
 import { audioEngine } from './audio/AudioEngine';
-import { PRESET_PROJECTS, SCALES } from './audio/presets';
+import {
+  PRESET_PROJECTS,
+  SCALES,
+  ensureStepsLength,
+  duplicateBarInTrack,
+  clearBarInTrack
+} from './audio/presets';
 import { WavExporter } from './audio/WavExporter';
 import { Header } from './components/Header';
 import { Visualizer } from './components/Visualizer';
@@ -242,6 +248,54 @@ export const App: React.FC = () => {
     showToast(`Switched synth to ${sound}! 🎹`);
   };
 
+  // Change Step Count / Song Length (e.g. 16, 32, 64, 128 steps)
+  const handleChangeStepCount = (newCount: number) => {
+    setProject((prev) => {
+      const newTracks = prev.tracks.map((track) => ({
+        ...track,
+        steps: ensureStepsLength(track.steps, newCount, true)
+      }));
+      return {
+        ...prev,
+        stepCount: newCount,
+        tracks: newTracks
+      };
+    });
+    const bars = Math.round(newCount / 16);
+    showToast(`Song length set to ${bars} ${bars === 1 ? 'Bar' : 'Bars'} (${newCount} steps)! 🎶`);
+  };
+
+  // Add 1 more Bar (16 steps)
+  const handleAddBar = () => {
+    setProject((prev) => {
+      const nextCount = Math.min(256, prev.stepCount + 16);
+      const newTracks = prev.tracks.map((track) => ({
+        ...track,
+        steps: ensureStepsLength(track.steps, nextCount, true)
+      }));
+      return {
+        ...prev,
+        stepCount: nextCount,
+        tracks: newTracks
+      };
+    });
+    showToast(`Added another bar! 🚀`);
+  };
+
+  // Duplicate Bar (sourceBar -> targetBar)
+  const handleDuplicateBar = (sourceBar: number, targetBar: number) => {
+    setProject((prev) => {
+      const newTracks = prev.tracks.map((track) =>
+        duplicateBarInTrack(track, sourceBar, targetBar)
+      );
+      return {
+        ...prev,
+        tracks: newTracks
+      };
+    });
+    showToast(`Copied Bar ${sourceBar + 1} to Bar ${targetBar + 1}! ✨`);
+  };
+
   // Track volume update
   const handleUpdateTrackVolume = (trackIndex: number, volume: number) => {
     setProject((prev) => {
@@ -478,7 +532,11 @@ export const App: React.FC = () => {
           }}
           onAddTrack={handleAddTrack}
           onChangeTrackSound={handleChangeTrackSound}
+          onSetNote={handleSetNote}
           onResizeNote={handleResizeNote}
+          onAddBar={handleAddBar}
+          onDuplicateBar={handleDuplicateBar}
+          onChangeStepCount={handleChangeStepCount}
         />
       ) : (
         <div className="flex flex-col min-h-screen">
@@ -501,6 +559,7 @@ export const App: React.FC = () => {
             viewMode={viewMode}
             onToggleViewMode={() => setViewMode('mobile')}
             onKeyScaleChange={handleKeyScaleChange}
+            onChangeStepCount={handleChangeStepCount}
           />
 
           {/* Studio Workspace Content */}
@@ -512,6 +571,7 @@ export const App: React.FC = () => {
             <Sequencer
               tracks={project.tracks}
               currentStep={currentStep}
+              stepCount={project.stepCount}
               isPlaying={isPlaying}
               onToggleStep={handleToggleStep}
               onToggleRoll={handleToggleRoll}
@@ -523,6 +583,9 @@ export const App: React.FC = () => {
               onClearTrack={handleClearTrack}
               onAddTrack={handleAddTrack}
               onRemoveTrack={handleRemoveTrack}
+              onAddBar={handleAddBar}
+              onDuplicateBar={handleDuplicateBar}
+              onChangeStepCount={handleChangeStepCount}
             />
 
             {/* Piano Roll Melodic Note Editor */}
@@ -530,12 +593,15 @@ export const App: React.FC = () => {
               tracks={project.tracks}
               selectedTrackIndex={selectedTrackIndex}
               currentStep={currentStep}
+              stepCount={project.stepCount}
               isPlaying={isPlaying}
               scaleName={project.scale}
               rootKey={project.key}
               onSelectTrack={(i) => setSelectedTrackIndex(i)}
               onSetNote={handleSetNote}
               onResizeNote={handleResizeNote}
+              onAddBar={handleAddBar}
+              onDuplicateBar={handleDuplicateBar}
             />
 
             {/* FX Rack & Sound Design */}

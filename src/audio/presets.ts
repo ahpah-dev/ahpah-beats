@@ -13,8 +13,58 @@ function emptySteps(count: number = 16): NoteStep[] {
   return Array.from({ length: count }, () => ({
     active: false,
     velocity: 0.85,
-    pitchOffset: 0
+    pitchOffset: 0,
+    duration: 1
   }));
+}
+
+export function ensureStepsLength(
+  steps: NoteStep[],
+  targetCount: number,
+  duplicateFirstBar: boolean = true
+): NoteStep[] {
+  if (steps.length >= targetCount) {
+    return steps.slice(0, targetCount);
+  }
+  const result = [...steps];
+  const firstBar = steps.slice(0, 16);
+  while (result.length < targetCount) {
+    const nextSteps = duplicateFirstBar && firstBar.length === 16
+      ? firstBar.map((s) => ({ ...s }))
+      : emptySteps(16);
+    result.push(...nextSteps);
+  }
+  return result.slice(0, targetCount);
+}
+
+export function duplicateBarInTrack(
+  track: Track,
+  sourceBar: number,
+  targetBar: number
+): Track {
+  const steps = [...track.steps];
+  const sourceStart = sourceBar * 16;
+  const targetStart = targetBar * 16;
+  // Ensure steps has enough length
+  while (steps.length < targetStart + 16) {
+    steps.push({ active: false, velocity: 0.85, duration: 1 });
+  }
+  for (let i = 0; i < 16; i++) {
+    const srcStep = steps[sourceStart + i] || { active: false, velocity: 0.85, duration: 1 };
+    steps[targetStart + i] = { ...srcStep };
+  }
+  return { ...track, steps };
+}
+
+export function clearBarInTrack(track: Track, barIndex: number): Track {
+  const steps = [...track.steps];
+  const start = barIndex * 16;
+  for (let i = 0; i < 16; i++) {
+    if (start + i < steps.length) {
+      steps[start + i] = { active: false, velocity: 0.85, duration: 1 };
+    }
+  }
+  return { ...track, steps };
 }
 
 function createPattern(

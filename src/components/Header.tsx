@@ -36,6 +36,7 @@ interface HeaderProps {
   viewMode: 'desktop' | 'mobile';
   onToggleViewMode: () => void;
   onKeyScaleChange: (key: string, scale: string) => void;
+  onChangeStepCount?: (stepCount: number) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -55,7 +56,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenDesktopModal,
   viewMode,
   onToggleViewMode,
-  onKeyScaleChange
+  onKeyScaleChange,
+  onChangeStepCount
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [tapTimes, setTapTimes] = useState<number[]>([]);
@@ -212,6 +214,32 @@ export const Header: React.FC<HeaderProps> = ({
           </select>
         </div>
 
+        {/* Song Length / Bars Selector */}
+        {onChangeStepCount && (
+          <div className="hidden xl:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs">
+            <span className="text-[10px] text-slate-500 font-mono font-bold">LENGTH:</span>
+            {[
+              { count: 16, label: '1 Bar' },
+              { count: 32, label: '2 Bars' },
+              { count: 64, label: '4 Bars' },
+              { count: 128, label: '8 Bars' }
+            ].map(({ count, label }) => (
+              <button
+                key={count}
+                onClick={() => onChangeStepCount(count)}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-all ${
+                  project.stepCount === count
+                    ? 'bg-cyan-400 text-slate-950 shadow-sm shadow-cyan-400/50'
+                    : 'text-slate-400 hover:text-white bg-slate-800/60'
+                }`}
+                title={`Set song length to ${label} (${count} steps)`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Key & Scale */}
         <div className="hidden lg:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs">
           <span className="text-[10px] text-slate-500 font-mono font-bold">SCALE:</span>
@@ -238,6 +266,32 @@ export const Header: React.FC<HeaderProps> = ({
             ))}
           </select>
         </div>
+
+        {/* Song Length / Bars Selector */}
+        {onChangeStepCount && (
+          <div className="hidden xl:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs">
+            <span className="text-[10px] text-slate-500 font-mono font-bold">LENGTH:</span>
+            {[
+              { count: 16, label: '1 Bar' },
+              { count: 32, label: '2 Bars' },
+              { count: 64, label: '4 Bars' },
+              { count: 128, label: '8 Bars' }
+            ].map(({ count, label }) => (
+              <button
+                key={count}
+                onClick={() => onChangeStepCount(count)}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-all ${
+                  project.stepCount === count
+                    ? 'bg-cyan-400 text-slate-950 shadow-sm shadow-cyan-400/50'
+                    : 'text-slate-400 hover:text-white bg-slate-800/60'
+                }`}
+                title={`Set song length to ${label} (${count} steps)`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Randomize / AI Beat */}
         <button
