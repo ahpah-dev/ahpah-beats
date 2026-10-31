@@ -55,11 +55,11 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
             <div>
               <div className="text-sm font-bold text-pink-300">Windows Standalone Installer</div>
               <div className="text-xs text-slate-300 mt-0.5">
-                Version 1.0.0 • 64-bit Windows (.exe) • Offline Studio
+                Version 1.0.3 • 64-bit Windows (.exe) • Offline Studio
               </div>
             </div>
             <a
-              href={`${repoUrl}/releases/download/v1.0.0/AhPah-Beats-Setup-1.0.0.exe`}
+              href={`${repoUrl}/releases/latest`}
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-pink-500/30 transition-all active:scale-95 whitespace-nowrap"

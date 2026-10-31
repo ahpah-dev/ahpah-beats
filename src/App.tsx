@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ProjectData, Track, EffectsSettings, SynthSettings } from './types';
 import { audioEngine } from './audio/AudioEngine';
 import {
@@ -19,11 +19,36 @@ import { DesktopModal } from './components/DesktopModal';
 import confetti from 'canvas-confetti';
 import { Sparkles, CheckCircle2, Music2 } from 'lucide-react';
 
+const STORAGE_KEY = 'ahpah_beats_autosave';
+
 export const App: React.FC = () => {
-  // Initial project state from the Cyber Trap preset
+  // Initial project state: restore previous session from localStorage if available, or Cyber Trap
   const [project, setProject] = useState<ProjectData>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.tracks) && parsed.tracks.length > 0 && parsed.bpm) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not restore saved session', e);
+    }
     return JSON.parse(JSON.stringify(PRESET_PROJECTS['Cyber Trap']));
   });
+
+  // Undo & Redo History Stacks
+  const [undoStack, setUndoStack] = useState<ProjectData[]>([]);
+  const [redoStack, setRedoStack] = useState<ProjectData[]>([]);
+
+  // Synchronous refs to prevent stale closure in hot shortcuts & event listeners
+  const projectRef = useRef<ProjectData>(project);
+  projectRef.current = project;
+  const undoStackRef = useRef<ProjectData[]>(undoStack);
+  undoStackRef.current = undoStack;
+  const redoStackRef = useRef<ProjectData[]>(redoStack);
+  redoStackRef.current = redoStack;
 
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -44,6 +69,74 @@ export const App: React.FC = () => {
     }, 3000);
   };
 
+  // Notify user if session was restored
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(STORAGE_KEY)) {
+        showToast('Restored previous project session! 🎧 (Undo enabled)');
+      }
+    } catch (e) {}
+  }, []);
+
+  // Auto-save project to localStorage (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(project));
+      } catch (e) {
+        console.warn('Auto-save failed:', e);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [project]);
+
+  // History recorder: captures state before any modification
+  const pushToHistory = useCallback(() => {
+    try {
+      const snapshot: ProjectData = JSON.parse(JSON.stringify(projectRef.current));
+      setUndoStack((prev) => {
+        const next = [...prev, snapshot];
+        if (next.length > 50) next.shift(); // keep 50 states
+        return next;
+      });
+      setRedoStack([]); // New action invalidates future redo branch
+    } catch (e) {
+      console.error('Push history error:', e);
+    }
+  }, []);
+
+  // Undo Handler
+  const handleUndo = useCallback(() => {
+    if (undoStackRef.current.length === 0) {
+      showToast('Nothing to undo');
+      return;
+    }
+    const stack = [...undoStackRef.current];
+    const previous = stack.pop()!;
+    const currentSnapshot: ProjectData = JSON.parse(JSON.stringify(projectRef.current));
+
+    setRedoStack((prev) => [...prev, currentSnapshot]);
+    setUndoStack(stack);
+    setProject(previous);
+    showToast('↩️ Undone');
+  }, []);
+
+  // Redo Handler
+  const handleRedo = useCallback(() => {
+    if (redoStackRef.current.length === 0) {
+      showToast('Nothing to redo');
+      return;
+    }
+    const stack = [...redoStackRef.current];
+    const next = stack.pop()!;
+    const currentSnapshot: ProjectData = JSON.parse(JSON.stringify(projectRef.current));
+
+    setUndoStack((prev) => [...prev, currentSnapshot]);
+    setRedoStack(stack);
+    setProject(next);
+    showToast('↪️ Redone');
+  }, []);
+
   // Sync project tracks and effects to audioEngine
   useEffect(() => {
     audioEngine.setTracks(project.tracks);
@@ -62,32 +155,6 @@ export const App: React.FC = () => {
     return unsub;
   }, []);
 
-  // Listen to keyboard shortcuts (Space bar for Play/Pause)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) {
-        return;
-      }
-      if (e.code === 'Space') {
-        e.preventDefault();
-        handlePlayToggle();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, project]);
-
-  // Handle window resize to auto-suggest layout if not manually toggled
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 820 && viewMode === 'desktop') {
-        // can stay or switch
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [viewMode]);
-
   // Play / Pause toggle
   const handlePlayToggle = useCallback(() => {
     if (isPlaying) {
@@ -105,6 +172,57 @@ export const App: React.FC = () => {
     setIsPlaying(false);
     setCurrentStep(0);
   }, []);
+
+  // Listen to keyboard shortcuts (Space bar for Play/Pause, Ctrl+Z for Undo, Ctrl+Y for Redo)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLSelectElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      const isCmdOrCtrl = e.ctrlKey || e.metaKey;
+
+      // Undo: Ctrl+Z or Cmd+Z (without shift)
+      if (isCmdOrCtrl && !e.shiftKey && (e.key === 'z' || e.key === 'Z' || e.code === 'KeyZ')) {
+        e.preventDefault();
+        handleUndo();
+        return;
+      }
+
+      // Redo: Ctrl+Y, Cmd+Y, or Ctrl+Shift+Z, Cmd+Shift+Z
+      if (
+        (isCmdOrCtrl && (e.key === 'y' || e.key === 'Y' || e.code === 'KeyY')) ||
+        (isCmdOrCtrl && e.shiftKey && (e.key === 'z' || e.key === 'Z' || e.code === 'KeyZ'))
+      ) {
+        e.preventDefault();
+        handleRedo();
+        return;
+      }
+
+      // Space bar for Play/Pause
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handlePlayToggle();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, handleRedo, handlePlayToggle]);
+
+  // Handle window resize to auto-suggest layout if not manually toggled
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 820 && viewMode === 'desktop') {
+        // can stay or switch
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [viewMode]);
 
   // BPM change
   const handleBpmChange = (bpm: number) => {
@@ -129,23 +247,28 @@ export const App: React.FC = () => {
   const handleSelectPreset = (presetName: string) => {
     const preset = PRESET_PROJECTS[presetName];
     if (preset) {
+      pushToHistory();
       const cloned = JSON.parse(JSON.stringify(preset));
       setProject(cloned);
       if (isPlaying) {
         audioEngine.stop();
         setIsPlaying(false);
       }
-      showToast(`Loaded "${presetName}" preset! 🎵`);
+      showToast(`Loaded "${presetName}" preset! 🎵 (Undo with Ctrl+Z)`);
     }
   };
 
   // Toggle Sequencer Step
   const handleToggleStep = (trackIndex: number, stepIndex: number) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = [...prev.tracks];
       const track = { ...newTracks[trackIndex] };
       const newSteps = [...track.steps];
-      const curStep = newSteps[stepIndex] || { active: false, velocity: 0.85, pitchOffset: 0 };
+      while (newSteps.length <= stepIndex) {
+        newSteps.push({ active: false, velocity: 0.85, pitchOffset: 0, duration: 1 });
+      }
+      const curStep = newSteps[stepIndex] || { active: false, velocity: 0.85, pitchOffset: 0, duration: 1 };
 
       newSteps[stepIndex] = {
         ...curStep,
@@ -167,11 +290,15 @@ export const App: React.FC = () => {
 
   // Toggle Roll (1/32 repeat) on step
   const handleToggleRoll = (trackIndex: number, stepIndex: number) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = [...prev.tracks];
       const track = { ...newTracks[trackIndex] };
       const newSteps = [...track.steps];
-      const curStep = newSteps[stepIndex] || { active: false, velocity: 0.85 };
+      while (newSteps.length <= stepIndex) {
+        newSteps.push({ active: false, velocity: 0.85, pitchOffset: 0, duration: 1 });
+      }
+      const curStep = newSteps[stepIndex] || { active: false, velocity: 0.85, duration: 1 };
 
       newSteps[stepIndex] = {
         ...curStep,
@@ -193,13 +320,17 @@ export const App: React.FC = () => {
     note: string | null,
     duration?: number
   ) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = [...prev.tracks];
       const track = { ...newTracks[trackIndex] };
       const newSteps = [...track.steps];
+      while (newSteps.length <= stepIndex) {
+        newSteps.push({ active: false, velocity: 0.85, pitchOffset: 0, duration: 1 });
+      }
 
       if (note === null) {
-        newSteps[stepIndex] = { active: false, velocity: 0.85 };
+        newSteps[stepIndex] = { active: false, velocity: 0.85, duration: 1 };
       } else {
         newSteps[stepIndex] = {
           active: true,
@@ -218,6 +349,7 @@ export const App: React.FC = () => {
 
   // Resize existing note duration
   const handleResizeNote = (trackIndex: number, stepIndex: number, duration: number) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = [...prev.tracks];
       const track = { ...newTracks[trackIndex] };
@@ -225,7 +357,7 @@ export const App: React.FC = () => {
       if (newSteps[stepIndex] && newSteps[stepIndex].active) {
         newSteps[stepIndex] = {
           ...newSteps[stepIndex],
-          duration: Math.max(1, Math.min(16 - stepIndex, duration))
+          duration: Math.max(1, Math.min(16 - (stepIndex % 16), duration))
         };
         track.steps = newSteps;
         newTracks[trackIndex] = track;
@@ -236,6 +368,7 @@ export const App: React.FC = () => {
 
   // Change Track Sound Type
   const handleChangeTrackSound = (trackId: string, sound: any) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = prev.tracks.map((t) => {
         if (t.id === trackId) {
@@ -249,11 +382,13 @@ export const App: React.FC = () => {
   };
 
   // Change Step Count / Song Length (e.g. 16, 32, 64, 128 steps)
+  // Preserves existing notes completely without truncation or overwriting!
   const handleChangeStepCount = (newCount: number) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = prev.tracks.map((track) => ({
         ...track,
-        steps: ensureStepsLength(track.steps, newCount, true)
+        steps: ensureStepsLength(track.steps, newCount, false)
       }));
       return {
         ...prev,
@@ -267,11 +402,12 @@ export const App: React.FC = () => {
 
   // Add 1 more Bar (16 steps)
   const handleAddBar = () => {
+    pushToHistory();
     setProject((prev) => {
       const nextCount = Math.min(256, prev.stepCount + 16);
       const newTracks = prev.tracks.map((track) => ({
         ...track,
-        steps: ensureStepsLength(track.steps, nextCount, true)
+        steps: ensureStepsLength(track.steps, nextCount, false)
       }));
       return {
         ...prev,
@@ -284,6 +420,7 @@ export const App: React.FC = () => {
 
   // Duplicate Bar (sourceBar -> targetBar)
   const handleDuplicateBar = (sourceBar: number, targetBar: number) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = prev.tracks.map((track) =>
         duplicateBarInTrack(track, sourceBar, targetBar)
@@ -340,20 +477,26 @@ export const App: React.FC = () => {
 
   // Clear track
   const handleClearTrack = (trackIndex: number) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = [...prev.tracks];
       const track = { ...newTracks[trackIndex] };
-      track.steps = Array.from({ length: prev.stepCount }, () => ({
+      const currentLen = Math.max(prev.stepCount, track.steps.length);
+      track.steps = Array.from({ length: currentLen }, () => ({
         active: false,
-        velocity: 0.85
+        velocity: 0.85,
+        pitchOffset: 0,
+        duration: 1
       }));
       newTracks[trackIndex] = track;
       return { ...prev, tracks: newTracks };
     });
+    showToast(`Cleared track "${project.tracks[trackIndex]?.name}". (Press Undo to revert) ↩️`);
   };
 
   // Add Track
   const handleAddTrack = (type: 'drum' | 'synth') => {
+    pushToHistory();
     setProject((prev) => {
       const count = prev.tracks.length + 1;
       const newTrack: Track = {
@@ -368,7 +511,9 @@ export const App: React.FC = () => {
         solo: false,
         steps: Array.from({ length: prev.stepCount }, () => ({
           active: false,
-          velocity: 0.85
+          velocity: 0.85,
+          pitchOffset: 0,
+          duration: 1
         }))
       };
       return { ...prev, tracks: [...prev.tracks, newTrack] };
@@ -378,14 +523,17 @@ export const App: React.FC = () => {
 
   // Remove Track
   const handleRemoveTrack = (trackIndex: number) => {
+    pushToHistory();
     setProject((prev) => {
       const newTracks = prev.tracks.filter((_, i) => i !== trackIndex);
       return { ...prev, tracks: newTracks };
     });
+    showToast('Removed track. (Press Undo to revert) ↩️');
   };
 
   // Key & Scale Change
   const handleKeyScaleChange = (key: string, scale: string) => {
+    pushToHistory();
     setProject((prev) => ({ ...prev, key, scale }));
     showToast(`Key & Scale changed to ${key} ${scale}`);
   };
@@ -429,8 +577,9 @@ export const App: React.FC = () => {
       try {
         const loaded = JSON.parse(event.target?.result as string);
         if (loaded && loaded.tracks && loaded.bpm) {
+          pushToHistory();
           setProject(loaded);
-          showToast(`Successfully opened "${loaded.title || 'Project'}"!`);
+          showToast(`Successfully opened "${loaded.title || 'Project'}"! (Undo with Ctrl+Z)`);
         }
       } catch (err) {
         showToast('Invalid project file.');
@@ -442,6 +591,7 @@ export const App: React.FC = () => {
 
   // Randomize / AI Beat generator
   const handleRandomizeBeat = () => {
+    pushToHistory();
     const scales = Object.keys(SCALES);
     const randomScale = scales[Math.floor(Math.random() * scales.length)];
     const notesInScale = SCALES[randomScale];
@@ -449,16 +599,17 @@ export const App: React.FC = () => {
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
 
     setProject((prev) => {
+      const targetLen = Math.max(16, prev.stepCount);
       const newTracks = prev.tracks.map((track) => {
-        const newSteps = Array.from({ length: 16 }, (_, s) => {
+        const newSteps = Array.from({ length: targetLen }, (_, s) => {
           let active = false;
           let note: string | undefined = undefined;
           let isRoll = false;
 
           if (track.sound === 'kick-808' || track.sound === 'kick-punch') {
-            active = s === 0 || s === 10 || (Math.random() > 0.6 && s % 4 === 2);
+            active = s % 16 === 0 || s % 16 === 10 || (Math.random() > 0.6 && s % 4 === 2);
           } else if (track.sound === 'snare-trap' || track.sound === 'snare-clap') {
-            active = s === 4 || s === 12;
+            active = s % 16 === 4 || s % 16 === 12;
           } else if (track.sound === 'hihat-closed') {
             active = Math.random() > 0.15;
             isRoll = active && Math.random() > 0.75;
@@ -493,7 +644,7 @@ export const App: React.FC = () => {
       spread: 60,
       origin: { y: 0.3 }
     });
-    showToast(`AI Beat Generated in ${randomKey} ${randomScale}! ⚡`);
+    showToast(`AI Beat Generated in ${randomKey} ${randomScale}! ⚡ (Undo with Ctrl+Z)`);
   };
 
   return (
@@ -537,6 +688,10 @@ export const App: React.FC = () => {
           onAddBar={handleAddBar}
           onDuplicateBar={handleDuplicateBar}
           onChangeStepCount={handleChangeStepCount}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          canUndo={undoStack.length > 0}
+          canRedo={redoStack.length > 0}
         />
       ) : (
         <div className="flex flex-col min-h-screen">
@@ -560,6 +715,10 @@ export const App: React.FC = () => {
             onToggleViewMode={() => setViewMode('mobile')}
             onKeyScaleChange={handleKeyScaleChange}
             onChangeStepCount={handleChangeStepCount}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            canUndo={undoStack.length > 0}
+            canRedo={redoStack.length > 0}
           />
 
           {/* Studio Workspace Content */}
@@ -586,6 +745,10 @@ export const App: React.FC = () => {
               onAddBar={handleAddBar}
               onDuplicateBar={handleDuplicateBar}
               onChangeStepCount={handleChangeStepCount}
+              onUndo={handleUndo}
+              onRedo={handleRedo}
+              canUndo={undoStack.length > 0}
+              canRedo={redoStack.length > 0}
             />
 
             {/* Piano Roll Melodic Note Editor */}
@@ -602,6 +765,10 @@ export const App: React.FC = () => {
               onResizeNote={handleResizeNote}
               onAddBar={handleAddBar}
               onDuplicateBar={handleDuplicateBar}
+              onUndo={handleUndo}
+              onRedo={handleRedo}
+              canUndo={undoStack.length > 0}
+              canRedo={redoStack.length > 0}
             />
 
             {/* FX Rack & Sound Design */}

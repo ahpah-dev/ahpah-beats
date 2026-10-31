@@ -13,7 +13,9 @@ import {
   Disc,
   Copy,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 
 interface SequencerProps {
@@ -34,6 +36,10 @@ interface SequencerProps {
   onAddBar?: () => void;
   onDuplicateBar?: (sourceBar: number, targetBar: number) => void;
   onChangeStepCount?: (count: number) => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -53,7 +59,11 @@ export const Sequencer: React.FC<SequencerProps> = ({
   onRemoveTrack,
   onAddBar,
   onDuplicateBar,
-  onChangeStepCount
+  onChangeStepCount,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false
 }) => {
   const [activeBar, setActiveBar] = useState<number>(0);
   const [followPlayhead, setFollowPlayhead] = useState<boolean>(false);
@@ -144,6 +154,36 @@ export const Sequencer: React.FC<SequencerProps> = ({
           >
             Follow
           </button>
+
+          {onUndo && (
+            <button
+              onClick={onUndo}
+              disabled={!canUndo}
+              className={`p-1.5 rounded-lg border transition-all active:scale-95 ${
+                canUndo
+                  ? 'bg-slate-800 hover:bg-slate-700 text-cyan-400 border-slate-700/80 cursor-pointer'
+                  : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
+              }`}
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {onRedo && (
+            <button
+              onClick={onRedo}
+              disabled={!canRedo}
+              className={`p-1.5 rounded-lg border transition-all active:scale-95 ${
+                canRedo
+                  ? 'bg-slate-800 hover:bg-slate-700 text-cyan-400 border-slate-700/80 cursor-pointer'
+                  : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
+              }`}
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         {/* Add Track Action */}

@@ -11,7 +11,9 @@ import {
   Plus,
   Minus,
   Copy,
-  Layers
+  Layers,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 
 interface PianoRollProps {
@@ -27,6 +29,10 @@ interface PianoRollProps {
   onResizeNote?: (trackIndex: number, stepIndex: number, duration: number) => void;
   onAddBar?: () => void;
   onDuplicateBar?: (sourceBar: number, targetBar: number) => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 const ALL_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -43,7 +49,11 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
   onSetNote,
   onResizeNote,
   onAddBar,
-  onDuplicateBar
+  onDuplicateBar,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false
 }) => {
   const [octaveOffset, setOctaveOffset] = useState<number>(3); // base octave: 3 (C3 to B4)
   const [selectedDuration, setSelectedDuration] = useState<number>(1); // 1, 2, 4, 8 steps
@@ -252,6 +262,36 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
           >
             Follow
           </button>
+
+          {onUndo && (
+            <button
+              onClick={onUndo}
+              disabled={!canUndo}
+              className={`p-1.5 rounded-lg border transition-all active:scale-95 ${
+                canUndo
+                  ? 'bg-slate-800 hover:bg-slate-700 text-cyan-400 border-slate-700/80 cursor-pointer'
+                  : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
+              }`}
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {onRedo && (
+            <button
+              onClick={onRedo}
+              disabled={!canRedo}
+              className={`p-1.5 rounded-lg border transition-all active:scale-95 ${
+                canRedo
+                  ? 'bg-slate-800 hover:bg-slate-700 text-cyan-400 border-slate-700/80 cursor-pointer'
+                  : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
+              }`}
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         {/* Note Length & Resizing Controls */}

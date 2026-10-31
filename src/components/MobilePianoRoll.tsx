@@ -13,7 +13,9 @@ import {
   Trash2,
   Lock,
   Layers,
-  Check
+  Check,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 
 interface MobilePianoRollProps {
@@ -30,6 +32,10 @@ interface MobilePianoRollProps {
   onDuplicateBar?: (sourceBar: number, targetBar: number) => void;
   onAddBar?: () => void;
   onChangeStepCount?: (newCount: number) => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 const ALL_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -46,7 +52,12 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
   onSetNote,
   onResizeNote,
   onDuplicateBar,
-  onAddBar
+  onAddBar,
+  onChangeStepCount,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false
 }) => {
   const [octave, setOctave] = useState<number>(4);
   const [activeBar, setActiveBar] = useState<number>(0);
@@ -220,6 +231,36 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
           >
             Follow
           </button>
+
+          {onUndo && (
+            <button
+              onClick={onUndo}
+              disabled={!canUndo}
+              className={`p-1 px-1.5 rounded-lg border text-xs transition-all active:scale-95 ${
+                canUndo
+                  ? 'bg-slate-800 text-cyan-400 border-slate-700 hover:bg-slate-700'
+                  : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
+              }`}
+              title="Undo"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {onRedo && (
+            <button
+              onClick={onRedo}
+              disabled={!canRedo}
+              className={`p-1 px-1.5 rounded-lg border text-xs transition-all active:scale-95 ${
+                canRedo
+                  ? 'bg-slate-800 text-cyan-400 border-slate-700 hover:bg-slate-700'
+                  : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
+              }`}
+              title="Redo"
+            >
+              <Redo2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
 

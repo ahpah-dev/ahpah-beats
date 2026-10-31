@@ -20,7 +20,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
-  Clock
+  Clock,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 
 interface MobileViewProps {
@@ -49,6 +51,10 @@ interface MobileViewProps {
   onAddBar?: () => void;
   onDuplicateBar?: (sourceBar: number, targetBar: number) => void;
   onChangeStepCount?: (newCount: number) => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export type MobileTab = 'pads' | 'keys' | 'roll' | 'seq' | 'xy' | 'mix';
@@ -78,11 +84,18 @@ export const MobileView: React.FC<MobileViewProps> = ({
   onResizeNote,
   onAddBar,
   onDuplicateBar,
-  onChangeStepCount
+  onChangeStepCount,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false
 }) => {
   const [activeTab, setActiveTab] = useState<MobileTab>('pads');
   const [selectedSeqTrack, setSelectedSeqTrack] = useState<number>(0);
   const [selectedSynthTrack, setSelectedSynthTrack] = useState<number>(0);
+  const [seqActiveBar, setSeqActiveBar] = useState<number>(0);
+
+  const totalBars = Math.max(1, Math.ceil(project.stepCount / 16));
 
   const synthTracks = project.tracks.filter((t) => t.type === 'synth');
 
@@ -154,8 +167,37 @@ export const MobileView: React.FC<MobileViewProps> = ({
           <button
             onClick={onStop}
             className="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center border border-slate-700/60 active:scale-95"
+            title="Stop & Reset"
           >
             <Square className="w-3.5 h-3.5 fill-current" />
+          </button>
+
+          {/* Undo */}
+          <button
+            onClick={onUndo}
+            disabled={!canUndo}
+            className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all active:scale-95 ${
+              canUndo
+                ? 'bg-slate-800 text-cyan-400 border-slate-700 hover:bg-slate-700 cursor-pointer'
+                : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
+            }`}
+            title="Undo"
+          >
+            <Undo2 className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Redo */}
+          <button
+            onClick={onRedo}
+            disabled={!canRedo}
+            className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all active:scale-95 ${
+              canRedo
+                ? 'bg-slate-800 text-cyan-400 border-slate-700 hover:bg-slate-700 cursor-pointer'
+                : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
+            }`}
+            title="Redo"
+          >
+            <Redo2 className="w-3.5 h-3.5" />
           </button>
 
           {/* Switch to Desktop */}
@@ -207,6 +249,10 @@ export const MobileView: React.FC<MobileViewProps> = ({
             onAddBar={onAddBar}
             onDuplicateBar={onDuplicateBar}
             onChangeStepCount={onChangeStepCount}
+            onUndo={onUndo}
+            onRedo={onRedo}
+            canUndo={canUndo}
+            canRedo={canRedo}
           />
         )}
 
@@ -272,20 +318,71 @@ export const MobileView: React.FC<MobileViewProps> = ({
               </div>
             </div>
 
-            {/* 16 Step Grid for Mobile (4x4 layout) */}
+            {/* Mobile Sequencer Bar Selector Strip */}
+            <div className="flex items-center justify-between bg-[#121622] p-2 rounded-xl border border-slate-800 gap-2">
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-thin">
+                {Array.from({ length: totalBars }).map((_, barIdx) => {
+                  const isSelected = seqActiveBar === barIdx;
+                  const isCurrentPlayingBar = isPlaying && Math.floor(currentStep / 16) === barIdx;
+                  return (
+                    <button
+                      key={barIdx}
+                      onClick={() => setSeqActiveBar(barIdx)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all relative ${
+                        isSelected
+                          ? 'bg-cyan-500 text-slate-950 font-black shadow-sm'
+                          : 'bg-slate-800 text-slate-300 border border-slate-700/60'
+                      }`}
+                    >
+                      {isCurrentPlayingBar && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      )}
+                      <span>Bar {barIdx + 1}</span>
+                    </button>
+                  );
+                })}
+                {onAddBar && (
+                  <button
+                    onClick={onAddBar}
+                    className="p-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold border border-slate-700/60"
+                    title="Add another bar"
+                  >
+                    + Bar
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1">
+                {onDuplicateBar && totalBars > 1 && (
+                  <button
+                    onClick={() => {
+                      const nextBar = (seqActiveBar + 1) % totalBars;
+                      onDuplicateBar(seqActiveBar, nextBar);
+                    }}
+                    className="px-2 py-1 rounded-lg bg-slate-800 text-purple-300 border border-slate-700 text-xs font-semibold whitespace-nowrap active:scale-95"
+                    title="Copy Bar"
+                  >
+                    Copy Bar
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* 16 Step Grid for Mobile Active Bar (4x4 layout) */}
             <div className="grid grid-cols-4 gap-2">
               {Array.from({ length: 16 }).map((_, stepIdx) => {
+                const globalStepIdx = seqActiveBar * 16 + stepIdx;
                 const track = project.tracks[selectedSeqTrack];
-                const step = track?.steps[stepIdx];
+                const step = track?.steps[globalStepIdx];
                 const isActive = step && step.active;
-                const isCurrent = isPlaying && (currentStep % 16) === stepIdx;
+                const isCurrent = isPlaying && currentStep === globalStepIdx;
                 const isBeatQuarter = stepIdx % 4 === 0;
 
                 return (
                   <button
                     key={stepIdx}
-                    onClick={() => onToggleStep(selectedSeqTrack, stepIdx)}
-                    onContextMenu={(e) => handleCycleMobileStepDuration(e, stepIdx)}
+                    onClick={() => onToggleStep(selectedSeqTrack, globalStepIdx)}
+                    onContextMenu={(e) => handleCycleMobileStepDuration(e, globalStepIdx)}
                     className={`h-16 rounded-xl flex flex-col items-center justify-between p-2 border transition-all active:scale-95 ${
                       isCurrent
                         ? 'border-cyan-400 ring-2 ring-cyan-400/50'
@@ -305,7 +402,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                     }}
                   >
                     <span className="text-[10px] font-mono font-bold text-slate-400">
-                      #{stepIdx + 1}
+                      #{globalStepIdx + 1}
                     </span>
                     <span className="text-xs font-mono font-black text-slate-950">
                       {isActive

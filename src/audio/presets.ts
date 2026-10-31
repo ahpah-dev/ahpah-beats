@@ -1,4 +1,4 @@
-import { ProjectData, Track, NoteStep } from '../types';
+import type { ProjectData, Track, NoteStep } from '../types';
 
 export const SCALES: Record<string, number[]> = {
   'Minor (Aeolian)': [0, 2, 3, 5, 7, 8, 10],
@@ -21,20 +21,34 @@ function emptySteps(count: number = 16): NoteStep[] {
 export function ensureStepsLength(
   steps: NoteStep[],
   targetCount: number,
-  duplicateFirstBar: boolean = true
+  duplicateFirstBar: boolean = false
 ): NoteStep[] {
-  if (steps.length >= targetCount) {
-    return steps.slice(0, targetCount);
+  // Always clone the existing steps so mutations don't cause side effects
+  const result: NoteStep[] = steps.map((s) => ({
+    active: !!s.active,
+    note: s.note,
+    velocity: s.velocity ?? 0.85,
+    pitchOffset: s.pitchOffset ?? 0,
+    duration: s.duration ?? 1,
+    isRoll: !!s.isRoll
+  }));
+
+  // CRITICAL: NEVER slice or truncate existing steps!
+  // Keeping steps preserved allows users to switch between 1 Bar, 2 Bars, 4 Bars
+  // without ever losing notes they previously composed in later bars.
+  if (result.length >= targetCount) {
+    return result;
   }
-  const result = [...steps];
-  const firstBar = steps.slice(0, 16);
+
+  const firstBar = result.slice(0, 16);
   while (result.length < targetCount) {
     const nextSteps = duplicateFirstBar && firstBar.length === 16
       ? firstBar.map((s) => ({ ...s }))
       : emptySteps(16);
     result.push(...nextSteps);
   }
-  return result.slice(0, targetCount);
+
+  return result;
 }
 
 export function duplicateBarInTrack(
@@ -42,26 +56,26 @@ export function duplicateBarInTrack(
   sourceBar: number,
   targetBar: number
 ): Track {
-  const steps = [...track.steps];
+  const steps = track.steps.map((s) => ({ ...s }));
   const sourceStart = sourceBar * 16;
   const targetStart = targetBar * 16;
   // Ensure steps has enough length
   while (steps.length < targetStart + 16) {
-    steps.push({ active: false, velocity: 0.85, duration: 1 });
+    steps.push({ active: false, velocity: 0.85, pitchOffset: 0, duration: 1 });
   }
   for (let i = 0; i < 16; i++) {
-    const srcStep = steps[sourceStart + i] || { active: false, velocity: 0.85, duration: 1 };
+    const srcStep = steps[sourceStart + i] || { active: false, velocity: 0.85, pitchOffset: 0, duration: 1 };
     steps[targetStart + i] = { ...srcStep };
   }
   return { ...track, steps };
 }
 
 export function clearBarInTrack(track: Track, barIndex: number): Track {
-  const steps = [...track.steps];
+  const steps = track.steps.map((s) => ({ ...s }));
   const start = barIndex * 16;
   for (let i = 0; i < 16; i++) {
     if (start + i < steps.length) {
-      steps[start + i] = { active: false, velocity: 0.85, duration: 1 };
+      steps[start + i] = { active: false, velocity: 0.85, pitchOffset: 0, duration: 1 };
     }
   }
   return { ...track, steps };

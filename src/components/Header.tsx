@@ -13,7 +13,9 @@ import {
   Radio,
   Sliders,
   FolderDown,
-  Layers
+  Layers,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 import { ProjectData } from '../types';
 import { PRESET_PROJECTS, SCALES } from '../audio/presets';
@@ -37,6 +39,10 @@ interface HeaderProps {
   onToggleViewMode: () => void;
   onKeyScaleChange: (key: string, scale: string) => void;
   onChangeStepCount?: (stepCount: number) => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -57,7 +63,11 @@ export const Header: React.FC<HeaderProps> = ({
   viewMode,
   onToggleViewMode,
   onKeyScaleChange,
-  onChangeStepCount
+  onChangeStepCount,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [tapTimes, setTapTimes] = useState<number[]>([]);
@@ -127,6 +137,34 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Square className="w-4 h-4 fill-current" />
         </button>
+
+        {/* Undo & Redo Controls */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onUndo}
+            disabled={!canUndo}
+            className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all active:scale-95 border ${
+              canUndo
+                ? 'bg-slate-800/90 hover:bg-cyan-500/20 text-cyan-400 hover:text-cyan-300 border-slate-700/80 shadow-sm cursor-pointer'
+                : 'bg-slate-900/40 text-slate-600 border-slate-800/30 cursor-not-allowed opacity-40'
+            }`}
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onRedo}
+            disabled={!canRedo}
+            className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all active:scale-95 border ${
+              canRedo
+                ? 'bg-slate-800/90 hover:bg-cyan-500/20 text-cyan-400 hover:text-cyan-300 border-slate-700/80 shadow-sm cursor-pointer'
+                : 'bg-slate-900/40 text-slate-600 border-slate-800/30 cursor-not-allowed opacity-40'
+            }`}
+            title="Redo (Ctrl+Y)"
+          >
+            <Redo2 className="w-4 h-4" />
+          </button>
+        </div>
 
         <div className="h-6 w-px bg-slate-800 mx-1"></div>
 
@@ -266,32 +304,6 @@ export const Header: React.FC<HeaderProps> = ({
             ))}
           </select>
         </div>
-
-        {/* Song Length / Bars Selector */}
-        {onChangeStepCount && (
-          <div className="hidden xl:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs">
-            <span className="text-[10px] text-slate-500 font-mono font-bold">LENGTH:</span>
-            {[
-              { count: 16, label: '1 Bar' },
-              { count: 32, label: '2 Bars' },
-              { count: 64, label: '4 Bars' },
-              { count: 128, label: '8 Bars' }
-            ].map(({ count, label }) => (
-              <button
-                key={count}
-                onClick={() => onChangeStepCount(count)}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-all ${
-                  project.stepCount === count
-                    ? 'bg-cyan-400 text-slate-950 shadow-sm shadow-cyan-400/50'
-                    : 'text-slate-400 hover:text-white bg-slate-800/60'
-                }`}
-                title={`Set song length to ${label} (${count} steps)`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
 
         {/* Randomize / AI Beat */}
         <button
