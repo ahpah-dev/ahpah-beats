@@ -1,0 +1,60 @@
+{
+  "name": "ahpah-beats",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Super easy to use, professionally designed desktop & mobile music making studio",
+  "main": "electron/main.cjs",
+  "author": "AhPah Dev",
+  "license": "MIT",
+  "homepage": "https://ahpah-dev.github.io/ahpah-beats/",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron:dev": "electron .",
+    "build:electron": "vite build && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.ahpah.beats",
+    "productName": "AhPah Beats",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AhPah Beats"
+    }
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.4",
+    "lucide-react": "^1.66.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  }
+}
