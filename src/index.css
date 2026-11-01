@@ -6,10 +6,20 @@
     --studio-bg: #080a0f;
     --studio-surface: #0b0e14;
     --studio-panel: #121622;
-    --studio-border: rgba(148, 163, 184, 0.12);
+    --studio-card: #151a26;
+    --studio-elevated: #1a2030;
+    --studio-border: rgba(148, 163, 184, 0.1);
+    --studio-border-strong: rgba(148, 163, 184, 0.2);
+    --studio-text: #f1f5f9;
+    --studio-text-2: #cbd5e1;
+    --studio-muted: #94a3b8;
+    --studio-dim: #64748b;
     --studio-accent: #00f2fe;
     --studio-accent-2: #ff007f;
     --studio-glow: 0 0 24px rgba(0, 242, 254, 0.18);
+    --studio-radius-sm: 6px;
+    --studio-radius-md: 10px;
+    --studio-radius-lg: 14px;
   }
 
   html {
@@ -74,8 +84,13 @@
     transition: transform 0.15s ease;
   }
 
-  button, a, select, input {
-    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

@@ -27,7 +27,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
   onUpdateSynth
 }) => {
   return (
-    <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/80 p-4 shadow-2xl flex flex-col gap-4">
+    <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/60 p-3 shadow-xl flex flex-col gap-3">
       {/* Title */}
       <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-2">
@@ -43,7 +43,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
       </div>
 
       {/* Modules Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Module 1: Space Reverb */}
         <div className="bg-[#121622] rounded-xl p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
           <div className="flex items-center justify-between">

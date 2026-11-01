@@ -212,7 +212,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
       </header>
 
       {/* Main Content Area based on Tab */}
-      <main className="p-3 flex-1 flex flex-col justify-start overflow-y-auto">
+      <main className="p-2 flex-1 flex flex-col justify-start overflow-y-auto gap-2">
         {activeTab === 'pads' && (
           <MobilePads
             tracks={project.tracks}
@@ -297,7 +297,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => onToggleMute(selectedSeqTrack)}
-                  className={`w-6 h-6 rounded text-[9px] font-mono font-bold ${
+                  className={`w-7 h-7 rounded text-[9px] font-mono font-bold ${
                     project.tracks[selectedSeqTrack]?.muted
                       ? 'bg-rose-500 text-white'
                       : 'bg-slate-800 text-slate-400'
@@ -307,7 +307,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                 </button>
                 <button
                   onClick={() => onToggleSolo(selectedSeqTrack)}
-                  className={`w-6 h-6 rounded text-[9px] font-mono font-bold ${
+                  className={`w-7 h-7 rounded text-[9px] font-mono font-bold ${
                     project.tracks[selectedSeqTrack]?.solo
                       ? 'bg-amber-400 text-slate-950'
                       : 'bg-slate-800 text-slate-400'

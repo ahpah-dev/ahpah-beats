@@ -81,7 +81,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   }, [isPlaying, currentStep, followPlayhead, activeBar, totalBars]);
 
   return (
-    <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/80 p-4 shadow-2xl flex flex-col gap-3">
+    <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/60 p-3 shadow-xl flex flex-col gap-2.5">
       {/* Sequencer Header Strip */}
       <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 pb-3 gap-3">
         <div className="flex items-center gap-2">

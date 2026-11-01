@@ -722,7 +722,7 @@ export const App: React.FC = () => {
           />
 
           {/* Studio Workspace Content */}
-          <main className="flex-1 p-4 lg:p-6 max-w-7xl w-full mx-auto flex flex-col gap-5">
+          <main className="flex-1 p-4 lg:p-6 max-w-7xl w-full mx-auto flex flex-col gap-4">
             {/* Visualizer & Peak Strip */}
             <Visualizer />
 
@@ -788,7 +788,7 @@ export const App: React.FC = () => {
           </main>
 
           {/* Desktop Studio Footer */}
-          <footer className="w-full bg-[#0b0e14] border-t border-slate-800/80 px-6 py-3 flex flex-wrap items-center justify-between text-xs text-slate-500">
+          <footer className="w-full bg-[#0b0e14]/80 border-t border-slate-800/60 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-500 backdrop-blur-md">
             <div className="flex items-center gap-2">
               <span className="font-bold text-slate-400">AhPah Beats Studio</span>
               <span>•</span>

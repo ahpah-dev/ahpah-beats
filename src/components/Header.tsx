@@ -93,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({
   const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
   return (
-    <header className="w-full bg-[#0b0e14]/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-40 select-none shadow-xl">
+    <header className="w-full bg-[#0b0e14]/95 backdrop-blur-md border-b border-slate-800/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-40 select-none">
       {/* Brand Logo */}
       <div className="flex items-center gap-3">
         <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-pink-500 p-0.5 shadow-lg shadow-cyan-500/20">
