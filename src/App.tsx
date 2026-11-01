@@ -56,6 +56,7 @@ export const App: React.FC = () => {
   const [selectedTrackIndex, setSelectedTrackIndex] = useState<number>(5); // default to 808 sub or lead
   const [isDesktopModalOpen, setIsDesktopModalOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [desktopTab, setDesktopTab] = useState<'sequencer' | 'pianoroll' | 'fx'>('sequencer');
 
   // Responsive layout mode: mobile vs desktop
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>(() => {
@@ -770,70 +771,91 @@ export const App: React.FC = () => {
           />
 
           {/* Studio Workspace Content */}
-          <main className="flex-1 p-4 lg:p-6 max-w-7xl w-full mx-auto flex flex-col gap-4">
+          <main className="flex-1 p-4 lg:p-6 max-w-7xl w-full mx-auto flex flex-col gap-3">
             {/* Visualizer & Peak Strip */}
             <Visualizer />
 
-            {/* Pattern Sequencer & Drum Matrix */}
-            <Sequencer
-              tracks={project.tracks}
-              currentStep={currentStep}
-              stepCount={project.stepCount}
-              isPlaying={isPlaying}
-              onToggleStep={handleToggleStep}
-              onToggleRoll={handleToggleRoll}
-              onUpdateTrackVolume={handleUpdateTrackVolume}
-              onUpdateTrackPan={handleUpdateTrackPan}
-              onToggleMute={handleToggleMute}
-              onToggleSolo={handleToggleSolo}
-              onPreviewSound={(track) => audioEngine.triggerSound(track, 'C4', 0.85)}
-              onClearTrack={handleClearTrack}
-              onAddTrack={handleAddTrack}
-              onRemoveTrack={handleRemoveTrack}
-              onAddBar={handleAddBar}
-              onDuplicateBar={handleDuplicateBar}
-              onChangeStepCount={handleChangeStepCount}
-              onUndo={handleUndo}
-              onRedo={handleRedo}
-              canUndo={undoStack.length > 0}
-              canRedo={redoStack.length > 0}
-              onClearAllNotes={handleClearAllNotes}
-            />
+            {/* Workspace Tabs */}
+            <div className="seg self-start">
+              {[
+                { id: 'sequencer', label: 'Sequencer' },
+                { id: 'pianoroll', label: 'Piano Roll' },
+                { id: 'fx', label: 'FX Rack' }
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setDesktopTab(t.id as 'sequencer' | 'pianoroll' | 'fx')}
+                  className={`seg-item ${desktopTab === t.id ? 'seg-item-active' : ''}`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
 
-            {/* Piano Roll Melodic Note Editor */}
-            <PianoRoll
-              tracks={project.tracks}
-              selectedTrackIndex={selectedTrackIndex}
-              currentStep={currentStep}
-              stepCount={project.stepCount}
-              isPlaying={isPlaying}
-              scaleName={project.scale}
-              rootKey={project.key}
-              onSelectTrack={(i) => setSelectedTrackIndex(i)}
-              onSetNote={handleSetNote}
-              onResizeNote={handleResizeNote}
-              onAddBar={handleAddBar}
-              onDuplicateBar={handleDuplicateBar}
-              onUndo={handleUndo}
-              onRedo={handleRedo}
-              canUndo={undoStack.length > 0}
-              canRedo={redoStack.length > 0}
-            />
+            {/* Active Workspace Panel */}
+            {desktopTab === 'sequencer' && (
+              <Sequencer
+                tracks={project.tracks}
+                currentStep={currentStep}
+                stepCount={project.stepCount}
+                isPlaying={isPlaying}
+                onToggleStep={handleToggleStep}
+                onToggleRoll={handleToggleRoll}
+                onUpdateTrackVolume={handleUpdateTrackVolume}
+                onUpdateTrackPan={handleUpdateTrackPan}
+                onToggleMute={handleToggleMute}
+                onToggleSolo={handleToggleSolo}
+                onPreviewSound={(track) => audioEngine.triggerSound(track, 'C4', 0.85)}
+                onClearTrack={handleClearTrack}
+                onAddTrack={handleAddTrack}
+                onRemoveTrack={handleRemoveTrack}
+                onAddBar={handleAddBar}
+                onDuplicateBar={handleDuplicateBar}
+                onChangeStepCount={handleChangeStepCount}
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                canUndo={undoStack.length > 0}
+                canRedo={redoStack.length > 0}
+                onClearAllNotes={handleClearAllNotes}
+              />
+            )}
 
-            {/* FX Rack & Sound Design */}
-            <EffectsRack
-              effects={project.effects}
-              synth={project.synth}
-              selectedTrack={project.tracks[selectedTrackIndex]}
-              onUpdateEffects={(eff) => {
-                setProject((p) => ({ ...p, effects: { ...p.effects, ...eff } }));
-                audioEngine.updateEffects(eff);
-              }}
-              onUpdateSynth={(syn) => {
-                setProject((p) => ({ ...p, synth: { ...p.synth, ...syn } }));
-                audioEngine.synthSettings = { ...project.synth, ...syn };
-              }}
-            />
+            {desktopTab === 'pianoroll' && (
+              <PianoRoll
+                tracks={project.tracks}
+                selectedTrackIndex={selectedTrackIndex}
+                currentStep={currentStep}
+                stepCount={project.stepCount}
+                isPlaying={isPlaying}
+                scaleName={project.scale}
+                rootKey={project.key}
+                onSelectTrack={(i) => setSelectedTrackIndex(i)}
+                onSetNote={handleSetNote}
+                onResizeNote={handleResizeNote}
+                onAddBar={handleAddBar}
+                onDuplicateBar={handleDuplicateBar}
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                canUndo={undoStack.length > 0}
+                canRedo={redoStack.length > 0}
+              />
+            )}
+
+            {desktopTab === 'fx' && (
+              <EffectsRack
+                effects={project.effects}
+                synth={project.synth}
+                selectedTrack={project.tracks[selectedTrackIndex]}
+                onUpdateEffects={(eff) => {
+                  setProject((p) => ({ ...p, effects: { ...p.effects, ...eff } }));
+                  audioEngine.updateEffects(eff);
+                }}
+                onUpdateSynth={(syn) => {
+                  setProject((p) => ({ ...p, synth: { ...p.synth, ...syn } }));
+                  audioEngine.synthSettings = { ...project.synth, ...syn };
+                }}
+              />
+            )}
           </main>
 
           {/* Desktop Studio Footer */}
