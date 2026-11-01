@@ -1,6 +1,6 @@
 {
   "name": "ahpah-beats",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "description": "Super easy to use, professionally designed desktop & mobile music making studio",
   "main": "electron/main.cjs",

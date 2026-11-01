@@ -55,7 +55,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
             <div>
               <div className="text-sm font-bold text-pink-300">Windows Standalone Installer</div>
               <div className="text-xs text-slate-300 mt-0.5">
-                Version 1.0.3 • 64-bit Windows (.exe) • Offline Studio
+                Version 1.0.4 • 64-bit Windows (.exe) • Offline Studio
               </div>
             </div>
             <a

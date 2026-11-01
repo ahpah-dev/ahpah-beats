@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Track, SynthSoundType, SynthSettings } from '../types';
 import { SCALES } from '../audio/presets';
 import { audioEngine } from '../audio/AudioEngine';
@@ -56,6 +56,10 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
   const [showSoundDesigner, setShowSoundDesigner] = useState<boolean>(false);
   const [activeNote, setActiveNote] = useState<string | null>(null);
 
+  // Guards against mobile browser synthetic mouse event emulation on touch release
+  const isTouchRef = useRef<boolean>(false);
+  const touchTimeoutRef = useRef<number | null>(null);
+
   const currentTrack = synthTracks[selectedTrackIndex] || synthTracks[0];
 
   // Notes in scale
@@ -76,15 +80,82 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
     keysToDisplay = ALL_NOTES.map((n) => `${n}${octave}`);
   }
 
-  const handleKeyPress = (note: string) => {
+  const handleKeyPress = useCallback((note: string) => {
     setActiveNote(note);
     if (currentTrack) {
       audioEngine.triggerSound(currentTrack, note, 0.9);
     }
+  }, [currentTrack]);
+
+  const handleKeyRelease = useCallback(() => {
+    setActiveNote(null);
+  }, []);
+
+  // Global release handler to prevent stuck keys on drag out or window blur
+  useEffect(() => {
+    const handleGlobalRelease = () => {
+      handleKeyRelease();
+    };
+
+    window.addEventListener('mouseup', handleGlobalRelease);
+    window.addEventListener('touchend', handleGlobalRelease);
+    window.addEventListener('touchcancel', handleGlobalRelease);
+    window.addEventListener('blur', handleGlobalRelease);
+
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalRelease);
+      window.removeEventListener('touchend', handleGlobalRelease);
+      window.removeEventListener('touchcancel', handleGlobalRelease);
+      window.removeEventListener('blur', handleGlobalRelease);
+      if (touchTimeoutRef.current !== null) {
+        clearTimeout(touchTimeoutRef.current);
+      }
+    };
+  }, [handleKeyRelease]);
+
+  // Touch handlers with e.preventDefault() to strictly prevent synthetic mousedown
+  const handleTouchStart = (note: string, e: React.TouchEvent) => {
+    e.preventDefault();
+    isTouchRef.current = true;
+    if (touchTimeoutRef.current !== null) {
+      clearTimeout(touchTimeoutRef.current);
+      touchTimeoutRef.current = null;
+    }
+    handleKeyPress(note);
   };
 
-  const handleKeyRelease = () => {
-    setActiveNote(null);
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    handleKeyRelease();
+    // Keep isTouchRef active for 500ms to block delayed synthetic mousedown
+    touchTimeoutRef.current = window.setTimeout(() => {
+      isTouchRef.current = false;
+      touchTimeoutRef.current = null;
+    }, 500);
+  };
+
+  const handleTouchCancel = (e: React.TouchEvent) => {
+    e.preventDefault();
+    handleKeyRelease();
+    touchTimeoutRef.current = window.setTimeout(() => {
+      isTouchRef.current = false;
+      touchTimeoutRef.current = null;
+    }, 500);
+  };
+
+  // Mouse handlers for desktop testing (ignored when initiated via touch)
+  const handleMouseDown = (note: string, e: React.MouseEvent) => {
+    if (isTouchRef.current) {
+      return;
+    }
+    handleKeyPress(note);
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (isTouchRef.current) {
+      return;
+    }
+    handleKeyRelease();
   };
 
   return (
@@ -342,11 +413,12 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
             return (
               <button
                 key={note}
-                onTouchStart={() => handleKeyPress(note)}
-                onTouchEnd={handleKeyRelease}
-                onTouchCancel={handleKeyRelease}
-                onMouseDown={() => handleKeyPress(note)}
-                onMouseUp={handleKeyRelease}
+                onTouchStart={(e) => handleTouchStart(note, e)}
+                onTouchEnd={handleTouchEnd}
+                onTouchCancel={handleTouchCancel}
+                onMouseDown={(e) => handleMouseDown(note, e)}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
                 className={`relative flex-1 min-w-[42px] max-w-[56px] h-48 rounded-xl flex flex-col justify-end items-center pb-3 transition-all select-none touch-none border cursor-pointer ${
                   isActive
                     ? 'bg-gradient-to-t from-cyan-400 to-indigo-500 text-slate-950 shadow-lg shadow-cyan-500/50 scale-95'
