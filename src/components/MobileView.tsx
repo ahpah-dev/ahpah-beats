@@ -55,9 +55,8 @@ interface MobileViewProps {
   onRedo?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
+  onClearAllNotes?: () => void;
 }
-
-export type MobileTab = 'pads' | 'keys' | 'roll' | 'seq' | 'xy' | 'mix';
 
 export const MobileView: React.FC<MobileViewProps> = ({
   project,
@@ -253,6 +252,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
             onRedo={onRedo}
             canUndo={canUndo}
             canRedo={canRedo}
+            onClearAllNotes={onClearAllNotes}
           />
         )}
 

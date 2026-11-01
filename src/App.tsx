@@ -475,6 +475,24 @@ export const App: React.FC = () => {
     });
   };
 
+  // Clear all notes across project
+  const handleClearAllNotes = useCallback(() => {
+    pushToHistory();
+    setProject((prev) => {
+      const newTracks = prev.tracks.map((track) => ({
+        ...track,
+        steps: Array.from({ length: prev.stepCount }, () => ({
+          active: false,
+          velocity: 0.85,
+          pitchOffset: 0,
+          duration: 1
+        }))
+      }));
+      return { ...prev, tracks: newTracks };
+    });
+    showToast('Cleared all notes');
+  }, [pushToHistory]);
+
   // Clear track
   const handleClearTrack = (trackIndex: number) => {
     pushToHistory();
@@ -491,7 +509,7 @@ export const App: React.FC = () => {
       newTracks[trackIndex] = track;
       return { ...prev, tracks: newTracks };
     });
-    showToast(`Cleared track "${project.tracks[trackIndex]?.name}". (Press Undo to revert) ↩️`);
+    showToast(`Cleared track "${project.tracks[trackIndex]?.name}"`);
   };
 
   // Add Track
@@ -692,6 +710,7 @@ export const App: React.FC = () => {
           onRedo={handleRedo}
           canUndo={undoStack.length > 0}
           canRedo={redoStack.length > 0}
+          onClearAllNotes={handleClearAllNotes}
         />
       ) : (
         <div className="flex flex-col min-h-screen">
@@ -749,6 +768,7 @@ export const App: React.FC = () => {
               onRedo={handleRedo}
               canUndo={undoStack.length > 0}
               canRedo={redoStack.length > 0}
+              onClearAllNotes={handleClearAllNotes}
             />
 
             {/* Piano Roll Melodic Note Editor */}

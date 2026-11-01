@@ -279,15 +279,15 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         {/* Key & Scale */}
-        <div className="hidden lg:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-md border border-slate-800 text-xs">
+        <div className="flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-md border border-slate-800 text-xs">
           <span className="text-[10px] text-slate-500 font-mono font-bold">SCALE:</span>
           <select
             value={project.key}
             onChange={(e) => onKeyScaleChange(e.target.value, project.scale)}
-            className="bg-transparent font-mono font-bold text-cyan-400 focus:outline-none cursor-pointer"
+            className="bg-transparent font-mono font-bold text-slate-200 focus:outline-none cursor-pointer"
           >
             {keys.map((k) => (
-              <option key={k} value={k} className="bg-slate-900 text-cyan-400">
+              <option key={k} value={k} className="bg-slate-900 text-slate-200">
                 {k}
               </option>
             ))}

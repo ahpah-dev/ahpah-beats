@@ -35,11 +35,12 @@ interface SequencerProps {
   onRemoveTrack: (trackIndex: number) => void;
   onAddBar?: () => void;
   onDuplicateBar?: (sourceBar: number, targetBar: number) => void;
-  onChangeStepCount?: (count: number) => void;
+  onChangeStepCount?: (newCount: number) => void;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
+  onClearAllNotes?: () => void;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -155,18 +156,13 @@ export const Sequencer: React.FC<SequencerProps> = ({
             Follow
           </button>
 
-          {onUndo && (
+          {onClearAllNotes && (
             <button
-              onClick={onUndo}
-              disabled={!canUndo}
-              className={`p-1.5 rounded-lg border transition-all active:scale-95 ${
-                canUndo
-                  ? 'bg-slate-800 hover:bg-slate-700 text-cyan-400 border-slate-700/80 cursor-pointer'
-                  : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
-              }`}
-              title="Undo (Ctrl+Z)"
+              onClick={onClearAllNotes}
+              className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold"
+              title="Clear all notes across all tracks"
             >
-              <Undo2 className="w-3.5 h-3.5" />
+              Clear All
             </button>
           )}
 
