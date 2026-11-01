@@ -49,7 +49,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
               <h3 className="text-base font-bold text-white font-['Inter']">
                 Download AhPah Beats for Windows (.exe)
               </h3>
-              <p className="text-xs text-slate-400 font-mono">Native High-Performance Offline Studio • v1.0.6</p>
+              <p className="text-xs text-slate-400 font-mono">Native High-Performance Offline Studio • v1.0.7</p>
             </div>
           </div>
           <button
@@ -67,7 +67,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
             <div>
               <div className="text-sm font-bold text-pink-200">Windows Standalone Installer</div>
               <div className="text-xs text-slate-300 mt-0.5 font-mono">
-                Version 1.0.6 • 64-bit Windows (.exe) • Offline Studio
+                Version 1.0.7 • 64-bit Windows (.exe) • Offline Studio
               </div>
             </div>
             <a

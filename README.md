@@ -59,7 +59,7 @@ AhPah Beats runs directly in any modern browser without installation:
 
 ### 2. Desktop Windows Standalone Application (.exe)
 You can run AhPah Beats as a dedicated, offline desktop application on Windows:
-1. Download `AhPah Beats-Setup-1.0.6.exe` from the [Releases](https://github.com/ahpah-dev/ahpah-beats/releases) page.
+1. Download `AhPah Beats-Setup-1.0.7.exe` from the [Releases](https://github.com/ahpah-dev/ahpah-beats/releases) page.
 2. Run the installer to add AhPah Beats to your Start Menu and Desktop.
 3. Enjoy zero audio latency and 100% offline music making!
 

@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
               STUDIO PRO
             </span>
           </div>
-          <p className="text-[10px] text-slate-400 font-mono">Digital Audio Workstation • v1.0.6</p>
+          <p className="text-[10px] text-slate-400 font-mono">Digital Audio Workstation • v1.0.7</p>
         </div>
       </div>
 
