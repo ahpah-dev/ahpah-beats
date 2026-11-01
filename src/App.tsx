@@ -549,10 +549,39 @@ export const App: React.FC = () => {
     showToast('Removed track (Press Undo to revert)');
   };
 
-  // Key & Scale Change
+  // Key & Scale Change (transposes existing melodic notes on key change)
   const handleKeyScaleChange = (key: string, scale: string) => {
     pushToHistory();
-    setProject((prev) => ({ ...prev, key, scale }));
+    const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const transposeNote = (note: string, semitones: number): string => {
+      const m = note.match(/^([A-G]#?)(-?\d+)$/);
+      if (!m) return note;
+      const name = m[1];
+      const oct = parseInt(m[2], 10);
+      const idx = NOTE_NAMES.indexOf(name);
+      if (idx === -1) return note;
+      const total = idx + oct * 12 + semitones;
+      const newOct = Math.floor(total / 12);
+      const newIdx = ((total % 12) + 12) % 12;
+      return `${NOTE_NAMES[newIdx]}${newOct}`;
+    };
+
+    setProject((prev) => {
+      const semitoneDelta =
+        prev.key === key ? 0 : NOTE_NAMES.indexOf(key) - NOTE_NAMES.indexOf(prev.key);
+      const newTracks =
+        semitoneDelta === 0
+          ? prev.tracks
+          : prev.tracks.map((t) => {
+              if (t.type !== 'synth') return t;
+              const newSteps = t.steps.map((s) => {
+                if (!s.active || !s.note) return s;
+                return { ...s, note: transposeNote(s.note, semitoneDelta) };
+              });
+              return { ...t, steps: newSteps };
+            });
+      return { ...prev, key, scale, tracks: newTracks };
+    });
     showToast(`Key & Scale changed to ${key} ${scale}`);
   };
 
