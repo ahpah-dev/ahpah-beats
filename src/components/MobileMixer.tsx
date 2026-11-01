@@ -2,13 +2,12 @@ import React from 'react';
 import { ProjectData, Track } from '../types';
 import { PRESET_PROJECTS } from '../audio/presets';
 import {
-  Volume2,
-  Sliders,
   Download,
   FolderDown,
   Layers,
   Sparkles,
-  Monitor
+  Monitor,
+  Sliders
 } from 'lucide-react';
 
 interface MobileMixerProps {
@@ -39,12 +38,13 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
   const anySoloActive = project.tracks.some((t) => t.solo);
 
   return (
-    <div className="w-full flex flex-col gap-4 select-none pb-6">
+    <div className="w-full flex flex-col gap-3 select-none pb-6">
       {/* Quick Action Cards */}
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={onExportWav}
-          className="flex items-center justify-center gap-2 p-3 rounded-md bg-blue-600 text-white font-semibold text-xs active:scale-95 transition-all"
+          className="btn-primary h-11"
+          title="Render and download lossless WAV"
         >
           <Download className="w-4 h-4" />
           <span>Export WAV</span>
@@ -52,22 +52,23 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
 
         <button
           onClick={onRandomizeBeat}
-          className="flex items-center justify-center gap-2 p-3 rounded-md bg-purple-950/60 hover:bg-purple-900 border border-purple-800/60 text-purple-300 font-bold text-xs active:scale-95 transition-all"
+          className="btn h-11"
+          title="Generate a fresh beat pattern"
         >
-          <Sparkles className="w-4 h-4 text-purple-400" />
+          <Sparkles className="w-4 h-4 text-magenta" />
           <span>AI Randomizer</span>
         </button>
       </div>
 
       {/* Song Length / Bars Selector */}
       {onChangeStepCount && (
-        <div className="bg-[#121622] p-3 rounded-md border border-slate-800 flex flex-col gap-2">
+        <div className="panel p-3 flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-              <Layers className="w-4 h-4 text-cyan-400" />
+            <div className="flex items-center gap-2 text-xs font-bold text-ink">
+              <Layers className="w-4 h-4 text-accent" />
               <span>Song Length (Bars)</span>
             </div>
-            <span className="text-[10px] font-mono text-cyan-400">
+            <span className="micro-label normal-case tracking-normal">
               {project.stepCount} Steps
             </span>
           </div>
@@ -81,10 +82,10 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
               <button
                 key={count}
                 onClick={() => onChangeStepCount(count)}
-                className={`py-1.5 rounded-lg text-xs font-mono font-bold transition-all active:scale-95 ${
+                className={`py-1.5 rounded-lg text-xs font-mono font-bold transition-colors cursor-pointer border ${
                   project.stepCount === count
-                    ? 'bg-cyan-500 text-slate-950 font-black '
-                    : 'bg-slate-800 text-slate-300 border border-slate-700/60'
+                    ? 'bg-raised text-ink border-line-strong'
+                    : 'bg-well text-ink-3 border-line hover:text-ink-2'
                 }`}
               >
                 {label}
@@ -95,9 +96,9 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
       )}
 
       {/* Preset Selector */}
-      <div className="bg-[#121622] p-3 rounded-md border border-slate-800 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-          <Layers className="w-4 h-4 text-cyan-400" />
+      <div className="panel p-3 flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-xs font-bold text-ink">
+          <Layers className="w-4 h-4 text-accent" />
           <span>Load Preset Song</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -105,7 +106,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
             <button
               key={preset}
               onClick={() => onSelectPreset(preset)}
-              className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-semibold text-center truncate border border-slate-700/60 active:scale-95"
+              className="p-2 rounded-lg bg-well border border-line text-ink-2 text-xs font-semibold text-center truncate hover:bg-raised hover:text-ink transition-colors cursor-pointer"
             >
               {preset}
             </button>
@@ -114,13 +115,13 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
       </div>
 
       {/* Track Faders List */}
-      <div className="bg-[#121622] p-3 rounded-md border border-slate-800 flex flex-col gap-3">
+      <div className="panel p-3 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-            <Sliders className="w-4 h-4 text-cyan-400" />
+          <div className="flex items-center gap-2 text-xs font-bold text-ink">
+            <Sliders className="w-4 h-4 text-accent" />
             <span>Track Volume & Mix</span>
           </div>
-          <span className="text-[10px] text-slate-500 font-mono">
+          <span className="micro-label normal-case tracking-normal">
             {project.tracks.length} Tracks
           </span>
         </div>
@@ -132,21 +133,21 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
             return (
               <div
                 key={track.id}
-                className={`flex items-center gap-3 p-2 rounded-lg border transition-all ${
+                className={`flex items-center gap-3 p-2 rounded-lg border transition-colors ${
                   isMuted
-                    ? 'bg-slate-950/40 border-slate-900 opacity-60'
-                    : 'bg-[#0e121b] border-slate-800'
+                    ? 'bg-base/40 border-line opacity-60'
+                    : 'bg-well border-line'
                 }`}
               >
                 <div
-                  className="w-2 h-7 rounded-full flex-shrink-0"
+                  className="w-1.5 h-7 rounded-full flex-shrink-0"
                   style={{ backgroundColor: track.color }}
                 />
                 <div className="w-24 truncate">
-                  <div className="text-xs font-bold text-slate-200 truncate">
+                  <div className="text-xs font-bold text-ink truncate">
                     {track.name}
                   </div>
-                  <div className="text-[9px] text-slate-500 font-mono uppercase">
+                  <div className="micro-label normal-case tracking-normal">
                     {track.type}
                   </div>
                 </div>
@@ -155,16 +156,20 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => onToggleMute(i)}
-                    className={`w-6 h-6 rounded text-[9px] font-mono font-bold ${
-                      track.muted ? 'bg-rose-500 text-white' : 'bg-slate-800 text-slate-400'
+                    className={`w-7 h-7 rounded text-[9px] font-mono font-bold border transition-colors cursor-pointer ${
+                      track.muted
+                        ? 'bg-rose-500 text-white border-rose-400/40'
+                        : 'bg-raised text-ink-3 border-line hover:text-ink'
                     }`}
                   >
                     M
                   </button>
                   <button
                     onClick={() => onToggleSolo(i)}
-                    className={`w-6 h-6 rounded text-[9px] font-mono font-bold ${
-                      track.solo ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-400'
+                    className={`w-7 h-7 rounded text-[9px] font-mono font-bold border transition-colors cursor-pointer ${
+                      track.solo
+                        ? 'bg-amber-400 text-zinc-950 border-amber-300/50'
+                        : 'bg-raised text-ink-3 border-line hover:text-ink'
                     }`}
                   >
                     S
@@ -180,9 +185,9 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
                     step={0.02}
                     value={track.volume}
                     onChange={(e) => onUpdateTrackVolume(i, Number(e.target.value))}
-                    className="w-full h-1 bg-slate-800 rounded appearance-none accent-cyan-400"
+                    className="w-full"
                   />
-                  <span className="text-[10px] font-mono text-cyan-400 w-8 text-right">
+                  <span className="text-[10px] font-mono text-accent w-8 text-right">
                     {Math.round(track.volume * 100)}%
                   </span>
                 </div>
@@ -196,7 +201,8 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={onSaveProject}
-          className="flex items-center justify-center gap-2 p-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+          className="btn h-11"
+          title="Save project file (.ahpah)"
         >
           <FolderDown className="w-4 h-4" />
           <span>Save File</span>
@@ -204,9 +210,10 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
 
         <button
           onClick={onOpenDesktopModal}
-          className="flex items-center justify-center gap-2 p-2.5 rounded-md bg-pink-950/60 hover:bg-pink-900 border border-pink-800/60 text-pink-300 text-xs font-semibold active:scale-95 transition-all"
+          className="btn h-11"
+          title="Download desktop app for Windows"
         >
-          <Monitor className="w-4 h-4 text-pink-400" />
+          <Monitor className="w-4 h-4" />
           <span>Desktop .EXE</span>
         </button>
       </div>

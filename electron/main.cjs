@@ -9,7 +9,7 @@ function createWindow() {
     height: 840,
     minWidth: 380,
     minHeight: 640,
-    backgroundColor: '#080a0f',
+    backgroundColor: '#0a0b10',
     title: 'AhPah Beats — Studio Beat Maker & Synth DAW',
     autoHideMenuBar: true,
     webPreferences: {

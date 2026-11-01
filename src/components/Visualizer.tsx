@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { audioEngine } from '../audio/AudioEngine';
-import { Activity, BarChart2, Radio, Gauge } from 'lucide-react';
 
 export const Visualizer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -53,7 +52,7 @@ export const Visualizer: React.FC = () => {
       ctx.scale(dpr, dpr);
 
       // Studio dark background with subtle decay trail
-      ctx.fillStyle = 'rgba(10, 13, 20, 0.32)';
+      ctx.fillStyle = 'rgba(12, 14, 21, 0.32)';
       ctx.fillRect(0, 0, displayWidth, displayHeight);
 
       // Subtle horizontal dB reference gridlines
@@ -124,12 +123,11 @@ export const Visualizer: React.FC = () => {
           const x = i * (barWidth + gap) + gap / 2;
           const y = displayHeight - targetHeight;
 
-          // Studio spectrum gradient: Obsidian -> Cyan -> Emerald -> Violet -> Red
+          // Studio spectrum gradient: deep cyan -> cyan -> ice white
           const grad = ctx.createLinearGradient(0, displayHeight, 0, 0);
-          grad.addColorStop(0, '#00f2fe');
-          grad.addColorStop(0.5, '#3b82f6');
-          grad.addColorStop(0.8, '#a855f7');
-          grad.addColorStop(1, '#f43f5e');
+          grad.addColorStop(0, '#155e75');
+          grad.addColorStop(0.55, '#22d3ee');
+          grad.addColorStop(1, '#a5f3fc');
 
           ctx.fillStyle = grad;
           ctx.beginPath();
@@ -139,7 +137,7 @@ export const Visualizer: React.FC = () => {
           // High-precision peak needle cap
           const peakY = displayHeight - peakHoldRef.current.values[i];
           if (peakHoldRef.current.values[i] > 3) {
-            ctx.fillStyle = peakHoldRef.current.values[i] > displayHeight * 0.85 ? '#f43f5e' : '#f1f5f9';
+            ctx.fillStyle = peakHoldRef.current.values[i] > displayHeight * 0.85 ? '#fb7185' : '#e8eaf1';
             ctx.fillRect(x, Math.max(1, peakY - 1.5), barWidth, 1.5);
           }
         }
@@ -151,7 +149,7 @@ export const Visualizer: React.FC = () => {
         const meterW = 12;
 
         // Background groove
-        ctx.fillStyle = '#101522';
+        ctx.fillStyle = '#10131a';
         ctx.fillRect(meterX, meterY, meterW, meterH);
         ctx.fillRect(meterX + meterW + 4, meterY, meterW, meterH);
 
@@ -167,16 +165,16 @@ export const Visualizer: React.FC = () => {
           const ratio = (s + 1) / segments;
 
           // Color per segment
-          let segColor = '#10b981'; // green
-          if (ratio > 0.85) segColor = '#ef4444'; // red clipping
-          else if (ratio > 0.65) segColor = '#f59e0b'; // amber
+          let segColor = '#34d399'; // green
+          if (ratio > 0.85) segColor = '#fb7185'; // red clipping
+          else if (ratio > 0.65) segColor = '#fbbf24'; // amber
 
           // Left channel LED
           if (leftLevel >= ratio * 0.95) {
             ctx.fillStyle = segColor;
             ctx.fillRect(meterX + 1, segY, meterW - 2, segH);
           } else {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.fillRect(meterX + 1, segY, meterW - 2, segH);
           }
 
@@ -185,14 +183,14 @@ export const Visualizer: React.FC = () => {
             ctx.fillStyle = segColor;
             ctx.fillRect(meterX + meterW + 5, segY, meterW - 2, segH);
           } else {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.fillRect(meterX + meterW + 5, segY, meterW - 2, segH);
           }
         }
 
         // L / R labels
         ctx.font = '8px "JetBrains Mono", monospace';
-        ctx.fillStyle = '#64748b';
+        ctx.fillStyle = '#5d6577';
         ctx.fillText('L', meterX + 3, displayHeight - 2);
         ctx.fillText('R', meterX + meterW + 7, displayHeight - 2);
       } else if (mode === 'wave') {
@@ -200,13 +198,13 @@ export const Visualizer: React.FC = () => {
         const visualWidth = displayWidth - 40;
         ctx.lineWidth = 2;
         const grad = ctx.createLinearGradient(0, 0, visualWidth, 0);
-        grad.addColorStop(0, '#00f2fe');
-        grad.addColorStop(0.5, '#38bdf8');
-        grad.addColorStop(1, '#818cf8');
+        grad.addColorStop(0, '#0ea5e9');
+        grad.addColorStop(0.5, '#22d3ee');
+        grad.addColorStop(1, '#67e8f9');
         ctx.strokeStyle = grad;
 
         // Center zero reference line
-        ctx.strokeStyle = 'rgba(0, 242, 254, 0.15)';
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.15)';
         ctx.beginPath();
         ctx.moveTo(10, displayHeight / 2);
         ctx.lineTo(visualWidth + 10, displayHeight / 2);
@@ -235,12 +233,12 @@ export const Visualizer: React.FC = () => {
         const centerY = displayHeight / 2;
         const radius = Math.min(displayWidth, displayHeight) * 0.42;
 
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         ctx.stroke();
 
-        ctx.strokeStyle = '#00f2fe';
+        ctx.strokeStyle = '#22d3ee';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         for (let i = 0; i < bufferLength - 1; i += 2) {
@@ -269,7 +267,7 @@ export const Visualizer: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-16 sm:h-20 bg-[#0a0d14] rounded-lg overflow-hidden border border-slate-800/80 shadow-md group select-none"
+      className="relative w-full h-16 sm:h-20 bg-well rounded-xl overflow-hidden border border-line select-none"
     >
       <canvas
         ref={canvasRef}
@@ -278,11 +276,11 @@ export const Visualizer: React.FC = () => {
 
       {/* Top Left Studio Telemetry */}
       <div className="absolute left-3 top-2 flex items-center gap-2 pointer-events-none">
-        <span className={`w-2 h-2 rounded-full transition-colors ${isClipping ? 'bg-rose-500 animate-pulse' : 'bg-emerald-400'}`} />
-        <span className="text-[10px] font-mono tracking-wider text-slate-300 font-semibold uppercase">
+        <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isClipping ? 'bg-rose-500 animate-pulse' : 'bg-emerald-400'}`} />
+        <span className="text-[10px] font-mono tracking-wider text-ink-2 font-semibold uppercase">
           MASTER {mode === 'spectrum' ? 'FFT ANALYZER' : mode === 'wave' ? 'OSCILLOSCOPE' : 'STEREO PHASE'}
         </span>
-        <span className="hidden sm:inline text-[9px] font-mono text-slate-500">
+        <span className="hidden sm:inline text-[9px] font-mono text-ink-3">
           • 44.1 kHz • 32-bit Float
         </span>
       </div>
@@ -290,44 +288,32 @@ export const Visualizer: React.FC = () => {
       {/* Right Controls & Peak DB readout */}
       <div className="absolute right-2 top-2 flex items-center gap-2">
         {/* Peak dB Readout */}
-        <div className="hidden sm:flex items-center gap-1 bg-[#10141f] border border-slate-800 px-2 py-0.5 rounded font-mono text-[10px]">
-          <span className="text-slate-500">PEAK:</span>
-          <span className={`font-bold ${isClipping ? 'text-rose-400' : 'text-cyan-400'}`}>
+        <div className="hidden sm:flex items-center gap-1 bg-well border border-line px-2 py-0.5 rounded font-mono text-[10px]">
+          <span className="text-ink-3">PEAK:</span>
+          <span className={`font-bold ${isClipping ? 'text-rose-400' : 'text-accent'}`}>
             {peakDb}
           </span>
         </div>
 
         {/* View mode toggle switches */}
-        <div className="flex items-center gap-0.5 bg-[#10141f] p-0.5 rounded-md border border-slate-800 text-xs">
+        <div className="seg text-xs">
           <button
             onClick={() => setMode('spectrum')}
-            className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition-all ${
-              mode === 'spectrum'
-                ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
+            className={`seg-item ${mode === 'spectrum' ? 'seg-item-active' : ''}`}
             title="Frequency Spectrum (FFT)"
           >
             FFT
           </button>
           <button
             onClick={() => setMode('wave')}
-            className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition-all ${
-              mode === 'wave'
-                ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
+            className={`seg-item ${mode === 'wave' ? 'seg-item-active' : ''}`}
             title="Oscilloscope Waveform"
           >
             SCOPE
           </button>
           <button
             onClick={() => setMode('phase')}
-            className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition-all ${
-              mode === 'phase'
-                ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
+            className={`seg-item ${mode === 'phase' ? 'seg-item-active' : ''}`}
             title="Stereo Phase Correlation"
           >
             PHASE

@@ -5,10 +5,7 @@ import {
   Plus,
   Trash2,
   Disc,
-  Copy,
-  Undo2,
-  Redo2,
-  Volume2
+  Copy
 } from 'lucide-react';
 
 interface SequencerProps {
@@ -70,19 +67,19 @@ export const Sequencer: React.FC<SequencerProps> = ({
   }, [isPlaying, currentStep, followPlayhead, activeBar, totalBars]);
 
   return (
-    <div className="w-full bg-[#0d111a] rounded-xl border border-slate-800/80 p-3 sm:p-4 shadow-xl flex flex-col gap-3">
+    <div className="w-full panel p-3 sm:p-4 flex flex-col gap-3">
       {/* Sequencer Header Strip */}
-      <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 pb-3 gap-3">
+      <div className="flex flex-wrap items-center justify-between border-b border-line pb-3 gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-800/60 flex items-center justify-center">
-            <Disc className="w-4 h-4 text-cyan-400" />
+          <div className="tile">
+            <Disc className="w-4 h-4 text-accent" />
           </div>
           <div>
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-100 font-mono">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-ink font-mono">
               Pattern Sequencer & Drum Matrix
             </h2>
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
-              <span className="text-cyan-400 font-semibold">{totalBars} {totalBars === 1 ? 'Bar' : 'Bars'}</span>
+            <div className="flex items-center gap-2 text-[10px] text-ink-3 font-mono">
+              <span className="text-accent font-semibold">{totalBars} {totalBars === 1 ? 'Bar' : 'Bars'}</span>
               <span>•</span>
               <span>{stepCount} Steps Total</span>
             </div>
@@ -99,14 +96,14 @@ export const Sequencer: React.FC<SequencerProps> = ({
               <button
                 key={barIdx}
                 onClick={() => setActiveBar(barIdx)}
-                className={`px-3 py-1 rounded-md text-xs font-mono font-bold transition-all relative cursor-pointer ${
+                className={`relative px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-colors duration-150 cursor-pointer border ${
                   isSelected
-                    ? 'bg-cyan-500 text-slate-950 shadow-sm shadow-cyan-500/20'
-                    : 'bg-slate-800/80 text-slate-300 border border-slate-700/60 hover:bg-slate-700'
+                    ? 'bg-raised text-ink border-line-strong'
+                    : 'bg-well text-ink-3 border-line hover:text-ink-2'
                 }`}
               >
                 {isPlayingBar && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-sm" />
+                  <span className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 )}
                 <span>Bar {barIdx + 1}</span>
               </button>
@@ -116,7 +113,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
           {onAddBar && (
             <button
               onClick={onAddBar}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-bold active:scale-95 transition-all cursor-pointer"
+              className="btn h-7"
               title="Add 1 more bar (16 steps)"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -130,7 +127,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 const nextBar = (activeBar + 1) % totalBars;
                 onDuplicateBar(activeBar, nextBar);
               }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-purple-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all cursor-pointer"
+              className="btn h-7"
               title="Duplicate current bar notes to next bar"
             >
               <Copy className="w-3.5 h-3.5" />
@@ -140,10 +137,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
 
           <button
             onClick={() => setFollowPlayhead(!followPlayhead)}
-            className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`h-7 px-2.5 rounded-md text-xs font-mono font-bold transition-colors duration-150 cursor-pointer border ${
               followPlayhead
-                ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                : 'bg-slate-800/80 text-slate-400 border border-slate-700/60'
+                ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/30'
+                : 'bg-well text-ink-3 border-line hover:text-ink-2'
             }`}
             title="Auto-switch view to currently playing bar"
           >
@@ -153,7 +150,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
           {onClearAllNotes && (
             <button
               onClick={onClearAllNotes}
-              className="px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 text-xs font-semibold cursor-pointer"
+              className="btn h-7"
               title="Clear all pattern steps across all tracks"
             >
               Clear All
@@ -165,27 +162,31 @@ export const Sequencer: React.FC<SequencerProps> = ({
         <div className="flex items-center gap-1.5 ml-auto">
           <button
             onClick={() => onAddTrack('drum')}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all cursor-pointer"
+            className="btn h-7"
+            title="Add Drum Track"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-accent" />
             <span>Drum</span>
           </button>
           <button
             onClick={() => onAddTrack('synth')}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-pink-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all cursor-pointer"
+            className="btn h-7"
+            title="Add Synth Track"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-magenta" />
             <span>Synth</span>
           </button>
         </div>
       </div>
 
       {/* Step Numbers Strip with 4-Beat Measure Grouping */}
-      <div className="flex items-center justify-between text-xs text-slate-400 px-2 py-1 bg-[#10141f] rounded-lg border border-slate-800/60">
-        <span className="font-mono text-[11px] text-cyan-300 font-semibold">
-          Bar {activeBar + 1} • Steps {activeBar * 16 + 1}–{activeBar * 16 + 16}
-        </span>
-        <div className="hidden sm:flex items-center gap-1.5">
+      <div className="flex items-center gap-3 px-2 py-1 bg-well rounded-md border border-line">
+        <div className="w-52 sm:w-60 flex-shrink-0">
+          <span className="micro-label normal-case tracking-normal">
+            Bar {activeBar + 1} • Steps {activeBar * 16 + 1}–{activeBar * 16 + 16}
+          </span>
+        </div>
+        <div className="hidden sm:flex items-center gap-1.5 flex-1 min-w-max">
           {Array.from({ length: 16 }).map((_, i) => {
             const globalIdx = activeBar * 16 + i;
             const isBeatStart = i % 4 === 0;
@@ -194,12 +195,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
             return (
               <div
                 key={i}
-                className={`w-8 sm:w-9 h-5 flex items-center justify-center rounded text-[10px] font-mono font-bold transition-all ${
+                className={`w-8 sm:w-9 h-5 flex items-center justify-center rounded text-[10px] font-mono font-bold transition-colors ${
                   isCurrent
-                    ? 'bg-cyan-400 text-slate-950 font-black shadow-sm shadow-cyan-400/50 scale-105'
+                    ? 'bg-accent text-[#052730]'
                     : isBeatStart
-                    ? 'bg-slate-800 text-slate-200 border border-slate-700/60'
-                    : 'bg-slate-900/60 text-slate-500'
+                    ? 'bg-raised text-ink-2 border border-line'
+                    : 'text-ink-3'
                 }`}
               >
                 {i + 1}
@@ -210,17 +211,17 @@ export const Sequencer: React.FC<SequencerProps> = ({
       </div>
 
       {/* Tracks Grid */}
-      <div className="flex flex-col gap-2 overflow-x-auto pb-1 scrollbar-thin">
+      <div className="flex flex-col gap-2 overflow-x-auto pb-1">
         {tracks.map((track, trackIndex) => {
           const isMuted = track.muted || (anySoloActive && !track.solo);
 
           return (
             <div
               key={track.id}
-              className={`flex items-center gap-3 p-2 rounded-lg transition-all border ${
+              className={`flex items-center gap-3 p-2 rounded-lg transition-colors border min-w-max ${
                 isMuted
-                  ? 'bg-slate-950/40 border-slate-900 opacity-50'
-                  : 'bg-[#10141f] border-slate-800/80 hover:border-slate-700/90'
+                  ? 'bg-base/40 border-line opacity-50'
+                  : 'bg-well border-line'
               }`}
             >
               {/* Channel Strip Header: Info, M/S, Volume */}
@@ -232,14 +233,14 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   title="Click to audition track sound"
                 >
                   <div
-                    className="w-2.5 h-8 rounded-full flex-shrink-0 transition-transform group-hover:scale-110 shadow-sm"
+                    className="w-2.5 h-8 rounded-full flex-shrink-0 transition-transform group-hover:scale-110"
                     style={{ backgroundColor: track.color }}
                   />
                   <div className="truncate">
-                    <div className="text-xs font-bold text-slate-200 group-hover:text-cyan-300 transition-colors truncate">
+                    <div className="text-xs font-semibold text-ink group-hover:text-accent transition-colors truncate">
                       {track.name}
                     </div>
-                    <div className="text-[9px] text-slate-500 font-mono uppercase tracking-wider">
+                    <div className="micro-label normal-case tracking-normal">
                       {track.sound}
                     </div>
                   </div>
@@ -249,10 +250,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => onToggleMute(trackIndex)}
-                    className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                    className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-mono font-bold transition-colors cursor-pointer border ${
                       track.muted
-                        ? 'bg-rose-600 text-white shadow-sm shadow-rose-600/40 border border-rose-500'
-                        : 'bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700/60'
+                        ? 'bg-rose-500 text-white border-rose-400/40'
+                        : 'bg-raised text-ink-3 border-line hover:text-ink'
                     }`}
                     title="Mute Track"
                   >
@@ -260,10 +261,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   </button>
                   <button
                     onClick={() => onToggleSolo(trackIndex)}
-                    className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                    className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-mono font-bold transition-colors cursor-pointer border ${
                       track.solo
-                        ? 'bg-amber-400 text-slate-950 font-black shadow-sm shadow-amber-400/40 border border-amber-300'
-                        : 'bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700/60'
+                        ? 'bg-amber-400 text-zinc-950 border-amber-300/50'
+                        : 'bg-raised text-ink-3 border-line hover:text-ink'
                     }`}
                     title="Solo Track"
                   >
@@ -280,7 +281,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                     step={0.02}
                     value={track.volume}
                     onChange={(e) => onUpdateTrackVolume(trackIndex, Number(e.target.value))}
-                    className="w-full h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-cyan-400"
+                    className="w-full"
                     title={`Channel Level: ${Math.round(track.volume * 100)}%`}
                   />
                 </div>
@@ -289,7 +290,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 <div className="flex items-center gap-0.5">
                   <button
                     onClick={() => onClearTrack(trackIndex)}
-                    className="p-1 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                    className="btn-icon w-6 h-6 rounded"
                     title="Clear pattern steps"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
@@ -297,7 +298,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   {tracks.length > 3 && (
                     <button
                       onClick={() => onRemoveTrack(trackIndex)}
-                      className="p-1 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer"
+                      className="btn-icon w-6 h-6 rounded hover:text-rose-400"
                       title="Delete Track"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -323,23 +324,22 @@ export const Sequencer: React.FC<SequencerProps> = ({
                         e.preventDefault();
                         onToggleRoll(trackIndex, globalStepIdx);
                       }}
-                      className={`relative h-11 w-8 sm:w-9 rounded-md flex flex-col items-center justify-between p-1 transition-all active:scale-95 cursor-pointer border ${
+                      className={`relative h-11 w-8 sm:w-9 rounded-md flex flex-col items-center justify-between p-1 transition-colors duration-100 cursor-pointer border ${
                         isCurrent
-                          ? 'border-cyan-300 ring-2 ring-cyan-400/50'
-                          : isBeatQuarter
-                          ? 'border-slate-700/80'
-                          : 'border-slate-800/60'
+                          ? 'ring-1 ring-accent'
+                          : ''
                       } ${
                         isActive
-                          ? 'shadow-md'
+                          ? 'border-transparent'
                           : isBeatQuarter
-                          ? 'bg-[#151a27] hover:bg-slate-800/80'
-                          : 'bg-[#0f131e] hover:bg-slate-800/60'
+                          ? 'bg-raised border-line-strong hover:bg-panel'
+                          : 'bg-well border-line hover:bg-raised'
                       }`}
-                      style={{
-                        backgroundColor: isActive ? track.color : undefined,
-                        boxShadow: isActive ? `0 0 12px ${track.color}55` : undefined
-                      }}
+                      style={
+                        isActive
+                          ? { backgroundColor: track.color }
+                          : undefined
+                      }
                       title={`${track.name} • Step ${localIdx + 1}${
                         step?.isRoll ? ' (1/32 Roll)' : ''
                       } (Right click to toggle roll)`}
@@ -348,9 +348,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
                       <span
                         className={`w-1 h-1 rounded-full ${
                           isActive
-                            ? 'bg-slate-950'
+                            ? 'bg-black/50'
                             : isBeatQuarter
-                            ? 'bg-slate-500'
+                            ? 'bg-ink-3'
                             : 'bg-transparent'
                         }`}
                       />
@@ -358,7 +358,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                       {/* Note or Roll badge */}
                       <span
                         className={`text-[8px] font-mono font-bold leading-none select-none ${
-                          isActive ? 'text-slate-950 font-black' : 'text-slate-500'
+                          isActive ? 'text-black/70' : 'text-ink-3'
                         }`}
                       >
                         {isActive
@@ -373,7 +373,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                       {/* Velocity bar */}
                       <div
                         className={`w-full rounded-sm ${
-                          isActive ? 'bg-slate-950/40' : 'bg-transparent'
+                          isActive ? 'bg-black/30' : 'bg-line'
                         }`}
                         style={{ height: isActive ? `${(step.velocity || 0.8) * 3}px` : '2px' }}
                       />

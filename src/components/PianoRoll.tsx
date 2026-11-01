@@ -9,9 +9,7 @@ import {
   Sparkles,
   Clock,
   Plus,
-  Copy,
-  Undo2,
-  Redo2
+  Copy
 } from 'lucide-react';
 
 interface PianoRollProps {
@@ -147,12 +145,12 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
 
   if (!isSynth) {
     return (
-      <div className="w-full bg-[#0d111a] rounded-xl border border-slate-800/80 p-6 flex flex-col items-center justify-center text-center shadow-lg">
-        <div className="w-12 h-12 rounded-xl bg-purple-950/60 border border-purple-800/60 flex items-center justify-center mb-3">
-          <Music className="w-6 h-6 text-purple-400" />
+      <div className="w-full panel p-6 flex flex-col items-center justify-center text-center">
+        <div className="w-12 h-12 rounded-xl bg-magenta/10 border border-magenta/20 flex items-center justify-center mb-3">
+          <Music className="w-6 h-6 text-magenta" />
         </div>
-        <h3 className="text-sm font-bold text-slate-200">Piano Roll Melodic Editor</h3>
-        <p className="text-xs text-slate-400 max-w-sm mt-1 mb-4">
+        <h3 className="text-sm font-bold text-ink">Piano Roll Melodic Editor</h3>
+        <p className="text-xs text-ink-2 max-w-sm mt-1 mb-4">
           Select a synthesizer or bass voice below to compose melodies, basslines, and chord patterns.
         </p>
         <div className="flex flex-wrap gap-2 justify-center">
@@ -160,9 +158,13 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
             <button
               key={track.id}
               onClick={() => onSelectTrack(originalIdx)}
-              className="px-3.5 py-1.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 border border-purple-700/60 text-purple-300 text-xs font-semibold transition-all active:scale-95 cursor-pointer shadow-sm"
+              className="btn"
             >
-              Open {track.name}
+              <span
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{ backgroundColor: track.color }}
+              />
+              <span>Open {track.name}</span>
             </button>
           ))}
         </div>
@@ -171,32 +173,36 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
   }
 
   return (
-    <div className="w-full bg-[#0d111a] rounded-xl border border-slate-800/80 p-3 sm:p-4 shadow-xl flex flex-col gap-3">
+    <div className="w-full panel p-3 sm:p-4 flex flex-col gap-3">
       {/* Header Strip */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-pink-950/80 border border-pink-800/60 flex items-center justify-center">
-              <Music className="w-4 h-4 text-pink-400" />
+            <div className="w-7 h-7 rounded-md bg-magenta/10 border border-magenta/20 flex items-center justify-center flex-shrink-0">
+              <Music className="w-4 h-4 text-magenta" />
             </div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100 font-mono">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-ink font-mono">
               Melodic Piano Roll
             </h3>
           </div>
 
           {/* Synth Track Selector Tabs */}
-          <div className="flex items-center gap-1 bg-[#10141f] p-1 rounded-lg border border-slate-800 overflow-x-auto max-w-full">
+          <div className="flex items-center gap-1 bg-well p-1 rounded-md border border-line overflow-x-auto max-w-full">
             {synthTracks.map(({ track, originalIdx }) => (
               <button
                 key={track.id}
                 onClick={() => onSelectTrack(originalIdx)}
-                className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer border ${
                   selectedTrackIndex === originalIdx
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-sm shadow-pink-500/20'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-raised text-ink border-line-strong'
+                    : 'text-ink-3 border-transparent hover:text-ink-2'
                 }`}
               >
-                {track.name}
+                <span
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: track.color }}
+                />
+                <span>{track.name}</span>
               </button>
             ))}
           </div>
@@ -212,14 +218,14 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
               <button
                 key={barIdx}
                 onClick={() => setActiveBar(barIdx)}
-                className={`px-3 py-1 rounded-md text-xs font-mono font-bold transition-all relative cursor-pointer ${
+                className={`relative px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-colors cursor-pointer border ${
                   isSelected
-                    ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                    : 'bg-slate-800/80 text-slate-300 border border-slate-700/60 hover:bg-slate-700'
+                    ? 'bg-raised text-ink border-line-strong'
+                    : 'bg-well text-ink-3 border-line hover:text-ink-2'
                 }`}
               >
                 {isPlayingBar && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-sm" />
+                  <span className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 )}
                 <span>Bar {barIdx + 1}</span>
               </button>
@@ -229,7 +235,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
           {onAddBar && (
             <button
               onClick={onAddBar}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-bold active:scale-95 transition-all cursor-pointer"
+              className="btn h-7"
               title="Add 1 more bar (16 steps)"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -243,7 +249,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                 const nextBar = (activeBar + 1) % totalBars;
                 onDuplicateBar(activeBar, nextBar);
               }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-purple-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all cursor-pointer"
+              className="btn h-7"
               title="Duplicate current bar notes to next bar"
             >
               <Copy className="w-3.5 h-3.5" />
@@ -253,10 +259,10 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
 
           <button
             onClick={() => setFollowPlayhead(!followPlayhead)}
-            className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`h-7 px-2.5 rounded-md text-xs font-mono font-bold transition-colors cursor-pointer border ${
               followPlayhead
-                ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                : 'bg-slate-800/80 text-slate-400 border border-slate-700/60'
+                ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/30'
+                : 'bg-well text-ink-3 border-line hover:text-ink-2'
             }`}
             title="Auto-switch view to playing bar"
           >
@@ -267,9 +273,9 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
         {/* Note Duration & Octave Controls */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Note Duration Picker */}
-          <div className="flex items-center gap-1 bg-[#10141f] px-2.5 py-1 rounded-lg border border-slate-800 text-xs">
-            <Clock className="w-3.5 h-3.5 text-cyan-400 mr-1" />
-            <span className="text-[10px] text-slate-400 font-mono font-bold mr-1">LENGTH:</span>
+          <div className="flex items-center gap-1 well px-2.5 py-1 text-xs">
+            <Clock className="w-3.5 h-3.5 text-accent mr-1 flex-shrink-0" />
+            <span className="micro-label mr-1">Length</span>
             {[
               { steps: 1, label: '1/16' },
               { steps: 2, label: '1/8' },
@@ -279,10 +285,10 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
               <button
                 key={steps}
                 onClick={() => setSelectedDuration(steps)}
-                className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-colors cursor-pointer border ${
                   selectedDuration === steps
-                    ? 'bg-cyan-500 text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white bg-slate-800/60'
+                    ? 'bg-raised text-ink border-line-strong'
+                    : 'text-ink-3 border-transparent hover:text-ink-2'
                 }`}
                 title={`Set new notes duration to ${steps} steps (${label})`}
               >
@@ -292,40 +298,40 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
           </div>
 
           {/* Octave Navigation */}
-          <div className="flex items-center gap-1 bg-[#10141f] px-2 py-1 rounded-lg border border-slate-800 text-xs">
-            <span className="text-[10px] text-slate-500 font-mono font-bold">OCTAVE:</span>
-            <span className="text-cyan-300 font-mono font-bold">C{octaveOffset}–B{octaveOffset + 1}</span>
+          <div className="flex items-center gap-1 well px-2 py-1 text-xs">
+            <span className="micro-label">Octave</span>
+            <span className="text-accent font-mono font-bold">C{octaveOffset}–B{octaveOffset + 1}</span>
             <button
               onClick={() => setOctaveOffset((o) => Math.max(1, o - 1))}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer"
+              className="p-1 text-ink-3 hover:text-ink cursor-pointer"
               title="Lower Octave"
             >
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setOctaveOffset((o) => Math.min(5, o + 1))}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer"
+              className="p-1 text-ink-3 hover:text-ink cursor-pointer"
               title="Higher Octave"
             >
               <ChevronUp className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-mono text-cyan-300 bg-cyan-950/50 px-2.5 py-1 rounded-lg border border-cyan-800/50">
-            <Sparkles className="w-3 h-3 text-cyan-400" />
+          <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-mono text-accent bg-accent/10 px-2.5 py-1 rounded-md border border-accent/20">
+            <Sparkles className="w-3 h-3 text-accent" />
             <span>{rootKey} {scaleName}</span>
           </div>
         </div>
       </div>
 
       {/* Grid Guide Banner */}
-      <div className="flex items-center justify-between text-[10px] text-slate-400 px-2 py-1 bg-[#10141f] rounded-lg border border-slate-800/60 font-mono">
+      <div className="flex items-center justify-between text-[10px] text-ink-3 px-2 py-1 bg-well rounded-md border border-line font-mono">
         <span>Bar {activeBar + 1} • Steps {activeBar * 16 + 1}–{activeBar * 16 + 16} • Cyan dot marks notes in {rootKey} {scaleName}</span>
-        <span className="text-cyan-400 font-semibold">{currentTrack?.name} Active</span>
+        <span className="text-accent font-semibold">{currentTrack?.name} Active</span>
       </div>
 
       {/* Piano Roll Grid Container */}
-      <div className="w-full max-h-[380px] overflow-y-auto scrollbar-thin rounded-lg border border-slate-800 bg-[#07090f]">
+      <div className="w-full max-h-[380px] overflow-y-auto rounded-lg border border-line bg-well">
         <div className="flex flex-col">
           {displayNotes.map((note) => {
             const pitchName = note.replace(/\d+/, '');
@@ -335,28 +341,28 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
             return (
               <div
                 key={note}
-                className={`flex items-center border-b border-slate-900/90 ${
-                  isBlackKey ? 'bg-[#090c13]' : 'bg-[#0d121c]'
+                className={`flex items-center border-b border-line/50 ${
+                  isBlackKey ? 'bg-base/60' : ''
                 }`}
               >
                 {/* Piano Key */}
                 <button
                   onClick={() => handleKeyClick(note)}
-                  className={`w-20 sm:w-24 h-7 flex-shrink-0 flex items-center justify-between px-2 text-[10px] font-mono font-bold border-r border-slate-800/90 transition-colors active:bg-cyan-500 active:text-slate-950 cursor-pointer ${
+                  className={`w-20 sm:w-24 h-7 flex-shrink-0 flex items-center justify-between px-2 text-[10px] font-mono font-bold border-r border-line transition-colors cursor-pointer ${
                     isBlackKey
-                      ? 'bg-slate-950 text-slate-400 hover:bg-slate-900 shadow-inner'
-                      : 'bg-slate-800/40 text-slate-200 hover:bg-slate-700/60'
+                      ? 'bg-well text-ink-3 hover:text-ink-2'
+                      : 'bg-raised text-ink-2 hover:text-ink'
                   }`}
                   title={`Play note ${note}`}
                 >
                   <span>{note}</span>
                   {isInScale && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400/90 shadow-sm" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent/70" />
                   )}
                 </button>
 
                 {/* 16 Step Cells for Active Bar */}
-                <div className="flex flex-1 items-center relative h-7">
+                <div className="flex flex-1 items-center relative h-7 min-w-max">
                   {Array.from({ length: 16 }).map((_, localStepIdx) => {
                     const globalStepIdx = activeBar * 16 + localStepIdx;
                     const step = currentTrack.steps[globalStepIdx];
@@ -388,21 +394,28 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                         key={localStepIdx}
                         onClick={() => handleCellClick(localStepIdx, note)}
                         onContextMenu={(e) => isNoteHead && handleCycleDuration(e, globalStepIdx)}
-                        className={`flex-1 h-7 border-r border-slate-900/60 transition-all relative flex items-center justify-between px-0.5 cursor-pointer ${
-                          isCurrent ? 'bg-cyan-950/40 ring-1 ring-cyan-400/40 z-20' : ''
+                        className={`flex-1 h-7 border-r border-line/40 transition-colors relative flex items-center justify-between px-0.5 cursor-pointer ${
+                          isCurrent ? 'bg-accent/[0.07]' : ''
+                        } ${isBeatQuarter ? 'border-l border-line/70' : ''} ${
+                          isSustainedTail ? 'border-t border-b' : ''
                         } ${
                           isNoteHead
-                            ? 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-sm shadow-pink-500/30 text-white z-10 rounded-sm'
-                            : isSustainedTail
-                            ? 'bg-purple-900/50 border-t border-b border-purple-500/30'
+                            ? ''
                             : isInScale
-                            ? isBeatQuarter
-                              ? 'hover:bg-slate-800/60 bg-slate-900/20'
-                              : 'hover:bg-slate-800/40 bg-transparent'
-                            : isBeatQuarter
-                            ? 'hover:bg-slate-800/40 bg-slate-950/40'
-                            : 'hover:bg-slate-800/30 bg-slate-950/70'
+                            ? 'hover:bg-raised/60'
+                            : 'hover:bg-raised/30'
                         }`}
+                        style={
+                          isNoteHead
+                            ? { backgroundColor: currentTrack.color }
+                            : isSustainedTail
+                            ? {
+                                backgroundColor: `${currentTrack.color}26`,
+                                borderTopColor: `${currentTrack.color}55`,
+                                borderBottomColor: `${currentTrack.color}55`
+                              }
+                            : undefined
+                        }
                         title={
                           isNoteHead
                             ? `${note} (Bar ${activeBar + 1}, Duration: ${noteDuration} steps) • Right-click or use [+] / [-] to resize`
@@ -413,20 +426,20 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                       >
                         {isNoteHead && (
                           <>
-                            <span className="text-[9px] font-mono font-bold leading-none select-none pl-0.5 truncate">
+                            <span className="text-[9px] font-mono font-bold leading-none select-none pl-0.5 truncate text-black/80">
                               {note}
                             </span>
                             <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
                               <button
                                 onClick={(e) => handleStepDurationAdjust(e, globalStepIdx, -1)}
-                                className="w-3.5 h-3.5 flex items-center justify-center rounded bg-black/40 hover:bg-black/80 text-[8px] leading-none text-white cursor-pointer"
+                                className="w-3.5 h-3.5 flex items-center justify-center rounded bg-black/30 hover:bg-black/60 text-[8px] leading-none text-white cursor-pointer"
                                 title="Shorten note (-1 step)"
                               >
                                 -
                               </button>
                               <button
                                 onClick={(e) => handleStepDurationAdjust(e, globalStepIdx, 1)}
-                                className="w-3.5 h-3.5 flex items-center justify-center rounded bg-black/40 hover:bg-black/80 text-[8px] leading-none text-white cursor-pointer"
+                                className="w-3.5 h-3.5 flex items-center justify-center rounded bg-black/30 hover:bg-black/60 text-[8px] leading-none text-white cursor-pointer"
                                 title="Lengthen note (+1 step)"
                               >
                                 +
@@ -435,7 +448,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                           </>
                         )}
                         {isSustainedTail && (
-                          <div className="w-full h-1 bg-pink-400/50 rounded-full mx-auto" />
+                          <div className="w-full h-0.5 rounded-full mx-auto" style={{ backgroundColor: `${currentTrack.color}66` }} />
                         )}
                       </div>
                     );

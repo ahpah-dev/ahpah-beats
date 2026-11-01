@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { audioEngine } from '../audio/AudioEngine';
-import { Sparkles, Sliders, Waves, Zap } from 'lucide-react';
+import { Sparkles, Zap } from 'lucide-react';
 
 export const MobileXYPad: React.FC = () => {
   const padRef = useRef<HTMLDivElement | null>(null);
@@ -63,14 +63,14 @@ export const MobileXYPad: React.FC = () => {
   return (
     <div className="w-full flex flex-col gap-3 select-none">
       {/* Header */}
-      <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-md border border-slate-800">
+      <div className="flex items-center justify-between bg-panel px-3 py-2 rounded-lg border border-line">
         <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
+          <Zap className="w-4 h-4 text-accent" />
+          <span className="text-xs font-bold uppercase tracking-wider text-ink">
             Live XY FX Touchpad
           </span>
         </div>
-        <span className="text-[11px] font-mono text-cyan-400">
+        <span className={`text-[11px] font-mono font-bold ${isEngaged ? 'text-accent' : 'text-ink-3'}`}>
           {isEngaged ? 'TOUCH ACTIVE' : 'DRAG FINGER'}
         </span>
       </div>
@@ -85,47 +85,46 @@ export const MobileXYPad: React.FC = () => {
         onMouseMove={handleTouchMove}
         onMouseUp={handleTouchEnd}
         onMouseLeave={handleTouchEnd}
-        className="relative w-full h-64 rounded-lg border border-slate-800 bg-[#090c13] overflow-hidden shadow-sm flex items-center justify-center cursor-crosshair touch-none"
+        className="relative w-full h-64 rounded-xl border border-line bg-well overflow-hidden flex items-center justify-center cursor-crosshair touch-none"
         style={{
-          background: `radial-gradient(circle at ${
-            touchPos ? touchPos.x * 100 : 50
-          }% ${touchPos ? touchPos.y * 100 : 50}%, rgba(0, 242, 254, 0.25), rgba(11, 14, 20, 0.95))`
+          background: touchPos
+            ? `radial-gradient(circle at ${touchPos.x * 100}% ${touchPos.y * 100}%, rgba(34, 211, 238, 0.08), rgba(12, 14, 21, 0.98) 70%)`
+            : undefined
         }}
       >
         {/* Grid lines */}
-        <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 pointer-events-none opacity-15">
+        <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 pointer-events-none opacity-60">
           {Array.from({ length: 16 }).map((_, i) => (
-            <div key={i} className="border border-cyan-500/40" />
+            <div key={i} className="border border-line" />
           ))}
         </div>
 
         {/* Labels on sides */}
-        <div className="absolute top-2 left-3 text-[10px] font-mono text-pink-400 font-bold pointer-events-none">
+        <div className="absolute top-2 left-3 micro-label normal-case tracking-normal text-ink-3 pointer-events-none">
           + REVERB & DELAY (Y)
         </div>
-        <div className="absolute bottom-2 right-3 text-[10px] font-mono text-cyan-400 font-bold pointer-events-none">
+        <div className="absolute bottom-2 right-3 micro-label normal-case tracking-normal text-ink-3 pointer-events-none">
           + FILTER CUTOFF (X) →
         </div>
 
         {/* Cursor Reticle */}
         {touchPos && (
           <div
-            className="absolute w-12 h-12 -ml-6 -mt-6 rounded-full border-2 border-cyan-400 pointer-events-none flex items-center justify-center "
+            className="absolute w-12 h-12 -ml-6 -mt-6 rounded-full border-2 border-accent bg-accent/10 pointer-events-none flex items-center justify-center"
             style={{
               left: `${touchPos.x * 100}%`,
-              top: `${touchPos.y * 100}%`,
-              boxShadow: '0 0 20px #00f2fe'
+              top: `${touchPos.y * 100}%`
             }}
           >
-            <div className="w-3 h-3 rounded-full bg-cyan-300" />
+            <div className="w-2.5 h-2.5 rounded-full bg-accent" />
           </div>
         )}
 
         {!isEngaged && (
           <div className="pointer-events-none text-center">
-            <Sparkles className="w-8 h-8 text-cyan-400/60 mx-auto mb-2 " />
-            <div className="text-xs font-bold text-slate-300">Touch & Drag for Live FX Sweeps</div>
-            <div className="text-[10px] text-slate-500 font-mono mt-0.5">Filter Cutoff ↔ Echo Reverb</div>
+            <Sparkles className="w-8 h-8 text-ink-3 mx-auto mb-2" />
+            <div className="text-xs font-semibold text-ink-2">Touch & Drag for Live FX Sweeps</div>
+            <div className="micro-label normal-case tracking-normal mt-0.5">Filter Cutoff ↔ Echo Reverb</div>
           </div>
         )}
       </div>

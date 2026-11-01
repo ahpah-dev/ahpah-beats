@@ -20,10 +20,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
-  Clock,
   Undo2,
-  Redo2
+  Redo2,
+  Plus,
+  Copy
 } from 'lucide-react';
+
+type MobileTab = 'pads' | 'keys' | 'roll' | 'seq' | 'xy' | 'mix';
 
 interface MobileViewProps {
   project: ProjectData;
@@ -119,19 +122,28 @@ export const MobileView: React.FC<MobileViewProps> = ({
     }
   };
 
+  const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
+    { id: 'pads', label: 'Pads', icon: <Flame className="w-5 h-5" /> },
+    { id: 'keys', label: 'Keys', icon: <Music className="w-5 h-5" /> },
+    { id: 'roll', label: 'Roll', icon: <Layers className="w-5 h-5" /> },
+    { id: 'seq', label: 'Steps', icon: <Disc className="w-5 h-5" /> },
+    { id: 'xy', label: 'XY FX', icon: <Zap className="w-5 h-5" /> },
+    { id: 'mix', label: 'Mixer', icon: <Sliders className="w-5 h-5" /> }
+  ];
+
   return (
-    <div className="w-full min-h-screen bg-[#080a0f] text-slate-100 flex flex-col justify-between pb-24 select-none">
+    <div className="w-full min-h-screen bg-base text-ink flex flex-col justify-between pb-24 select-none">
       {/* Mobile Top Header */}
-      <header className="w-full bg-[#0b0e14]/95  border-b border-slate-800 px-3 py-2 flex items-center justify-between sticky top-0 z-40">
+      <header className="w-full bg-panel/95 backdrop-blur-md border-b border-line px-3 py-2 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 p-0.5 flex items-center justify-center">
-            <Radio className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-md bg-accent/10 border border-accent/25 flex items-center justify-center">
+            <Radio className="w-4 h-4 text-accent" />
           </div>
           <div>
-            <h1 className="text-xs font-black tracking-wider uppercase text-white font-['Inter'] leading-tight">
+            <h1 className="text-xs font-bold tracking-wide text-ink leading-tight">
               AhPah Beats
             </h1>
-            <span className="text-[9px] text-cyan-400 font-mono font-semibold">Mobile Studio</span>
+            <span className="micro-label normal-case tracking-normal">Mobile Studio</span>
           </div>
         </div>
 
@@ -142,8 +154,8 @@ export const MobileView: React.FC<MobileViewProps> = ({
             return (
               <span
                 key={i}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  isCurrentBeat ? 'bg-cyan-400 shadow-sm shadow-cyan-400' : 'bg-slate-800'
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                  isCurrentBeat ? 'bg-accent' : 'bg-raised border border-line'
                 }`}
               />
             );
@@ -154,18 +166,19 @@ export const MobileView: React.FC<MobileViewProps> = ({
         <div className="flex items-center gap-1.5">
           <button
             onClick={onPlayToggle}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all active:scale-95 ${
+            className={`w-9 h-9 rounded-md flex items-center justify-center transition-colors cursor-pointer ${
               isPlaying
-                ? 'bg-amber-500 text-slate-950 font-bold  shadow-amber-500/30'
-                : 'bg-emerald-500 text-slate-950 font-bold  shadow-emerald-500/30'
+                ? 'bg-amber-400 text-zinc-950'
+                : 'bg-accent text-[#052730]'
             }`}
+            title="Play / Pause"
           >
             {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
           </button>
 
           <button
             onClick={onStop}
-            className="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center border border-slate-700/60 active:scale-95"
+            className="btn-icon w-8 h-8"
             title="Stop & Reset"
           >
             <Square className="w-3.5 h-3.5 fill-current" />
@@ -175,11 +188,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
           <button
             onClick={onUndo}
             disabled={!canUndo}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all active:scale-95 ${
-              canUndo
-                ? 'bg-slate-800 text-cyan-400 border-slate-700 hover:bg-slate-700 cursor-pointer'
-                : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
-            }`}
+            className="btn-icon w-8 h-8"
             title="Undo"
           >
             <Undo2 className="w-3.5 h-3.5" />
@@ -189,11 +198,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
           <button
             onClick={onRedo}
             disabled={!canRedo}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all active:scale-95 ${
-              canRedo
-                ? 'bg-slate-800 text-cyan-400 border-slate-700 hover:bg-slate-700 cursor-pointer'
-                : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
-            }`}
+            className="btn-icon w-8 h-8"
             title="Redo"
           >
             <Redo2 className="w-3.5 h-3.5" />
@@ -202,10 +207,10 @@ export const MobileView: React.FC<MobileViewProps> = ({
           {/* Switch to Desktop */}
           <button
             onClick={onToggleViewMode}
-            className="p-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60 active:scale-95 ml-1"
+            className="btn-icon w-8 h-8"
             title="Switch to Desktop Layout"
           >
-            <Monitor className="w-3.5 h-3.5 text-cyan-400" />
+            <Monitor className="w-3.5 h-3.5 text-accent" />
           </button>
         </div>
       </header>
@@ -259,12 +264,12 @@ export const MobileView: React.FC<MobileViewProps> = ({
         {activeTab === 'seq' && (
           <div className="w-full flex flex-col gap-3 select-none">
             {/* Track Selector for Sequencer */}
-            <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-md border border-slate-800">
+            <div className="flex items-center justify-between bg-panel px-3 py-2 rounded-lg border border-line">
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setSelectedSeqTrack((i) => Math.max(0, i - 1))}
                   disabled={selectedSeqTrack === 0}
-                  className="p-1 text-slate-400 disabled:opacity-30"
+                  className="btn-icon w-6 h-6 rounded"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -274,10 +279,10 @@ export const MobileView: React.FC<MobileViewProps> = ({
                     style={{ backgroundColor: project.tracks[selectedSeqTrack]?.color }}
                   />
                   <div>
-                    <div className="text-xs font-bold text-slate-200">
+                    <div className="text-xs font-bold text-ink">
                       {project.tracks[selectedSeqTrack]?.name}
                     </div>
-                    <div className="text-[9px] text-slate-500 font-mono">
+                    <div className="micro-label normal-case tracking-normal">
                       Track {selectedSeqTrack + 1} of {project.tracks.length}
                     </div>
                   </div>
@@ -287,7 +292,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                     setSelectedSeqTrack((i) => Math.min(project.tracks.length - 1, i + 1))
                   }
                   disabled={selectedSeqTrack === project.tracks.length - 1}
-                  className="p-1 text-slate-400 disabled:opacity-30"
+                  className="btn-icon w-6 h-6 rounded"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -297,20 +302,20 @@ export const MobileView: React.FC<MobileViewProps> = ({
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => onToggleMute(selectedSeqTrack)}
-                  className={`w-7 h-7 rounded text-[9px] font-mono font-bold ${
+                  className={`w-7 h-7 rounded text-[9px] font-mono font-bold border transition-colors cursor-pointer ${
                     project.tracks[selectedSeqTrack]?.muted
-                      ? 'bg-rose-500 text-white'
-                      : 'bg-slate-800 text-slate-400'
+                      ? 'bg-rose-500 text-white border-rose-400/40'
+                      : 'bg-raised text-ink-3 border-line hover:text-ink'
                   }`}
                 >
                   M
                 </button>
                 <button
                   onClick={() => onToggleSolo(selectedSeqTrack)}
-                  className={`w-7 h-7 rounded text-[9px] font-mono font-bold ${
+                  className={`w-7 h-7 rounded text-[9px] font-mono font-bold border transition-colors cursor-pointer ${
                     project.tracks[selectedSeqTrack]?.solo
-                      ? 'bg-amber-400 text-slate-950'
-                      : 'bg-slate-800 text-slate-400'
+                      ? 'bg-amber-400 text-zinc-950 border-amber-300/50'
+                      : 'bg-raised text-ink-3 border-line hover:text-ink'
                   }`}
                 >
                   S
@@ -319,8 +324,8 @@ export const MobileView: React.FC<MobileViewProps> = ({
             </div>
 
             {/* Mobile Sequencer Bar Selector Strip */}
-            <div className="flex items-center justify-between bg-[#121622] p-2 rounded-md border border-slate-800 gap-2">
-              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-thin">
+            <div className="flex items-center justify-between bg-panel p-2 rounded-lg border border-line gap-2">
+              <div className="flex items-center gap-1.5 overflow-x-auto">
                 {Array.from({ length: totalBars }).map((_, barIdx) => {
                   const isSelected = seqActiveBar === barIdx;
                   const isCurrentPlayingBar = isPlaying && Math.floor(currentStep / 16) === barIdx;
@@ -328,14 +333,14 @@ export const MobileView: React.FC<MobileViewProps> = ({
                     <button
                       key={barIdx}
                       onClick={() => setSeqActiveBar(barIdx)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all relative ${
+                      className={`relative px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-colors cursor-pointer border ${
                         isSelected
-                          ? 'bg-cyan-500 text-slate-950 font-black shadow-sm'
-                          : 'bg-slate-800 text-slate-300 border border-slate-700/60'
+                          ? 'bg-raised text-ink border-line-strong'
+                          : 'bg-well text-ink-3 border-line hover:text-ink-2'
                       }`}
                     >
                       {isCurrentPlayingBar && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 " />
+                        <span className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-emerald-400" />
                       )}
                       <span>Bar {barIdx + 1}</span>
                     </button>
@@ -344,10 +349,11 @@ export const MobileView: React.FC<MobileViewProps> = ({
                 {onAddBar && (
                   <button
                     onClick={onAddBar}
-                    className="p-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold border border-slate-700/60"
+                    className="btn h-7"
                     title="Add another bar"
                   >
-                    + Bar
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Bar</span>
                   </button>
                 )}
               </div>
@@ -359,10 +365,11 @@ export const MobileView: React.FC<MobileViewProps> = ({
                       const nextBar = (seqActiveBar + 1) % totalBars;
                       onDuplicateBar(seqActiveBar, nextBar);
                     }}
-                    className="px-2 py-1 rounded-lg bg-slate-800 text-purple-300 border border-slate-700 text-xs font-semibold whitespace-nowrap active:scale-95"
+                    className="btn h-7"
                     title="Copy Bar"
                   >
-                    Copy Bar
+                    <Copy className="w-3 h-3" />
+                    <span>Copy Bar</span>
                   </button>
                 )}
               </div>
@@ -383,28 +390,26 @@ export const MobileView: React.FC<MobileViewProps> = ({
                     key={stepIdx}
                     onClick={() => onToggleStep(selectedSeqTrack, globalStepIdx)}
                     onContextMenu={(e) => handleCycleMobileStepDuration(e, globalStepIdx)}
-                    className={`h-16 rounded-md flex flex-col items-center justify-between p-2 border transition-all active:scale-95 ${
-                      isCurrent
-                        ? 'border-cyan-400 ring-2 ring-cyan-400/50'
-                        : isBeatQuarter
-                        ? 'border-slate-700'
-                        : 'border-slate-800/80'
+                    className={`h-16 rounded-lg flex flex-col items-center justify-between p-2 border transition-colors cursor-pointer ${
+                      isCurrent ? 'ring-1 ring-accent' : ''
                     } ${
                       isActive
-                        ? 'shadow-sm'
+                        ? 'border-transparent'
                         : isBeatQuarter
-                        ? 'bg-[#151a28]'
-                        : 'bg-[#0f131c]'
+                        ? 'bg-raised border-line-strong'
+                        : 'bg-well border-line'
                     }`}
-                    style={{
-                      backgroundColor: isActive ? track?.color : undefined,
-                      boxShadow: isActive ? `0 0 15px ${track?.color}66` : undefined
-                    }}
+                    style={
+                      isActive
+                        ? { backgroundColor: track?.color }
+                        : undefined
+                    }
+                    title={`Step ${globalStepIdx + 1}${step?.isRoll ? ' (1/32 Roll)' : ''} (Right click to resize)`}
                   >
-                    <span className="text-[10px] font-mono font-bold text-slate-400">
+                    <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-black/60' : 'text-ink-3'}`}>
                       #{globalStepIdx + 1}
                     </span>
-                    <span className="text-xs font-mono font-black text-slate-950">
+                    <span className={`text-xs font-mono font-bold ${isActive ? 'text-black' : ''}`}>
                       {isActive
                         ? step.isRoll
                           ? 'ROLL'
@@ -415,7 +420,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                     </span>
                     <div
                       className={`w-4 h-1 rounded-full ${
-                        isActive ? 'bg-slate-950' : 'bg-transparent'
+                        isActive ? 'bg-black/40' : 'bg-line'
                       }`}
                     />
                   </button>
@@ -443,67 +448,26 @@ export const MobileView: React.FC<MobileViewProps> = ({
         )}
       </main>
 
-      {/* Tactile Mobile Bottom Navigation Bar with dedicated Piano Roll tab */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#0b0e14]/95  border-t border-slate-800/90 flex items-center justify-around px-2 z-50">
-        <button
-          onClick={() => setActiveTab('pads')}
-          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'pads' ? 'text-cyan-400 font-bold' : 'text-slate-500 hover:text-slate-300'
-          }`}
-        >
-          <Flame className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-mono">Pads</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('keys')}
-          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'keys' ? 'text-pink-400 font-bold' : 'text-slate-500 hover:text-slate-300'
-          }`}
-        >
-          <Music className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-mono">Keys</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('roll')}
-          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'roll' ? 'text-purple-400 font-bold' : 'text-slate-500 hover:text-slate-300'
-          }`}
-        >
-          <Layers className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-mono">Roll</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('seq')}
-          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'seq' ? 'text-emerald-400 font-bold' : 'text-slate-500 hover:text-slate-300'
-          }`}
-        >
-          <Disc className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-mono">Steps</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('xy')}
-          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'xy' ? 'text-amber-400 font-bold' : 'text-slate-500 hover:text-slate-300'
-          }`}
-        >
-          <Zap className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-mono">XY FX</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('mix')}
-          className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-            activeTab === 'mix' ? 'text-indigo-400 font-bold' : 'text-slate-500 hover:text-slate-300'
-          }`}
-        >
-          <Sliders className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-mono">Mixer</span>
-        </button>
+      {/* Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-panel/95 backdrop-blur-md border-t border-line flex items-stretch justify-around px-1 z-50">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 py-1 transition-colors cursor-pointer ${
+                isActive ? 'text-accent' : 'text-ink-3 hover:text-ink-2'
+              }`}
+            >
+              {isActive && (
+                <span className="absolute top-0 w-8 h-0.5 rounded-b-full bg-accent" />
+              )}
+              {tab.icon}
+              <span className="text-[10px] font-semibold">{tab.label}</span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );

@@ -17,7 +17,7 @@ import { EffectsRack } from './components/EffectsRack';
 import { MobileView } from './components/MobileView';
 import { DesktopModal } from './components/DesktopModal';
 import confetti from 'canvas-confetti';
-import { Sparkles, CheckCircle2, Music2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 const STORAGE_KEY = 'ahpah_beats_autosave';
 
@@ -73,7 +73,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     try {
       if (localStorage.getItem(STORAGE_KEY)) {
-        showToast('Restored previous project session!  (Undo enabled)');
+        showToast('Restored previous project session (Undo enabled)');
       }
     } catch (e) {}
   }, []);
@@ -118,7 +118,7 @@ export const App: React.FC = () => {
     setRedoStack((prev) => [...prev, currentSnapshot]);
     setUndoStack(stack);
     setProject(previous);
-    showToast('↩️ Undone');
+      showToast('Undone');
   }, []);
 
   // Redo Handler
@@ -134,7 +134,7 @@ export const App: React.FC = () => {
     setUndoStack((prev) => [...prev, currentSnapshot]);
     setRedoStack(stack);
     setProject(next);
-    showToast('↪️ Redone');
+      showToast('Redone');
   }, []);
 
   // Sync project tracks and effects to audioEngine
@@ -254,7 +254,7 @@ export const App: React.FC = () => {
         audioEngine.stop();
         setIsPlaying(false);
       }
-      showToast(`Loaded "${presetName}" preset! 🎵 (Undo with Ctrl+Z)`);
+      showToast(`Loaded "${presetName}" preset (Undo with Ctrl+Z)`);
     }
   };
 
@@ -378,7 +378,7 @@ export const App: React.FC = () => {
       });
       return { ...prev, tracks: newTracks };
     });
-    showToast(`Switched synth to ${sound}! 🎹`);
+    showToast(`Switched synth to ${sound}`);
   };
 
   // Change Step Count / Song Length (e.g. 16, 32, 64, 128 steps)
@@ -397,7 +397,7 @@ export const App: React.FC = () => {
       };
     });
     const bars = Math.round(newCount / 16);
-    showToast(`Song length set to ${bars} ${bars === 1 ? 'Bar' : 'Bars'} (${newCount} steps)! 🎶`);
+    showToast(`Song length set to ${bars} ${bars === 1 ? 'Bar' : 'Bars'} (${newCount} steps)`);
   };
 
   // Add 1 more Bar (16 steps)
@@ -415,7 +415,7 @@ export const App: React.FC = () => {
         tracks: newTracks
       };
     });
-    showToast(`Added another bar! 🚀`);
+    showToast('Added another bar');
   };
 
   // Duplicate Bar (sourceBar -> targetBar)
@@ -430,7 +430,7 @@ export const App: React.FC = () => {
         tracks: newTracks
       };
     });
-    showToast(`Copied Bar ${sourceBar + 1} to Bar ${targetBar + 1}! ✨`);
+    showToast(`Copied Bar ${sourceBar + 1} to Bar ${targetBar + 1}`);
   };
 
   // Track volume update
@@ -522,7 +522,7 @@ export const App: React.FC = () => {
         name: type === 'drum' ? `Percussion ${count}` : `Synth Voice ${count}`,
         type,
         sound: type === 'drum' ? 'percussion' : 'neon-lead',
-        color: type === 'drum' ? '#00f2fe' : '#ff007f',
+        color: type === 'drum' ? '#22d3ee' : '#e879f9',
         volume: 0.8,
         pan: 0,
         muted: false,
@@ -546,7 +546,7 @@ export const App: React.FC = () => {
       const newTracks = prev.tracks.filter((_, i) => i !== trackIndex);
       return { ...prev, tracks: newTracks };
     });
-    showToast('Removed track. (Press Undo to revert) ↩️');
+    showToast('Removed track (Press Undo to revert)');
   };
 
   // Key & Scale Change
@@ -569,7 +569,7 @@ export const App: React.FC = () => {
         spread: 70,
         origin: { y: 0.6 }
       });
-      showToast('WAV Export complete! Audio downloaded. 🚀');
+      showToast('WAV export complete. Audio downloaded.');
     } catch (err) {
       console.error(err);
       showToast('Export error. Please try again.');
@@ -597,7 +597,7 @@ export const App: React.FC = () => {
         if (loaded && loaded.tracks && loaded.bpm) {
           pushToHistory();
           setProject(loaded);
-          showToast(`Successfully opened "${loaded.title || 'Project'}"! (Undo with Ctrl+Z)`);
+          showToast(`Opened "${loaded.title || 'Project'}" (Undo with Ctrl+Z)`);
         }
       } catch (err) {
         showToast('Invalid project file.');
@@ -662,15 +662,15 @@ export const App: React.FC = () => {
       spread: 60,
       origin: { y: 0.3 }
     });
-    showToast(`AI Beat Generated in ${randomKey} ${randomScale}! ⚡ (Undo with Ctrl+Z)`);
+    showToast(`AI beat generated in ${randomKey} ${randomScale} (Undo with Ctrl+Z)`);
   };
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-['Inter'] antialiased">
+    <div className="min-h-screen bg-base text-ink flex flex-col antialiased">
       {/* Toast Alert Notification */}
       {toastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-[#10141f]/95 backdrop-blur-md border border-cyan-500/50 text-cyan-100 px-4 py-2 rounded-lg shadow-xl shadow-cyan-950/40 text-xs font-mono font-semibold animate-fade-in">
-          <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-panel/95 backdrop-blur-md border border-line text-ink px-4 py-2 rounded-xl shadow-overlay text-xs font-semibold animate-toast-in">
+          <CheckCircle2 className="w-4 h-4 text-accent" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -808,31 +808,31 @@ export const App: React.FC = () => {
           </main>
 
           {/* Desktop Studio Footer */}
-          <footer className="w-full bg-[#0a0d14]/90 border-t border-slate-800/80 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-500">
-            <div className="flex items-center gap-2 font-mono text-[11px]">
-              <span className="font-bold text-slate-300">AhPah Beats Studio</span>
-              <span>•</span>
-              <span className="text-slate-400">Web Audio 2.0 Realtime Engine</span>
-              <span>•</span>
-              <span className="text-cyan-400 font-semibold">32-bit Float Precision</span>
-              <span>•</span>
-              <span className="text-slate-500">v1.0.7</span>
-            </div>
-            <div className="flex items-center gap-4 text-xs font-semibold">
-              <button
-                onClick={() => setIsDesktopModalOpen(true)}
-                className="hover:text-pink-400 text-slate-400 transition-colors cursor-pointer"
-              >
-                Download Desktop App (.exe)
-              </button>
-              <button
-                onClick={handleExportWav}
-                className="hover:text-cyan-400 text-slate-400 transition-colors cursor-pointer"
-              >
-                Export Master WAV
-              </button>
-            </div>
-          </footer>
+        <footer className="w-full bg-panel border-t border-line px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-ink-3">
+          <div className="flex items-center gap-2 font-mono text-[11px]">
+            <span className="font-bold text-ink-2">AhPah Beats Studio</span>
+            <span>•</span>
+            <span className="text-ink-3">Web Audio 2.0 Realtime Engine</span>
+            <span>•</span>
+            <span className="text-accent font-semibold">32-bit Float Precision</span>
+            <span>•</span>
+            <span className="text-ink-3">v1.0.8</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs font-semibold">
+            <button
+              onClick={() => setIsDesktopModalOpen(true)}
+              className="hover:text-magenta text-ink-3 transition-colors cursor-pointer"
+            >
+              Download Desktop App (.exe)
+            </button>
+            <button
+              onClick={handleExportWav}
+              className="hover:text-accent text-ink-3 transition-colors cursor-pointer"
+            >
+              Export Master WAV
+            </button>
+          </div>
+        </footer>
         </div>
       )}
 

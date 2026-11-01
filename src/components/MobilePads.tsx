@@ -92,28 +92,28 @@ export const MobilePads: React.FC<MobilePadsProps> = ({ tracks, onTriggerPad }) 
   return (
     <div className="w-full flex flex-col gap-3 select-none pb-4">
       {/* Pads Header Bar */}
-      <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-md border border-slate-800">
+      <div className="flex items-center justify-between bg-panel px-3 py-2 rounded-lg border border-line">
         <div className="flex items-center gap-2">
-          <Flame className="w-4 h-4 text-amber-400" />
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
-            MPC Beat Performance Pads
+          <Flame className="w-4 h-4 text-accent" />
+          <span className="text-xs font-bold uppercase tracking-wider text-ink">
+            Performance Pads
           </span>
+          <span className="micro-label normal-case tracking-normal">{pads.length} Pads</span>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              stopRepeating();
-              setRollMode(!rollMode);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all active:scale-95 ${
-              rollMode
-                ? 'bg-amber-500 text-slate-950  shadow-amber-500/40 ring-2 ring-amber-400'
-                : 'bg-slate-800 text-slate-400 border border-slate-700/60'
-            }`}
-          >
-            <Repeat className="w-3.5 h-3.5" />
-            <span>REPEAT ROLL: {rollMode ? 'ON' : 'OFF'}</span>
-          </button>
+          <div className="seg">
+            <button
+              onClick={() => {
+                stopRepeating();
+                setRollMode(!rollMode);
+              }}
+              className={`seg-item flex items-center gap-1.5 ${rollMode ? 'seg-item-active' : ''}`}
+              title="Toggle 1/16 repeat roll while pad is held"
+            >
+              <Repeat className="w-3.5 h-3.5" />
+              <span>ROLL</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -131,47 +131,44 @@ export const MobilePads: React.FC<MobilePadsProps> = ({ tracks, onTriggerPad }) 
               onMouseDown={(e) => handlePadStart(track, e)}
               onMouseUp={handlePadEnd}
               onMouseLeave={handlePadEnd}
-              className={`relative h-28 rounded-lg flex flex-col justify-between p-3.5 transition-all transform active:scale-95 border select-none touch-none cursor-pointer ${
+              className={`relative h-28 rounded-xl flex flex-col justify-between p-3.5 transition-colors duration-100 border select-none touch-none cursor-pointer ${
                 isActive
-                  ? 'brightness-125 scale-98 shadow-sm ring-2'
-                  : 'bg-[#121622] hover:bg-[#161c2b] border-slate-800'
+                  ? ''
+                  : 'bg-panel border-line hover:border-line-strong'
               }`}
-              style={{
-                borderColor: isActive ? track.color : undefined,
-                boxShadow: isActive ? `0 0 25px ${track.color}88` : undefined,
-                background: isActive
-                  ? `radial-gradient(circle at center, ${track.color}55 0%, #121622 100%)`
+              style={
+                isActive
+                  ? {
+                      borderColor: track.color,
+                      backgroundColor: `${track.color}14`
+                    }
                   : undefined
-              }}
+              }
             >
               {/* Pad Indicator Light */}
               <div className="flex items-center justify-between w-full pointer-events-none">
                 <span
-                  className="w-3 h-3 rounded-full transition-transform"
-                  style={{
-                    backgroundColor: track.color,
-                    boxShadow: isActive ? `0 0 10px ${track.color}` : 'none',
-                    transform: isActive ? 'scale(1.3)' : 'scale(1)'
-                  }}
+                  className={`w-2.5 h-2.5 rounded-full transition-colors ${isActive ? '' : 'opacity-40'}`}
+                  style={{ backgroundColor: track.color }}
                 />
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                <span className="micro-label normal-case tracking-normal">
                   {track.type}
                 </span>
               </div>
 
               {/* Pad Name */}
               <div className="text-left pointer-events-none">
-                <div className="text-sm font-bold text-slate-100 font-['Inter'] leading-tight">
+                <div className="text-sm font-bold text-ink leading-tight">
                   {track.name}
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                <div className="micro-label normal-case tracking-normal mt-0.5">
                   {track.sound}
                 </div>
               </div>
 
               {/* Touch Feedback Bar */}
               <div
-                className="w-full h-1 rounded-full opacity-60 pointer-events-none"
+                className={`w-full h-1 rounded-full pointer-events-none ${isActive ? '' : 'opacity-30'}`}
                 style={{ backgroundColor: track.color }}
               />
             </button>

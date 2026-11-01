@@ -203,18 +203,18 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
   return (
     <div className="w-full flex flex-col gap-2.5 select-none pb-6">
       {/* 1. Track Selector Strip */}
-      <div className="w-full bg-[#10141f] p-2 rounded-lg border border-slate-800 flex items-center justify-between gap-2 shadow-sm">
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-thin py-0.5 flex-1 min-w-0">
+      <div className="w-full bg-panel p-2 rounded-lg border border-line flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 flex-1 min-w-0">
           {synthTracks.map((track, i) => {
             const isSelected = selectedTrackIndex === i;
             return (
               <button
                 key={track.id}
                 onClick={() => onSelectTrack(i)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 cursor-pointer border ${
                   isSelected
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-sm shadow-pink-500/20'
-                    : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60'
+                    ? 'bg-raised text-ink border-line-strong'
+                    : 'text-ink-3 border-transparent hover:text-ink-2'
                 }`}
               >
                 <span
@@ -230,84 +230,77 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
         {onAddSynthTrack && (
           <button
             onClick={onAddSynthTrack}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-pink-950/60 hover:bg-pink-900 border border-pink-700/60 text-pink-300 text-xs font-bold flex-shrink-0 cursor-pointer"
+            className="btn h-7"
             title="Add Custom Synth Track"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-accent" />
             <span>Synth</span>
           </button>
         )}
       </div>
 
       {/* 2. Secondary Control Bar: Mode, Scale Lock, Sound Shaper */}
-      <div className="flex flex-wrap items-center justify-between bg-[#10141f] px-3 py-2 rounded-lg border border-slate-800 gap-2">
+      <div className="flex flex-wrap items-center justify-between bg-panel px-3 py-2 rounded-lg border border-line gap-2">
         {/* Toggle Sound Shaper */}
         <button
           onClick={() => setShowSoundDesigner(!showSoundDesigner)}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
-            showSoundDesigner
-              ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-              : 'bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60'
-          }`}
+          className={`btn h-7 ${showSoundDesigner ? 'text-ink' : ''}`}
+          title="Toggle synth sound designer"
         >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>Synth Designer</span>
+          <Sliders className="w-3.5 h-3.5 text-accent" />
+          <span>Sound Shaper</span>
           {showSoundDesigner ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         </button>
 
         {/* Interaction Mode & Scale Lock */}
         <div className="flex items-center gap-2">
           {/* Mode Switch: Play vs Scroll */}
-          <button
-            onClick={() => setInteractionMode(interactionMode === 'play' ? 'scroll' : 'play')}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
-              interactionMode === 'scroll'
-                ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
-                : 'bg-slate-800 text-slate-300 border border-slate-700/60'
-            }`}
-            title={interactionMode === 'play' ? 'Switch to touch swipe scroll mode' : 'Switch to touch key play mode'}
-          >
-            {interactionMode === 'scroll' ? (
-              <>
-                <MoveHorizontal className="w-3.5 h-3.5" />
-                <span>SCROLL ON</span>
-              </>
-            ) : (
-              <>
-                <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
-                <span>PLAY MODE</span>
-              </>
-            )}
-          </button>
+          <div className="seg">
+            <button
+              onClick={() => setInteractionMode(interactionMode === 'scroll' ? 'play' : 'scroll')}
+              className={`seg-item flex items-center gap-1 ${interactionMode === 'scroll' ? 'seg-item-active' : ''}`}
+              title={interactionMode === 'play' ? 'Switch to touch swipe scroll mode' : 'Switch to touch key play mode'}
+            >
+              {interactionMode === 'scroll' ? (
+                <>
+                  <MoveHorizontal className="w-3.5 h-3.5" />
+                  <span>SCROLL</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-accent" />
+                  <span>PLAY</span>
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Scale Lock Button */}
-          <button
-            onClick={() => setScaleLock(!scaleLock)}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
-              scaleLock
-                ? 'bg-pink-500 text-white shadow-sm shadow-pink-500/30'
-                : 'bg-slate-800 text-slate-400 border border-slate-700/60'
-            }`}
-            title="Lock keyboard to selected musical scale"
-          >
-            {scaleLock ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-            <span>SCALE</span>
-          </button>
+          <div className="seg">
+            <button
+              onClick={() => setScaleLock(!scaleLock)}
+              className={`seg-item flex items-center gap-1 ${scaleLock ? 'seg-item-active' : ''}`}
+              title="Lock keyboard to selected musical scale"
+            >
+              {scaleLock ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+              <span>SCALE</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* 3. Mobile Sound Designer (ADSR & Waveforms) */}
       {showSoundDesigner && (
-        <div className="w-full bg-[#0c1018] rounded-lg border border-cyan-800/60 p-3.5 shadow-md flex flex-col gap-3 animate-fade-in">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
-              <Layers className="w-4 h-4 text-cyan-400" />
-              <span>Custom Synth Sound Shaper</span>
+        <div className="w-full bg-well rounded-lg border border-line p-3.5 flex flex-col gap-3 animate-fade-in">
+          <div className="flex items-center justify-between border-b border-line pb-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-ink">
+              <Layers className="w-4 h-4 text-accent" />
+              <span>Sound Shaper</span>
             </div>
             <select
               value={synthSettings.waveform}
               onChange={(e) => onUpdateSynth({ waveform: e.target.value as OscillatorType })}
-              className="bg-slate-900 text-xs font-mono font-bold text-cyan-300 border border-slate-700 rounded px-2 py-1 focus:outline-none cursor-pointer"
+              className="bg-base text-xs font-mono font-bold text-accent border border-line rounded px-2 py-1 focus:outline-none cursor-pointer"
             >
               <option value="sawtooth">SAW</option>
               <option value="square">SQUARE</option>
@@ -318,16 +311,16 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
 
           {currentTrack && onChangeTrackSound && (
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] text-slate-400 font-mono font-semibold uppercase">Sound Engine:</span>
+              <span className="micro-label">Sound Engine</span>
               <div className="grid grid-cols-3 gap-1.5">
                 {SYNTH_SOUND_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
                     onClick={() => onChangeTrackSound(currentTrack.id, preset.id)}
-                    className={`py-1 px-1.5 rounded text-[10px] font-semibold truncate border transition-all cursor-pointer ${
+                    className={`py-1 px-1.5 rounded text-[10px] font-semibold truncate border transition-colors cursor-pointer ${
                       currentTrack.sound === preset.id
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-pink-400 shadow-sm'
-                        : 'bg-slate-800/60 text-slate-300 border-slate-700/60'
+                        ? 'bg-raised text-ink border-line-strong'
+                        : 'text-ink-3 border-line hover:text-ink-2'
                     }`}
                   >
                     {preset.label}
@@ -338,9 +331,9 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
           )}
 
           {/* ADSR Sliders */}
-          <div className="grid grid-cols-4 gap-2 pt-1 border-t border-slate-800">
+          <div className="grid grid-cols-4 gap-2 pt-2 border-t border-line">
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-mono text-slate-400">ATK</span>
+              <span className="micro-label">ATK</span>
               <input
                 type="range"
                 min={0.005}
@@ -348,15 +341,15 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 step={0.005}
                 value={synthSettings.attack}
                 onChange={(e) => onUpdateSynth({ attack: Number(e.target.value) })}
-                className="w-full h-1 bg-slate-800 rounded mt-1 accent-cyan-400"
+                className="w-full mt-1"
               />
-              <span className="text-[8px] font-mono text-cyan-400 mt-0.5">
+              <span className="text-[8px] font-mono text-ink-3 mt-0.5">
                 {Math.round(synthSettings.attack * 1000)}ms
               </span>
             </div>
 
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-mono text-slate-400">DEC</span>
+              <span className="micro-label">DEC</span>
               <input
                 type="range"
                 min={0.05}
@@ -364,15 +357,15 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 step={0.01}
                 value={synthSettings.decay}
                 onChange={(e) => onUpdateSynth({ decay: Number(e.target.value) })}
-                className="w-full h-1 bg-slate-800 rounded mt-1 accent-cyan-400"
+                className="w-full mt-1"
               />
-              <span className="text-[8px] font-mono text-cyan-400 mt-0.5">
+              <span className="text-[8px] font-mono text-ink-3 mt-0.5">
                 {Math.round(synthSettings.decay * 1000)}ms
               </span>
             </div>
 
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-mono text-slate-400">SUS</span>
+              <span className="micro-label">SUS</span>
               <input
                 type="range"
                 min={0}
@@ -380,15 +373,15 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 step={0.02}
                 value={synthSettings.sustain}
                 onChange={(e) => onUpdateSynth({ sustain: Number(e.target.value) })}
-                className="w-full h-1 bg-slate-800 rounded mt-1 accent-cyan-400"
+                className="w-full mt-1"
               />
-              <span className="text-[8px] font-mono text-cyan-400 mt-0.5">
+              <span className="text-[8px] font-mono text-ink-3 mt-0.5">
                 {Math.round(synthSettings.sustain * 100)}%
               </span>
             </div>
 
             <div className="flex flex-col items-center">
-              <span className="text-[9px] font-mono text-slate-400">REL</span>
+              <span className="micro-label">REL</span>
               <input
                 type="range"
                 min={0.05}
@@ -396,9 +389,9 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 step={0.02}
                 value={synthSettings.release}
                 onChange={(e) => onUpdateSynth({ release: Number(e.target.value) })}
-                className="w-full h-1 bg-slate-800 rounded mt-1 accent-cyan-400"
+                className="w-full mt-1"
               />
-              <span className="text-[8px] font-mono text-cyan-400 mt-0.5">
+              <span className="text-[8px] font-mono text-ink-3 mt-0.5">
                 {Math.round(synthSettings.release * 1000)}ms
               </span>
             </div>
@@ -407,16 +400,16 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
       )}
 
       {/* 4. Mini Octave Jump Ribbon & Scroll Navigator */}
-      <div className="w-full bg-[#10141f] px-3 py-1.5 rounded-lg border border-slate-800 flex items-center justify-between gap-2 shadow-inner">
-        <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-400">
-          <span className="text-cyan-400 font-bold">OCTAVES:</span>
+      <div className="w-full bg-panel px-3 py-1.5 rounded-lg border border-line flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 text-[11px] font-mono text-ink-3">
+          <span className="text-accent font-bold">OCTAVES:</span>
           <button
             onClick={() => {
               if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollBy({ left: -220, behavior: 'smooth' });
               }
             }}
-            className="p-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95 cursor-pointer"
+            className="btn-icon w-6 h-6 rounded"
             title="Scroll Keys Left"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
@@ -427,7 +420,7 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 scrollContainerRef.current.scrollBy({ left: 220, behavior: 'smooth' });
               }
             }}
-            className="p-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95 cursor-pointer"
+            className="btn-icon w-6 h-6 rounded"
             title="Scroll Keys Right"
           >
             <ChevronRight className="w-3.5 h-3.5" />
@@ -438,10 +431,10 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
             <button
               key={oct}
               onClick={() => handleOctaveJump(oct)}
-              className={`px-2.5 py-1 rounded text-[11px] font-mono font-bold transition-all cursor-pointer ${
+              className={`px-2.5 py-1 rounded text-[11px] font-mono font-bold transition-colors cursor-pointer border ${
                 octave === oct
-                  ? 'bg-cyan-500 text-slate-950 font-black shadow-sm'
-                  : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60'
+                  ? 'bg-raised text-ink border-line-strong'
+                  : 'bg-well text-ink-3 border-line hover:text-ink-2'
               }`}
             >
               C{oct}
@@ -449,7 +442,7 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
           ))}
           <button
             onClick={() => handleOctaveJump(6)}
-            className="px-2.5 py-1 rounded text-[11px] font-mono font-bold bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 cursor-pointer"
+            className="px-2.5 py-1 rounded text-[11px] font-mono font-bold bg-well text-ink-3 border border-line hover:text-ink-2 transition-colors cursor-pointer"
           >
             C6
           </button>
@@ -459,7 +452,7 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
       {/* 5. Scrollable Multi-Octave Keys Container */}
       <div
         ref={scrollContainerRef}
-        className="w-full bg-[#080b11] rounded-xl border border-slate-800 p-2 overflow-x-auto scrollbar-thin shadow-xl touch-pan-x"
+        className="w-full bg-well rounded-xl border border-line p-2 overflow-x-auto touch-pan-x"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <div className="flex gap-1.5 min-w-max px-1 py-1">
@@ -482,19 +475,19 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 onMouseDown={(e) => handleMouseDown(note, e)}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-                className={`relative flex-shrink-0 w-12 sm:w-14 h-48 rounded-lg flex flex-col justify-end items-center pb-3 transition-all select-none border cursor-pointer ${
+                className={`relative flex-shrink-0 w-12 sm:w-14 h-44 rounded-lg flex flex-col justify-end items-center pb-3 transition-colors border cursor-pointer select-none ${
                   isActive
-                    ? 'bg-gradient-to-t from-cyan-400 to-indigo-500 text-slate-950 shadow-md shadow-cyan-500/50 scale-95 z-20'
+                    ? 'bg-accent text-[#052730] border-accent'
                     : isBlack
-                    ? 'bg-[#121622] text-slate-300 border-slate-800 hover:border-slate-600'
+                    ? 'bg-base text-ink-3 border-line hover:text-ink-2'
                     : isTonic
-                    ? 'bg-[#1b2333] text-cyan-200 border-cyan-800/80 hover:bg-[#222c40]'
-                    : 'bg-[#1e2536] text-white border-slate-700/80 hover:bg-[#263044]'
+                    ? 'bg-raised text-accent border-line hover:bg-panel'
+                    : 'bg-raised text-ink-2 border-line hover:bg-panel'
                 }`}
               >
                 {/* Octave marker at the top of C notes */}
                 {isC && (
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[9px] font-mono font-bold text-cyan-400/90 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800/40">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[9px] font-mono font-bold bg-well border border-line text-ink-3 rounded px-1.5 py-0.5">
                     {note}
                   </div>
                 )}
@@ -503,12 +496,12 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 <div
                   className={`w-2 h-2 rounded-full mb-2 ${
                     isActive
-                      ? 'bg-slate-950'
+                      ? 'bg-[#052730]'
                       : isTonic
-                      ? 'bg-cyan-400 shadow-sm'
+                      ? 'bg-accent'
                       : isBlack
-                      ? 'bg-slate-700'
-                      : 'bg-slate-500'
+                      ? 'bg-ink-3'
+                      : 'bg-ink-3/70'
                   }`}
                 />
 
@@ -523,14 +516,14 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
       </div>
 
       {/* Footer Info Strip */}
-      <div className="flex items-center justify-between text-[11px] text-slate-400 px-2 font-mono">
+      <div className="flex items-center justify-between text-[11px] text-ink-3 px-2 font-mono">
         <div className="flex items-center gap-1.5">
           <span>Scale:</span>
-          <span className="text-cyan-300 font-bold">{rootKey} {scaleName}</span>
+          <span className="text-accent font-bold">{rootKey} {scaleName}</span>
           <span>•</span>
-          <span className="text-slate-500">Swipe horizontally or tap C2–C6 to scroll</span>
+          <span>Swipe horizontally or tap C2–C6 to scroll</span>
         </div>
-        <span className="text-pink-400 font-semibold">{currentTrack?.name}</span>
+        <span className="text-ink-2 font-semibold">{currentTrack?.name}</span>
       </div>
     </div>
   );
