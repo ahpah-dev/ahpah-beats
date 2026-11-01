@@ -669,7 +669,7 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-['Inter'] antialiased">
       {/* Toast Alert Notification */}
       {toastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-slate-900/85 border border-cyan-500/40 text-cyan-100 px-4 py-2.5 rounded-lg shadow-sm shadow-cyan-500/20  text-xs font-semibold animate-fade-in">
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-[#10141f]/95 backdrop-blur-md border border-cyan-500/50 text-cyan-100 px-4 py-2 rounded-lg shadow-xl shadow-cyan-950/40 text-xs font-mono font-semibold animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-cyan-400" />
           <span>{toastMessage}</span>
         </div>
@@ -808,26 +808,28 @@ export const App: React.FC = () => {
           </main>
 
           {/* Desktop Studio Footer */}
-          <footer className="w-full bg-[#0b0e14]/80 border-t border-slate-800/60 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-500 ">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-400">AhPah Beats Studio</span>
+          <footer className="w-full bg-[#0a0d14]/90 border-t border-slate-800/80 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center gap-2 font-mono text-[11px]">
+              <span className="font-bold text-slate-300">AhPah Beats Studio</span>
               <span>•</span>
-              <span>Web Audio 2.0 Engine</span>
+              <span className="text-slate-400">Web Audio 2.0 Realtime Engine</span>
               <span>•</span>
-              <span className="text-cyan-400 font-mono">32-bit Float Processing</span>
+              <span className="text-cyan-400 font-semibold">32-bit Float Precision</span>
+              <span>•</span>
+              <span className="text-slate-500">v1.0.6</span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 text-xs font-semibold">
               <button
                 onClick={() => setIsDesktopModalOpen(true)}
-                className="hover:text-pink-400 transition-colors font-semibold"
+                className="hover:text-pink-400 text-slate-400 transition-colors cursor-pointer"
               >
                 Download Desktop App (.exe)
               </button>
               <button
                 onClick={handleExportWav}
-                className="hover:text-cyan-400 transition-colors font-semibold"
+                className="hover:text-cyan-400 text-slate-400 transition-colors cursor-pointer"
               >
-                Export WAV
+                Export Master WAV
               </button>
             </div>
           </footer>

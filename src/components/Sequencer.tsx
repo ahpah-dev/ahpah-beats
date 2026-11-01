@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Track, NoteStep, DrumSoundType, SynthSoundType } from '../types';
+import { Track } from '../types';
 import {
-  Volume2,
-  VolumeX,
-  Play,
   RotateCcw,
   Plus,
   Trash2,
-  SlidersHorizontal,
-  Flame,
-  Music,
   Disc,
   Copy,
-  ChevronLeft,
-  ChevronRight,
   Undo2,
-  Redo2
+  Redo2,
+  Volume2
 } from 'lucide-react';
 
 interface SequencerProps {
@@ -51,7 +44,6 @@ export const Sequencer: React.FC<SequencerProps> = ({
   onToggleStep,
   onToggleRoll,
   onUpdateTrackVolume,
-  onUpdateTrackPan,
   onToggleMute,
   onToggleSolo,
   onPreviewSound,
@@ -60,11 +52,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   onRemoveTrack,
   onAddBar,
   onDuplicateBar,
-  onChangeStepCount,
-  onUndo,
-  onRedo,
-  canUndo = false,
-  canRedo = false
+  onClearAllNotes
 }) => {
   const [activeBar, setActiveBar] = useState<number>(0);
   const [followPlayhead, setFollowPlayhead] = useState<boolean>(false);
@@ -82,20 +70,26 @@ export const Sequencer: React.FC<SequencerProps> = ({
   }, [isPlaying, currentStep, followPlayhead, activeBar, totalBars]);
 
   return (
-    <div className="w-full bg-[#0d111a] rounded-lg border border-slate-800/60 p-3 shadow-xl flex flex-col gap-2.5">
+    <div className="w-full bg-[#0d111a] rounded-xl border border-slate-800/80 p-3 sm:p-4 shadow-xl flex flex-col gap-3">
       {/* Sequencer Header Strip */}
       <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 pb-3 gap-3">
-        <div className="flex items-center gap-2">
-          <Disc className="w-5 h-5 text-cyan-400 animate-spin-slow" />
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-200">
-            Pattern Sequencer & Drum Matrix
-          </h2>
-          <span className="text-[11px] text-cyan-400 font-mono font-bold bg-cyan-950/60 border border-cyan-800/60 px-2 py-0.5 rounded-lg">
-            {totalBars} {totalBars === 1 ? 'Bar' : 'Bars'} ({stepCount} Steps)
-          </span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-800/60 flex items-center justify-center">
+            <Disc className="w-4 h-4 text-cyan-400" />
+          </div>
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-100 font-mono">
+              Pattern Sequencer & Drum Matrix
+            </h2>
+            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+              <span className="text-cyan-400 font-semibold">{totalBars} {totalBars === 1 ? 'Bar' : 'Bars'}</span>
+              <span>•</span>
+              <span>{stepCount} Steps Total</span>
+            </div>
+          </div>
         </div>
 
-        {/* Bar Selector Strip & Song Navigation */}
+        {/* Bar Selector Strip & Navigation */}
         <div className="flex items-center gap-1.5 overflow-x-auto max-w-full">
           {Array.from({ length: totalBars }).map((_, barIdx) => {
             const isPlayingBar = isPlaying && Math.floor(currentStep / 16) === barIdx;
@@ -105,14 +99,14 @@ export const Sequencer: React.FC<SequencerProps> = ({
               <button
                 key={barIdx}
                 onClick={() => setActiveBar(barIdx)}
-                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all relative ${
+                className={`px-3 py-1 rounded-md text-xs font-mono font-bold transition-all relative cursor-pointer ${
                   isSelected
-                    ? 'bg-cyan-500 text-slate-950  font-black'
-                    : 'bg-slate-800 text-slate-300 border border-slate-700/60 hover:bg-slate-700'
+                    ? 'bg-cyan-500 text-slate-950 shadow-sm shadow-cyan-500/20'
+                    : 'bg-slate-800/80 text-slate-300 border border-slate-700/60 hover:bg-slate-700'
                 }`}
               >
                 {isPlayingBar && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 " />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-sm" />
                 )}
                 <span>Bar {barIdx + 1}</span>
               </button>
@@ -122,7 +116,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
           {onAddBar && (
             <button
               onClick={onAddBar}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-bold active:scale-95 transition-all"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-bold active:scale-95 transition-all cursor-pointer"
               title="Add 1 more bar (16 steps)"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -136,7 +130,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 const nextBar = (activeBar + 1) % totalBars;
                 onDuplicateBar(activeBar, nextBar);
               }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-purple-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all cursor-pointer"
               title="Duplicate current bar notes to next bar"
             >
               <Copy className="w-3.5 h-3.5" />
@@ -146,12 +140,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
 
           <button
             onClick={() => setFollowPlayhead(!followPlayhead)}
-            className={`px-2 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+            className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
               followPlayhead
-                ? 'bg-emerald-500 text-slate-950 font-black shadow-sm'
-                : 'bg-slate-800 text-slate-400 border border-slate-700/60'
+                ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                : 'bg-slate-800/80 text-slate-400 border border-slate-700/60'
             }`}
-            title="Auto-switch view to playing bar"
+            title="Auto-switch view to currently playing bar"
           >
             Follow
           </button>
@@ -159,41 +153,26 @@ export const Sequencer: React.FC<SequencerProps> = ({
           {onClearAllNotes && (
             <button
               onClick={onClearAllNotes}
-              className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold"
-              title="Clear all notes across all tracks"
+              className="px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 text-xs font-semibold cursor-pointer"
+              title="Clear all pattern steps across all tracks"
             >
               Clear All
             </button>
           )}
-
-          {onRedo && (
-            <button
-              onClick={onRedo}
-              disabled={!canRedo}
-              className={`p-1.5 rounded-lg border transition-all active:scale-95 ${
-                canRedo
-                  ? 'bg-slate-800 hover:bg-slate-700 text-cyan-400 border-slate-700/80 cursor-pointer'
-                  : 'bg-slate-900/40 text-slate-600 border-slate-800/30 opacity-40 cursor-not-allowed'
-              }`}
-              title="Redo (Ctrl+Y)"
-            >
-              <Redo2 className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
 
-        {/* Add Track Action */}
+        {/* Add Track Action Buttons */}
         <div className="flex items-center gap-1.5 ml-auto">
           <button
             onClick={() => onAddTrack('drum')}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Drum</span>
           </button>
           <button
             onClick={() => onAddTrack('synth')}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-pink-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-pink-400 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Synth</span>
@@ -201,10 +180,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
         </div>
       </div>
 
-      {/* Step Numbers Strip for the active bar (1-16) */}
-      <div className="flex items-center justify-between text-xs text-slate-400 px-2">
-        <span className="font-mono text-[11px] text-cyan-400">
-          Viewing Bar {activeBar + 1} (Steps {activeBar * 16 + 1}–{activeBar * 16 + 16})
+      {/* Step Numbers Strip with 4-Beat Measure Grouping */}
+      <div className="flex items-center justify-between text-xs text-slate-400 px-2 py-1 bg-[#10141f] rounded-lg border border-slate-800/60">
+        <span className="font-mono text-[11px] text-cyan-300 font-semibold">
+          Bar {activeBar + 1} • Steps {activeBar * 16 + 1}–{activeBar * 16 + 16}
         </span>
         <div className="hidden sm:flex items-center gap-1.5">
           {Array.from({ length: 16 }).map((_, i) => {
@@ -215,12 +194,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
             return (
               <div
                 key={i}
-                className={`w-8 h-5 flex items-center justify-center rounded text-[10px] font-mono font-bold transition-all ${
+                className={`w-8 sm:w-9 h-5 flex items-center justify-center rounded text-[10px] font-mono font-bold transition-all ${
                   isCurrent
-                    ? 'bg-cyan-400 text-slate-950 scale-110  shadow-cyan-400/50'
+                    ? 'bg-cyan-400 text-slate-950 font-black shadow-sm shadow-cyan-400/50 scale-105'
                     : isBeatStart
-                    ? 'bg-slate-800/90 text-slate-300'
-                    : 'bg-slate-900/60 text-slate-600'
+                    ? 'bg-slate-800 text-slate-200 border border-slate-700/60'
+                    : 'bg-slate-900/60 text-slate-500'
                 }`}
               >
                 {i + 1}
@@ -231,49 +210,49 @@ export const Sequencer: React.FC<SequencerProps> = ({
       </div>
 
       {/* Tracks Grid */}
-      <div className="flex flex-col gap-2 overflow-x-auto pb-2 scrollbar-thin">
+      <div className="flex flex-col gap-2 overflow-x-auto pb-1 scrollbar-thin">
         {tracks.map((track, trackIndex) => {
           const isMuted = track.muted || (anySoloActive && !track.solo);
 
           return (
             <div
               key={track.id}
-              className={`flex items-center gap-3 p-2 rounded-md transition-all border ${
+              className={`flex items-center gap-3 p-2 rounded-lg transition-all border ${
                 isMuted
-                  ? 'bg-slate-950/40 border-slate-900 opacity-60'
-                  : 'bg-[#121622]/80 border-slate-800/80 hover:border-slate-700'
+                  ? 'bg-slate-950/40 border-slate-900 opacity-50'
+                  : 'bg-[#10141f] border-slate-800/80 hover:border-slate-700/90'
               }`}
             >
-              {/* Track Info & Quick Controls */}
-              <div className="w-48 sm:w-56 flex-shrink-0 flex items-center justify-between gap-2">
-                {/* Track Preview Button & Color Accent */}
+              {/* Channel Strip Header: Info, M/S, Volume */}
+              <div className="w-52 sm:w-60 flex-shrink-0 flex items-center justify-between gap-2.5">
+                {/* Track Audition & Info */}
                 <button
                   onClick={() => onPreviewSound(track)}
-                  className="flex items-center gap-2 group text-left flex-1 min-w-0"
-                  title="Click to trigger sound"
+                  className="flex items-center gap-2 group text-left flex-1 min-w-0 cursor-pointer"
+                  title="Click to audition track sound"
                 >
                   <div
-                    className="w-2.5 h-7 rounded-full flex-shrink-0 transition-transform group-hover:scale-110"
+                    className="w-2.5 h-8 rounded-full flex-shrink-0 transition-transform group-hover:scale-110 shadow-sm"
                     style={{ backgroundColor: track.color }}
                   />
                   <div className="truncate">
                     <div className="text-xs font-bold text-slate-200 group-hover:text-cyan-300 transition-colors truncate">
                       {track.name}
                     </div>
-                    <div className="text-[10px] text-slate-500 font-mono uppercase">
-                      {track.type}
+                    <div className="text-[9px] text-slate-500 font-mono uppercase tracking-wider">
+                      {track.sound}
                     </div>
                   </div>
                 </button>
 
-                {/* Mute & Solo Buttons */}
+                {/* Mute & Solo Hardware Switches */}
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => onToggleMute(trackIndex)}
-                    className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold font-mono transition-all ${
+                    className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-mono font-bold transition-all cursor-pointer ${
                       track.muted
-                        ? 'bg-rose-500 text-white shadow-sm shadow-rose-500/50'
-                        : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
+                        ? 'bg-rose-600 text-white shadow-sm shadow-rose-600/40 border border-rose-500'
+                        : 'bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700/60'
                     }`}
                     title="Mute Track"
                   >
@@ -281,10 +260,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   </button>
                   <button
                     onClick={() => onToggleSolo(trackIndex)}
-                    className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold font-mono transition-all ${
+                    className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-mono font-bold transition-all cursor-pointer ${
                       track.solo
-                        ? 'bg-amber-400 text-slate-950 font-black shadow-sm shadow-amber-400/50'
-                        : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
+                        ? 'bg-amber-400 text-slate-950 font-black shadow-sm shadow-amber-400/40 border border-amber-300'
+                        : 'bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700/60'
                     }`}
                     title="Solo Track"
                   >
@@ -292,7 +271,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   </button>
                 </div>
 
-                {/* Volume Mini Fader */}
+                {/* Track Volume Fader */}
                 <div className="flex items-center gap-1 w-16">
                   <input
                     type="range"
@@ -302,32 +281,32 @@ export const Sequencer: React.FC<SequencerProps> = ({
                     value={track.volume}
                     onChange={(e) => onUpdateTrackVolume(trackIndex, Number(e.target.value))}
                     className="w-full h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-cyan-400"
-                    title={`Volume: ${Math.round(track.volume * 100)}%`}
+                    title={`Channel Level: ${Math.round(track.volume * 100)}%`}
                   />
                 </div>
 
-                {/* Clear / Delete */}
-                <div className="flex items-center">
+                {/* Clear / Delete Controls */}
+                <div className="flex items-center gap-0.5">
                   <button
                     onClick={() => onClearTrack(trackIndex)}
-                    className="p-1 text-slate-500 hover:text-slate-300 transition-colors"
-                    title="Clear steps"
+                    className="p-1 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                    title="Clear pattern steps"
                   >
-                    <RotateCcw className="w-3 h-3" />
+                    <RotateCcw className="w-3.5 h-3.5" />
                   </button>
                   {tracks.length > 3 && (
                     <button
                       onClick={() => onRemoveTrack(trackIndex)}
-                      className="p-1 text-slate-500 hover:text-rose-400 transition-colors"
+                      className="p-1 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer"
                       title="Delete Track"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
               </div>
 
-              {/* Step Buttons for the active bar (16 Steps) */}
+              {/* 16 Step Buttons for Active Bar */}
               <div className="flex items-center gap-1.5 flex-1 justify-start">
                 {Array.from({ length: 16 }).map((_, localIdx) => {
                   const globalStepIdx = activeBar * 16 + localIdx;
@@ -344,42 +323,42 @@ export const Sequencer: React.FC<SequencerProps> = ({
                         e.preventDefault();
                         onToggleRoll(trackIndex, globalStepIdx);
                       }}
-                      className={`relative h-11 w-8 sm:w-9 rounded-lg flex flex-col items-center justify-between p-1 transition-all active:scale-95 border ${
+                      className={`relative h-11 w-8 sm:w-9 rounded-md flex flex-col items-center justify-between p-1 transition-all active:scale-95 cursor-pointer border ${
                         isCurrent
-                          ? 'border-cyan-300 ring-2 ring-cyan-400/40'
+                          ? 'border-cyan-300 ring-2 ring-cyan-400/50'
                           : isBeatQuarter
                           ? 'border-slate-700/80'
                           : 'border-slate-800/60'
                       } ${
                         isActive
-                          ? 'shadow-sm'
+                          ? 'shadow-md'
                           : isBeatQuarter
-                          ? 'bg-[#151a28] hover:bg-slate-800/80'
-                          : 'bg-[#0f131c] hover:bg-slate-800/60'
+                          ? 'bg-[#151a27] hover:bg-slate-800/80'
+                          : 'bg-[#0f131e] hover:bg-slate-800/60'
                       }`}
                       style={{
                         backgroundColor: isActive ? track.color : undefined,
-                        boxShadow: isActive ? `0 0 14px ${track.color}66` : undefined
+                        boxShadow: isActive ? `0 0 12px ${track.color}55` : undefined
                       }}
-                      title={`${track.name} - Bar ${activeBar + 1}, Step ${localIdx + 1}${
+                      title={`${track.name} • Step ${localIdx + 1}${
                         step?.isRoll ? ' (1/32 Roll)' : ''
-                      } (Right-click to toggle roll)`}
+                      } (Right click to toggle roll)`}
                     >
-                      {/* Sub-beat indicator dot */}
+                      {/* Beat downbeat indicator dot */}
                       <span
                         className={`w-1 h-1 rounded-full ${
                           isActive
                             ? 'bg-slate-950'
                             : isBeatQuarter
-                            ? 'bg-slate-600'
+                            ? 'bg-slate-500'
                             : 'bg-transparent'
                         }`}
                       />
 
-                      {/* Note / Pitch or Roll label */}
+                      {/* Note or Roll badge */}
                       <span
-                        className={`text-[9px] font-mono font-bold leading-none select-none ${
-                          isActive ? 'text-slate-950 font-black' : 'text-slate-600'
+                        className={`text-[8px] font-mono font-bold leading-none select-none ${
+                          isActive ? 'text-slate-950 font-black' : 'text-slate-500'
                         }`}
                       >
                         {isActive
@@ -394,9 +373,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
                       {/* Velocity bar */}
                       <div
                         className={`w-full rounded-sm ${
-                          isActive ? 'bg-slate-950/30' : 'bg-transparent'
+                          isActive ? 'bg-slate-950/40' : 'bg-transparent'
                         }`}
-                        style={{ height: isActive ? `${(step.velocity || 0.8) * 4}px` : '2px' }}
+                        style={{ height: isActive ? `${(step.velocity || 0.8) * 3}px` : '2px' }}
                       />
                     </button>
                   );
