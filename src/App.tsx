@@ -867,7 +867,7 @@ export const App: React.FC = () => {
             <span>•</span>
             <span className="text-accent font-semibold">32-bit Float Precision</span>
             <span>•</span>
-            <span className="text-ink-3">v1.0.8</span>
+            <span className="text-ink-3">v1.0.9</span>
           </div>
           <div className="flex items-center gap-4 text-xs font-semibold">
             <button

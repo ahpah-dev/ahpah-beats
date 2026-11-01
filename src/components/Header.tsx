@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
               </h1>
               <span className="badge">STUDIO</span>
             </div>
-            <p className="micro-label mt-0.5">DAW • v1.0.8</p>
+            <p className="micro-label mt-0.5">DAW • v1.0.9</p>
           </div>
         </div>
 
