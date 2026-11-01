@@ -648,10 +648,10 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-['Inter']">
+    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-['Inter'] antialiased">
       {/* Toast Alert Notification */}
       {toastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-cyan-950/90 border border-cyan-500/80 text-cyan-200 px-4 py-2 rounded-xl shadow-2xl backdrop-blur-md text-xs font-semibold animate-bounce">
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-slate-900/85 border border-cyan-500/40 text-cyan-100 px-4 py-2.5 rounded-2xl shadow-2xl shadow-cyan-500/20 backdrop-blur-xl text-xs font-semibold animate-fade-in">
           <Sparkles className="w-4 h-4 text-cyan-400" />
           <span>{toastMessage}</span>
         </div>
