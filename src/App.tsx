@@ -73,7 +73,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     try {
       if (localStorage.getItem(STORAGE_KEY)) {
-        showToast('Restored previous project session! 🎧 (Undo enabled)');
+        showToast('Restored previous project session!  (Undo enabled)');
       }
     } catch (e) {}
   }, []);
@@ -652,7 +652,7 @@ export const App: React.FC = () => {
       {/* Toast Alert Notification */}
       {toastMessage && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-slate-900/85 border border-cyan-500/40 text-cyan-100 px-4 py-2.5 rounded-2xl shadow-2xl shadow-cyan-500/20 backdrop-blur-xl text-xs font-semibold animate-fade-in">
-          <Sparkles className="w-4 h-4 text-cyan-400" />
+          <CheckCircle2 className="w-4 h-4 text-cyan-400" />
           <span>{toastMessage}</span>
         </div>
       )}

@@ -7,7 +7,7 @@ import {
   VolumeX,
   Download,
   Upload,
-  Sparkles,
+  Wand2,
   Smartphone,
   Monitor,
   Radio,
@@ -311,14 +311,14 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border border-purple-800/60 text-xs font-semibold transition-all active:scale-95 shadow-sm"
           title="Generate Fresh Beat Pattern"
         >
-          <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+          <Wand2 className="w-3.5 h-3.5 text-purple-400" />
           <span className="hidden sm:inline">AI Beat</span>
         </button>
 
         {/* WAV Export Button */}
         <button
           onClick={onExportWav}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition-colors active:scale-95"
           title="Export to Studio WAV Audio"
         >
           <Download className="w-3.5 h-3.5" />
@@ -353,7 +353,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Desktop .exe App Download Modal Button */}
         <button
           onClick={onOpenDesktopModal}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-pink-600/90 to-rose-600/90 hover:from-pink-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-pink-500/20 transition-all active:scale-95 border border-pink-400/30"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-pink-600 hover:bg-pink-500 text-white font-semibold text-xs transition-colors active:scale-95"
           title="Download Desktop App (.exe)"
         >
           <Monitor className="w-3.5 h-3.5" />
