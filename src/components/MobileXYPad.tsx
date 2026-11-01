@@ -63,7 +63,7 @@ export const MobileXYPad: React.FC = () => {
   return (
     <div className="w-full flex flex-col gap-3 select-none">
       {/* Header */}
-      <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-xl border border-slate-800">
+      <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-md border border-slate-800">
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-cyan-400" />
           <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
@@ -85,7 +85,7 @@ export const MobileXYPad: React.FC = () => {
         onMouseMove={handleTouchMove}
         onMouseUp={handleTouchEnd}
         onMouseLeave={handleTouchEnd}
-        className="relative w-full h-64 rounded-2xl border border-slate-800 bg-[#090c13] overflow-hidden shadow-2xl flex items-center justify-center cursor-crosshair touch-none"
+        className="relative w-full h-64 rounded-lg border border-slate-800 bg-[#090c13] overflow-hidden shadow-sm flex items-center justify-center cursor-crosshair touch-none"
         style={{
           background: `radial-gradient(circle at ${
             touchPos ? touchPos.x * 100 : 50
@@ -110,7 +110,7 @@ export const MobileXYPad: React.FC = () => {
         {/* Cursor Reticle */}
         {touchPos && (
           <div
-            className="absolute w-12 h-12 -ml-6 -mt-6 rounded-full border-2 border-cyan-400 pointer-events-none flex items-center justify-center animate-pulse"
+            className="absolute w-12 h-12 -ml-6 -mt-6 rounded-full border-2 border-cyan-400 pointer-events-none flex items-center justify-center "
             style={{
               left: `${touchPos.x * 100}%`,
               top: `${touchPos.y * 100}%`,
@@ -123,7 +123,7 @@ export const MobileXYPad: React.FC = () => {
 
         {!isEngaged && (
           <div className="pointer-events-none text-center">
-            <Sparkles className="w-8 h-8 text-cyan-400/60 mx-auto mb-2 animate-bounce" />
+            <Sparkles className="w-8 h-8 text-cyan-400/60 mx-auto mb-2 " />
             <div className="text-xs font-bold text-slate-300">Touch & Drag for Live FX Sweeps</div>
             <div className="text-[10px] text-slate-500 font-mono mt-0.5">Filter Cutoff ↔ Echo Reverb</div>
           </div>

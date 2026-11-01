@@ -108,14 +108,14 @@ export const Visualizer: React.FC = () => {
   }, [mode]);
 
   return (
-    <div className="relative w-full h-16 sm:h-20 bg-[#0d111a] rounded-xl overflow-hidden border border-slate-800/80 shadow-inner group">
+    <div className="relative w-full h-16 sm:h-20 bg-[#0d111a] rounded-md overflow-hidden border border-slate-800/80 shadow-inner group">
       <canvas
         ref={canvasRef}
         width={720}
         height={90}
         className="w-full h-full block"
       />
-      <div className="absolute right-2 top-2 flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity bg-slate-900/80 backdrop-blur-md px-1.5 py-1 rounded-md border border-slate-700/60 text-xs">
+      <div className="absolute right-2 top-2 flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity bg-slate-900/80  px-1.5 py-1 rounded-md border border-slate-700/60 text-xs">
         <button
           onClick={() => setMode('spectrum')}
           className={`p-1 rounded transition-colors ${
@@ -136,7 +136,7 @@ export const Visualizer: React.FC = () => {
         </button>
       </div>
       <div className="absolute left-3 top-2 flex items-center gap-1.5 pointer-events-none">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 "></span>
         <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400 font-semibold">
           Master Out {mode === 'spectrum' ? 'FFT' : 'SCOPE'}
         </span>

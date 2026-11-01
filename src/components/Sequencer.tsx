@@ -81,7 +81,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   }, [isPlaying, currentStep, followPlayhead, activeBar, totalBars]);
 
   return (
-    <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/60 p-3 shadow-xl flex flex-col gap-2.5">
+    <div className="w-full bg-[#0d111a] rounded-lg border border-slate-800/60 p-3 shadow-xl flex flex-col gap-2.5">
       {/* Sequencer Header Strip */}
       <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 pb-3 gap-3">
         <div className="flex items-center gap-2">
@@ -106,12 +106,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 onClick={() => setActiveBar(barIdx)}
                 className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all relative ${
                   isSelected
-                    ? 'bg-cyan-500 text-slate-950 shadow-md font-black'
+                    ? 'bg-cyan-500 text-slate-950  font-black'
                     : 'bg-slate-800 text-slate-300 border border-slate-700/60 hover:bg-slate-700'
                 }`}
               >
                 {isPlayingBar && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 " />
                 )}
                 <span>Bar {barIdx + 1}</span>
               </button>
@@ -221,7 +221,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 key={i}
                 className={`w-8 h-5 flex items-center justify-center rounded text-[10px] font-mono font-bold transition-all ${
                   isCurrent
-                    ? 'bg-cyan-400 text-slate-950 scale-110 shadow-md shadow-cyan-400/50'
+                    ? 'bg-cyan-400 text-slate-950 scale-110  shadow-cyan-400/50'
                     : isBeatStart
                     ? 'bg-slate-800/90 text-slate-300'
                     : 'bg-slate-900/60 text-slate-600'
@@ -242,7 +242,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
           return (
             <div
               key={track.id}
-              className={`flex items-center gap-3 p-2 rounded-xl transition-all border ${
+              className={`flex items-center gap-3 p-2 rounded-md transition-all border ${
                 isMuted
                   ? 'bg-slate-950/40 border-slate-900 opacity-60'
                   : 'bg-[#121622]/80 border-slate-800/80 hover:border-slate-700'
@@ -356,7 +356,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                           : 'border-slate-800/60'
                       } ${
                         isActive
-                          ? 'shadow-lg'
+                          ? 'shadow-sm'
                           : isBeatQuarter
                           ? 'bg-[#151a28] hover:bg-slate-800/80'
                           : 'bg-[#0f131c] hover:bg-slate-800/60'

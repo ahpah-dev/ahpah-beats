@@ -123,9 +123,9 @@ export const MobileView: React.FC<MobileViewProps> = ({
   return (
     <div className="w-full min-h-screen bg-[#080a0f] text-slate-100 flex flex-col justify-between pb-24 select-none">
       {/* Mobile Top Header */}
-      <header className="w-full bg-[#0b0e14]/95 backdrop-blur-md border-b border-slate-800 px-3 py-2 flex items-center justify-between sticky top-0 z-40">
+      <header className="w-full bg-[#0b0e14]/95  border-b border-slate-800 px-3 py-2 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-pink-500 p-0.5 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 p-0.5 flex items-center justify-center">
             <Radio className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -157,8 +157,8 @@ export const MobileView: React.FC<MobileViewProps> = ({
             onClick={onPlayToggle}
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all active:scale-95 ${
               isPlaying
-                ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/30'
-                : 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/30'
+                ? 'bg-amber-500 text-slate-950 font-bold  shadow-amber-500/30'
+                : 'bg-emerald-500 text-slate-950 font-bold  shadow-emerald-500/30'
             }`}
           >
             {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
@@ -259,7 +259,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
         {activeTab === 'seq' && (
           <div className="w-full flex flex-col gap-3 select-none">
             {/* Track Selector for Sequencer */}
-            <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-md border border-slate-800">
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setSelectedSeqTrack((i) => Math.max(0, i - 1))}
@@ -319,7 +319,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
             </div>
 
             {/* Mobile Sequencer Bar Selector Strip */}
-            <div className="flex items-center justify-between bg-[#121622] p-2 rounded-xl border border-slate-800 gap-2">
+            <div className="flex items-center justify-between bg-[#121622] p-2 rounded-md border border-slate-800 gap-2">
               <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-thin">
                 {Array.from({ length: totalBars }).map((_, barIdx) => {
                   const isSelected = seqActiveBar === barIdx;
@@ -335,7 +335,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                       }`}
                     >
                       {isCurrentPlayingBar && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 " />
                       )}
                       <span>Bar {barIdx + 1}</span>
                     </button>
@@ -383,7 +383,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                     key={stepIdx}
                     onClick={() => onToggleStep(selectedSeqTrack, globalStepIdx)}
                     onContextMenu={(e) => handleCycleMobileStepDuration(e, globalStepIdx)}
-                    className={`h-16 rounded-xl flex flex-col items-center justify-between p-2 border transition-all active:scale-95 ${
+                    className={`h-16 rounded-md flex flex-col items-center justify-between p-2 border transition-all active:scale-95 ${
                       isCurrent
                         ? 'border-cyan-400 ring-2 ring-cyan-400/50'
                         : isBeatQuarter
@@ -391,7 +391,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
                         : 'border-slate-800/80'
                     } ${
                       isActive
-                        ? 'shadow-lg'
+                        ? 'shadow-sm'
                         : isBeatQuarter
                         ? 'bg-[#151a28]'
                         : 'bg-[#0f131c]'
@@ -444,7 +444,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
       </main>
 
       {/* Tactile Mobile Bottom Navigation Bar with dedicated Piano Roll tab */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#0b0e14]/95 backdrop-blur-lg border-t border-slate-800/90 flex items-center justify-around px-2 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#0b0e14]/95  border-t border-slate-800/90 flex items-center justify-around px-2 z-50">
         <button
           onClick={() => setActiveTab('pads')}
           className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${

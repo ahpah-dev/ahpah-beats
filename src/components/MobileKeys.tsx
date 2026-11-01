@@ -161,7 +161,7 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
   return (
     <div className="w-full flex flex-col gap-3 select-none pb-6">
       {/* 1. Dedicated Unblocked Synth Track Selector Strip */}
-      <div className="w-full bg-[#121622] p-2 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
+      <div className="w-full bg-[#121622] p-2 rounded-md border border-slate-800 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-thin py-0.5 flex-1 min-w-0">
           {synthTracks.map((track, i) => {
             const isSelected = selectedTrackIndex === i;
@@ -171,7 +171,7 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 onClick={() => onSelectTrack(i)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 active:scale-95 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/30'
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white  shadow-pink-500/30'
                     : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60'
                 }`}
               >
@@ -199,13 +199,13 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
       </div>
 
       {/* 2. Secondary Control Bar (Scale Lock, Octave, and Sound Shaper Toggle) */}
-      <div className="flex flex-wrap items-center justify-between bg-[#121622] px-3 py-2 rounded-xl border border-slate-800 gap-2">
+      <div className="flex flex-wrap items-center justify-between bg-[#121622] px-3 py-2 rounded-md border border-slate-800 gap-2">
         {/* Toggle Sound Shaper / Custom Synth Settings */}
         <button
           onClick={() => setShowSoundDesigner(!showSoundDesigner)}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
             showSoundDesigner
-              ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30 font-bold'
+              ? 'bg-cyan-500 text-slate-950  shadow-cyan-500/30 font-bold'
               : 'bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700/60'
           }`}
         >
@@ -255,7 +255,7 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
 
       {/* 3. Mobile Custom Synth Sound Designer (ADSR & Waveforms) */}
       {showSoundDesigner && (
-        <div className="w-full bg-[#101420] rounded-2xl border border-cyan-800/60 p-3.5 shadow-2xl flex flex-col gap-3 animate-fade-in">
+        <div className="w-full bg-[#101420] rounded-lg border border-cyan-800/60 p-3.5 shadow-sm flex flex-col gap-3 animate-fade-in">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
               <Layers className="w-4 h-4 text-cyan-400" />
@@ -404,7 +404,7 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
       )}
 
       {/* 4. Touch Synth Keys */}
-      <div className="w-full bg-[#0b0e14] rounded-2xl border border-slate-800 p-2 overflow-x-auto shadow-2xl">
+      <div className="w-full bg-[#0b0e14] rounded-lg border border-slate-800 p-2 overflow-x-auto shadow-sm">
         <div className="flex gap-1.5 min-w-full justify-center">
           {keysToDisplay.map((note) => {
             const isBlack = note.includes('#');
@@ -419,9 +419,9 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
                 onMouseDown={(e) => handleMouseDown(note, e)}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-                className={`relative flex-1 min-w-[42px] max-w-[56px] h-48 rounded-xl flex flex-col justify-end items-center pb-3 transition-all select-none touch-none border cursor-pointer ${
+                className={`relative flex-1 min-w-[42px] max-w-[56px] h-48 rounded-md flex flex-col justify-end items-center pb-3 transition-all select-none touch-none border cursor-pointer ${
                   isActive
-                    ? 'bg-gradient-to-t from-cyan-400 to-indigo-500 text-slate-950 shadow-lg shadow-cyan-500/50 scale-95'
+                    ? 'bg-gradient-to-t from-cyan-400 to-indigo-500 text-slate-950 shadow-sm shadow-cyan-500/50 scale-95'
                     : isBlack
                     ? 'bg-[#151922] text-slate-300 border-slate-800 hover:border-slate-600'
                     : 'bg-[#222938] text-white border-slate-700/80 hover:bg-[#283244]'

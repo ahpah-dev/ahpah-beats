@@ -27,7 +27,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
   onUpdateSynth
 }) => {
   return (
-    <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/60 p-3 shadow-xl flex flex-col gap-3">
+    <div className="w-full bg-[#0d111a] rounded-lg border border-slate-800/60 p-3 shadow-xl flex flex-col gap-3">
       {/* Title */}
       <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-2">
@@ -37,7 +37,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
           </h2>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span className="w-2 h-2 rounded-full bg-cyan-400 "></span>
           <span className="text-[11px] font-mono text-cyan-400">44.1kHz 32-bit Float</span>
         </div>
       </div>
@@ -45,7 +45,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
       {/* Modules Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Module 1: Space Reverb */}
-        <div className="bg-[#121622] rounded-xl p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
+        <div className="bg-[#121622] rounded-md p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-300">
               <Waves className="w-4 h-4" />
@@ -92,7 +92,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
         </div>
 
         {/* Module 2: Stereo Echo Delay */}
-        <div className="bg-[#121622] rounded-xl p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
+        <div className="bg-[#121622] rounded-md p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-pink-300">
               <Zap className="w-4 h-4" />
@@ -155,7 +155,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
         </div>
 
         {/* Module 3: Tube Saturation & Filter */}
-        <div className="bg-[#121622] rounded-xl p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
+        <div className="bg-[#121622] rounded-md p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
               <Activity className="w-4 h-4" />
@@ -218,7 +218,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
         </div>
 
         {/* Module 4: Synthesizer Sound Shaper (ADSR) */}
-        <div className="bg-[#121622] rounded-xl p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
+        <div className="bg-[#121622] rounded-md p-3 border border-slate-800 flex flex-col gap-3 shadow-inner">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-300">
               <Layers className="w-4 h-4" />

@@ -142,7 +142,7 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
   return (
     <div className="w-full flex flex-col gap-3 select-none pb-6">
       {/* 1. Synth Track Selector */}
-      <div className="w-full bg-[#121622] p-2 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
+      <div className="w-full bg-[#121622] p-2 rounded-md border border-slate-800 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-thin py-0.5 flex-1 min-w-0">
           {synthTracks.map(({ track, originalIdx }) => {
             const isSelected = selectedTrackIndex === originalIdx;
@@ -152,7 +152,7 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
                 onClick={() => onSelectTrack(originalIdx)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 active:scale-95 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white '
                     : 'bg-slate-800/80 text-slate-300 border border-slate-700/60'
                 }`}
               >
@@ -168,7 +168,7 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
       </div>
 
       {/* 2. Bar Navigation & Song Length Bar */}
-      <div className="w-full bg-[#121622] px-3 py-2 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-2">
+      <div className="w-full bg-[#121622] px-3 py-2 rounded-md border border-slate-800 flex flex-wrap items-center justify-between gap-2">
         {/* Bars Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto">
           {Array.from({ length: totalBars }).map((_, barIdx) => {
@@ -181,12 +181,12 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
                 onClick={() => setActiveBar(barIdx)}
                 className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all relative ${
                   isSelectedBar
-                    ? 'bg-cyan-500 text-slate-950 shadow-md font-black'
+                    ? 'bg-cyan-500 text-slate-950  font-black'
                     : 'bg-slate-800 text-slate-300 border border-slate-700/60'
                 }`}
               >
                 {isCurrentPlayingBar && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 " />
                 )}
                 <span>Bar {barIdx + 1}</span>
               </button>
@@ -265,7 +265,7 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
       </div>
 
       {/* 3. Toolbar: Length, Scale Filter & Octave */}
-      <div className="w-full bg-[#121622] px-3 py-2 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-2">
+      <div className="w-full bg-[#121622] px-3 py-2 rounded-md border border-slate-800 flex flex-wrap items-center justify-between gap-2">
         {/* Note Length */}
         <div className="flex items-center gap-1 text-xs">
           <Clock className="w-3.5 h-3.5 text-cyan-400 mr-0.5" />
@@ -325,7 +325,7 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
       </div>
 
       {/* 4. Touch Piano Roll Grid */}
-      <div className="w-full max-h-[380px] overflow-y-auto scrollbar-thin rounded-2xl border border-slate-800 bg-[#080b11] shadow-2xl">
+      <div className="w-full max-h-[380px] overflow-y-auto scrollbar-thin rounded-lg border border-slate-800 bg-[#080b11] shadow-sm">
         <div className="flex flex-col">
           {displayNotes.map((note) => {
             const pitchName = note.replace(/\d+/, '');
@@ -391,7 +391,7 @@ export const MobilePianoRoll: React.FC<MobilePianoRollProps> = ({
                           isCurrent ? 'bg-cyan-950/50' : ''
                         } ${
                           isNoteHead
-                            ? 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-md shadow-pink-500/40 text-white font-bold'
+                            ? 'bg-gradient-to-r from-pink-500 to-purple-600  shadow-pink-500/40 text-white font-bold'
                             : isSustainedTail
                             ? 'bg-purple-900/40 border-t border-b border-purple-500/40'
                             : isInScale

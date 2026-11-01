@@ -153,7 +153,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
 
   if (!isSynth) {
     return (
-      <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/80 p-6 flex flex-col items-center justify-center text-center">
+      <div className="w-full bg-[#0d111a] rounded-lg border border-slate-800/80 p-6 flex flex-col items-center justify-center text-center">
         <Music className="w-10 h-10 text-slate-600 mb-2" />
         <h3 className="text-sm font-bold text-slate-400">Piano Roll Melodic Editor</h3>
         <p className="text-xs text-slate-500 max-w-sm mt-1 mb-4">
@@ -164,7 +164,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
             <button
               key={track.id}
               onClick={() => onSelectTrack(originalIdx)}
-              className="px-3 py-1.5 rounded-xl bg-purple-950/60 hover:bg-purple-900 border border-purple-800/60 text-purple-300 text-xs font-semibold transition-all active:scale-95"
+              className="px-3 py-1.5 rounded-md bg-purple-950/60 hover:bg-purple-900 border border-purple-800/60 text-purple-300 text-xs font-semibold transition-all active:scale-95"
             >
               Open {track.name}
             </button>
@@ -175,7 +175,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
   }
 
   return (
-    <div className="w-full bg-[#0d111a] rounded-2xl border border-slate-800/80 p-4 shadow-2xl flex flex-col gap-3">
+    <div className="w-full bg-[#0d111a] rounded-lg border border-slate-800/80 p-4 shadow-sm flex flex-col gap-3">
       {/* Header Strip */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div className="flex flex-wrap items-center gap-3">
@@ -185,14 +185,14 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
           </div>
 
           {/* Synth Track Selector Tabs */}
-          <div className="flex items-center gap-1.5 bg-[#121622] p-1 rounded-xl border border-slate-800 overflow-x-auto max-w-full">
+          <div className="flex items-center gap-1.5 bg-[#121622] p-1 rounded-md border border-slate-800 overflow-x-auto max-w-full">
             {synthTracks.map(({ track, originalIdx }) => (
               <button
                 key={track.id}
                 onClick={() => onSelectTrack(originalIdx)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                   selectedTrackIndex === originalIdx
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white '
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -214,12 +214,12 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                 onClick={() => setActiveBar(barIdx)}
                 className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all relative ${
                   isSelected
-                    ? 'bg-cyan-500 text-slate-950 shadow-md font-black'
+                    ? 'bg-cyan-500 text-slate-950  font-black'
                     : 'bg-slate-800 text-slate-300 border border-slate-700/60 hover:bg-slate-700'
                 }`}
               >
                 {isPlayingBar && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 " />
                 )}
                 <span>Bar {barIdx + 1}</span>
               </button>
@@ -297,7 +297,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
         {/* Note Length & Resizing Controls */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Note Duration Picker */}
-          <div className="flex items-center gap-1 bg-[#121622] px-2.5 py-1 rounded-xl border border-slate-800 text-xs">
+          <div className="flex items-center gap-1 bg-[#121622] px-2.5 py-1 rounded-md border border-slate-800 text-xs">
             <Clock className="w-3.5 h-3.5 text-cyan-400 mr-1" />
             <span className="text-[10px] text-slate-400 font-mono font-bold mr-1">LENGTH:</span>
             {[
@@ -322,7 +322,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
           </div>
 
           {/* Octave Controls */}
-          <div className="flex items-center gap-1 bg-[#121622] px-2 py-1 rounded-xl border border-slate-800 text-xs">
+          <div className="flex items-center gap-1 bg-[#121622] px-2 py-1 rounded-md border border-slate-800 text-xs">
             <span className="text-[10px] text-slate-500 font-mono font-bold">OCT:</span>
             <span className="text-cyan-400 font-mono font-bold">C{octaveOffset}-C{octaveOffset + 2}</span>
             <button
@@ -341,7 +341,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
             </button>
           </div>
 
-          <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-mono text-cyan-400 bg-cyan-950/40 px-2.5 py-1 rounded-xl border border-cyan-800/40">
+          <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-mono text-cyan-400 bg-cyan-950/40 px-2.5 py-1 rounded-md border border-cyan-800/40">
             <Sparkles className="w-3 h-3" />
             <span>{rootKey} {scaleName}</span>
           </div>
@@ -355,7 +355,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
       </div>
 
       {/* Piano Roll Grid Container */}
-      <div className="w-full max-h-[360px] overflow-y-auto scrollbar-thin rounded-xl border border-slate-800 bg-[#080b11]">
+      <div className="w-full max-h-[360px] overflow-y-auto scrollbar-thin rounded-md border border-slate-800 bg-[#080b11]">
         <div className="flex flex-col">
           {displayNotes.map((note) => {
             const pitchName = note.replace(/\d+/, '');
@@ -421,7 +421,7 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                           isCurrent ? 'bg-cyan-950/40' : ''
                         } ${
                           isNoteHead
-                            ? 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-md shadow-pink-500/40 text-white z-10'
+                            ? 'bg-gradient-to-r from-pink-500 to-purple-600  shadow-pink-500/40 text-white z-10'
                             : isSustainedTail
                             ? 'bg-purple-900/50 border-t border-b border-purple-500/40'
                             : isInScale

@@ -93,17 +93,17 @@ export const Header: React.FC<HeaderProps> = ({
   const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
   return (
-    <header className="w-full bg-[#0b0e14]/95 backdrop-blur-md border-b border-slate-800/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-40 select-none">
+    <header className="w-full bg-[#0b0e14]/95  border-b border-slate-800/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-40 select-none">
       {/* Brand Logo */}
       <div className="flex items-center gap-3">
-        <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-pink-500 p-0.5 shadow-lg shadow-cyan-500/20">
+        <div className="relative flex items-center justify-center w-10 h-10 rounded-md bg-blue-600 p-0.5 shadow-sm shadow-cyan-500/20">
           <div className="w-full h-full bg-[#0b0e14] rounded-[10px] flex items-center justify-center">
-            <Radio className="w-5 h-5 text-cyan-400 animate-pulse" />
+            <Radio className="w-5 h-5 text-cyan-400 " />
           </div>
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-lg font-black tracking-wider uppercase bg-gradient-to-r from-white via-cyan-200 to-cyan-400 bg-clip-text text-transparent font-['Inter']">
+            <h1 className="text-lg font-black tracking-wider uppercase text-white font-['Inter']">
               AhPah Beats
             </h1>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/60 font-mono font-bold tracking-tight">
@@ -115,11 +115,11 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Main Transport & Tempo Controls */}
-      <div className="flex items-center gap-2 bg-[#121622] px-3 py-1.5 rounded-xl border border-slate-800 shadow-inner">
+      <div className="flex items-center gap-2 bg-[#121622] px-3 py-1.5 rounded-md border border-slate-800 shadow-inner">
         {/* Play/Pause Button */}
         <button
           onClick={onPlayToggle}
-          className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all shadow-md active:scale-95 ${
+          className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all  active:scale-95 ${
             isPlaying
               ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/30'
               : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/30 font-bold'
@@ -234,7 +234,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Musical Key, Scale & Preset Selector */}
       <div className="flex items-center gap-2">
         {/* Preset Selector */}
-        <div className="flex items-center gap-1.5 bg-[#121622] px-2.5 py-1.5 rounded-xl border border-slate-800">
+        <div className="flex items-center gap-1.5 bg-[#121622] px-2.5 py-1.5 rounded-md border border-slate-800">
           <Layers className="w-4 h-4 text-purple-400" />
           <select
             value={Object.keys(PRESET_PROJECTS).find((k) => PRESET_PROJECTS[k].title === project.title) || ''}
@@ -254,7 +254,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Song Length / Bars Selector */}
         {onChangeStepCount && (
-          <div className="hidden xl:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs">
+          <div className="hidden xl:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-md border border-slate-800 text-xs">
             <span className="text-[10px] text-slate-500 font-mono font-bold">LENGTH:</span>
             {[
               { count: 16, label: '1 Bar' },
@@ -279,7 +279,7 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         {/* Key & Scale */}
-        <div className="hidden lg:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs">
+        <div className="hidden lg:flex items-center gap-1 bg-[#121622] px-2.5 py-1.5 rounded-md border border-slate-800 text-xs">
           <span className="text-[10px] text-slate-500 font-mono font-bold">SCALE:</span>
           <select
             value={project.key}
@@ -308,7 +308,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Randomize / AI Beat */}
         <button
           onClick={onRandomizeBeat}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border border-purple-800/60 text-xs font-semibold transition-all active:scale-95 shadow-sm"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border border-purple-800/60 text-xs font-semibold transition-all active:scale-95 shadow-sm"
           title="Generate Fresh Beat Pattern"
         >
           <Wand2 className="w-3.5 h-3.5 text-purple-400" />
@@ -329,14 +329,14 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-1">
           <button
             onClick={onSaveProject}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors active:scale-95"
+            className="p-2 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors active:scale-95"
             title="Save Project File (.ahpah)"
           >
             <FolderDown className="w-4 h-4" />
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors active:scale-95"
+            className="p-2 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors active:scale-95"
             title="Open Project File"
           >
             <Upload className="w-4 h-4" />
@@ -363,7 +363,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* View Mode Switcher: Mobile / Desktop toggle */}
         <button
           onClick={onToggleViewMode}
-          className={`flex items-center gap-1 px-2.5 py-2 rounded-xl border text-xs font-semibold transition-all active:scale-95 ${
+          className={`flex items-center gap-1 px-2.5 py-2 rounded-md border text-xs font-semibold transition-all active:scale-95 ${
             viewMode === 'mobile'
               ? 'bg-amber-950/60 text-amber-300 border-amber-800/60'
               : 'bg-slate-800/80 text-slate-300 border-slate-700/60 hover:bg-slate-700'

@@ -651,7 +651,7 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-['Inter'] antialiased">
       {/* Toast Alert Notification */}
       {toastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-slate-900/85 border border-cyan-500/40 text-cyan-100 px-4 py-2.5 rounded-2xl shadow-2xl shadow-cyan-500/20 backdrop-blur-xl text-xs font-semibold animate-fade-in">
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-slate-900/85 border border-cyan-500/40 text-cyan-100 px-4 py-2.5 rounded-lg shadow-sm shadow-cyan-500/20  text-xs font-semibold animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-cyan-400" />
           <span>{toastMessage}</span>
         </div>
@@ -788,7 +788,7 @@ export const App: React.FC = () => {
           </main>
 
           {/* Desktop Studio Footer */}
-          <footer className="w-full bg-[#0b0e14]/80 border-t border-slate-800/60 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-500 backdrop-blur-md">
+          <footer className="w-full bg-[#0b0e14]/80 border-t border-slate-800/60 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-500 ">
             <div className="flex items-center gap-2">
               <span className="font-bold text-slate-400">AhPah Beats Studio</span>
               <span>•</span>

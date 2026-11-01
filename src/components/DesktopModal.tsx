@@ -25,12 +25,12 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-xl bg-[#0f1420] border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80  animate-fade-in">
+      <div className="relative w-full max-w-xl bg-[#0f1420] border border-slate-700/80 rounded-lg shadow-sm overflow-hidden flex flex-col">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#141b2a]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/30">
+            <div className="w-10 h-10 rounded-md bg-rose-600 flex items-center justify-center shadow-sm shadow-pink-500/30">
               <Monitor className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -51,7 +51,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 flex flex-col gap-5 overflow-y-auto max-h-[75vh]">
           {/* Main Download Banner */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-pink-950/40 via-purple-950/40 to-cyan-950/40 border border-pink-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-4 rounded-md bg-gradient-to-r from-pink-950/40 via-purple-950/40 to-cyan-950/40 border border-pink-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <div className="text-sm font-bold text-pink-300">Windows Standalone Installer</div>
               <div className="text-xs text-slate-300 mt-0.5">
@@ -62,7 +62,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
               href={`${repoUrl}/releases/latest`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-pink-500/30 transition-all active:scale-95 whitespace-nowrap"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-sm shadow-pink-500/30 transition-all active:scale-95 whitespace-nowrap"
             >
               <Download className="w-4 h-4" />
               <span>Download .EXE</span>
@@ -71,7 +71,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
 
           {/* Desktop App Features */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#121724] border border-slate-800">
+            <div className="flex items-start gap-2.5 p-3 rounded-md bg-[#121724] border border-slate-800">
               <Cpu className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
               <div>
                 <div className="text-xs font-bold text-slate-200">Zero Audio Latency</div>
@@ -81,7 +81,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
               </div>
             </div>
 
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#121724] border border-slate-800">
+            <div className="flex items-start gap-2.5 p-3 rounded-md bg-[#121724] border border-slate-800">
               <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
                 <div className="text-xs font-bold text-slate-200">100% Offline Capable</div>
@@ -93,7 +93,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
           </div>
 
           {/* How to Build Desktop .exe locally */}
-          <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-[#090c13] border border-slate-800">
+          <div className="flex flex-col gap-2 p-3.5 rounded-md bg-[#090c13] border border-slate-800">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
               <Terminal className="w-4 h-4 text-cyan-400" />
               <span>Developer Build Command</span>
@@ -107,7 +107,7 @@ export const DesktopModal: React.FC<DesktopModalProps> = ({
           </div>
 
           {/* PWA 1-Click Install Alternative */}
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#121724] border border-slate-800">
+          <div className="flex items-center justify-between p-3.5 rounded-md bg-[#121724] border border-slate-800">
             <div className="flex items-center gap-2.5">
               <Laptop className="w-4 h-4 text-purple-400" />
               <div>

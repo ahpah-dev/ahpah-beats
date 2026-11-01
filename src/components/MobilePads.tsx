@@ -92,7 +92,7 @@ export const MobilePads: React.FC<MobilePadsProps> = ({ tracks, onTriggerPad }) 
   return (
     <div className="w-full flex flex-col gap-3 select-none pb-4">
       {/* Pads Header Bar */}
-      <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-xl border border-slate-800">
+      <div className="flex items-center justify-between bg-[#121622] px-3 py-2 rounded-md border border-slate-800">
         <div className="flex items-center gap-2">
           <Flame className="w-4 h-4 text-amber-400" />
           <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
@@ -107,7 +107,7 @@ export const MobilePads: React.FC<MobilePadsProps> = ({ tracks, onTriggerPad }) 
             }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all active:scale-95 ${
               rollMode
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/40 ring-2 ring-amber-400'
+                ? 'bg-amber-500 text-slate-950  shadow-amber-500/40 ring-2 ring-amber-400'
                 : 'bg-slate-800 text-slate-400 border border-slate-700/60'
             }`}
           >
@@ -131,9 +131,9 @@ export const MobilePads: React.FC<MobilePadsProps> = ({ tracks, onTriggerPad }) 
               onMouseDown={(e) => handlePadStart(track, e)}
               onMouseUp={handlePadEnd}
               onMouseLeave={handlePadEnd}
-              className={`relative h-28 rounded-2xl flex flex-col justify-between p-3.5 transition-all transform active:scale-95 border select-none touch-none cursor-pointer ${
+              className={`relative h-28 rounded-lg flex flex-col justify-between p-3.5 transition-all transform active:scale-95 border select-none touch-none cursor-pointer ${
                 isActive
-                  ? 'brightness-125 scale-98 shadow-2xl ring-2'
+                  ? 'brightness-125 scale-98 shadow-sm ring-2'
                   : 'bg-[#121622] hover:bg-[#161c2b] border-slate-800'
               }`}
               style={{

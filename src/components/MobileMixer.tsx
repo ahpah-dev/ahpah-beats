@@ -44,7 +44,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={onExportWav}
-          className="flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs shadow-lg active:scale-95 transition-all"
+          className="flex items-center justify-center gap-2 p-3 rounded-md bg-blue-600 text-white font-semibold text-xs active:scale-95 transition-all"
         >
           <Download className="w-4 h-4" />
           <span>Export WAV</span>
@@ -52,7 +52,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
 
         <button
           onClick={onRandomizeBeat}
-          className="flex items-center justify-center gap-2 p-3 rounded-xl bg-purple-950/60 hover:bg-purple-900 border border-purple-800/60 text-purple-300 font-bold text-xs active:scale-95 transition-all"
+          className="flex items-center justify-center gap-2 p-3 rounded-md bg-purple-950/60 hover:bg-purple-900 border border-purple-800/60 text-purple-300 font-bold text-xs active:scale-95 transition-all"
         >
           <Sparkles className="w-4 h-4 text-purple-400" />
           <span>AI Randomizer</span>
@@ -61,7 +61,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
 
       {/* Song Length / Bars Selector */}
       {onChangeStepCount && (
-        <div className="bg-[#121622] p-3 rounded-xl border border-slate-800 flex flex-col gap-2">
+        <div className="bg-[#121622] p-3 rounded-md border border-slate-800 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
               <Layers className="w-4 h-4 text-cyan-400" />
@@ -83,7 +83,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
                 onClick={() => onChangeStepCount(count)}
                 className={`py-1.5 rounded-lg text-xs font-mono font-bold transition-all active:scale-95 ${
                   project.stepCount === count
-                    ? 'bg-cyan-500 text-slate-950 font-black shadow-md'
+                    ? 'bg-cyan-500 text-slate-950 font-black '
                     : 'bg-slate-800 text-slate-300 border border-slate-700/60'
                 }`}
               >
@@ -95,7 +95,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
       )}
 
       {/* Preset Selector */}
-      <div className="bg-[#121622] p-3 rounded-xl border border-slate-800 flex flex-col gap-2">
+      <div className="bg-[#121622] p-3 rounded-md border border-slate-800 flex flex-col gap-2">
         <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
           <Layers className="w-4 h-4 text-cyan-400" />
           <span>Load Preset Song</span>
@@ -114,7 +114,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
       </div>
 
       {/* Track Faders List */}
-      <div className="bg-[#121622] p-3 rounded-xl border border-slate-800 flex flex-col gap-3">
+      <div className="bg-[#121622] p-3 rounded-md border border-slate-800 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
             <Sliders className="w-4 h-4 text-cyan-400" />
@@ -196,7 +196,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={onSaveProject}
-          className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
+          className="flex items-center justify-center gap-2 p-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 text-xs font-semibold active:scale-95 transition-all"
         >
           <FolderDown className="w-4 h-4" />
           <span>Save File</span>
@@ -204,7 +204,7 @@ export const MobileMixer: React.FC<MobileMixerProps> = ({
 
         <button
           onClick={onOpenDesktopModal}
-          className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-pink-950/60 hover:bg-pink-900 border border-pink-800/60 text-pink-300 text-xs font-semibold active:scale-95 transition-all"
+          className="flex items-center justify-center gap-2 p-2.5 rounded-md bg-pink-950/60 hover:bg-pink-900 border border-pink-800/60 text-pink-300 text-xs font-semibold active:scale-95 transition-all"
         >
           <Monitor className="w-4 h-4 text-pink-400" />
           <span>Desktop .EXE</span>
