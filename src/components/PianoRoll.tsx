@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Track } from '../types';
 import { SCALES } from '../audio/presets';
 import { audioEngine } from '../audio/AudioEngine';
@@ -51,6 +51,10 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
   const [selectedDuration, setSelectedDuration] = useState<number>(1); // 1, 2, 4, 8 steps
   const [activeBar, setActiveBar] = useState<number>(0);
   const [followPlayhead, setFollowPlayhead] = useState<boolean>(false);
+  const [dragTarget, setDragTarget] = useState<{ step: number; note: string } | null>(null);
+  const dragTargetRef = useRef<{ step: number; note: string } | null>(null);
+  const dragStartRef = useRef<{ step: number; note: string; duration: number } | null>(null);
+  const didDragRef = useRef<boolean>(false);
 
   const synthTracks = tracks
     .map((t, idx) => ({ track: t, originalIdx: idx }))
@@ -60,15 +64,54 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
   const isSynth = currentTrack && currentTrack.type === 'synth';
   const totalBars = Math.max(1, Math.ceil(stepCount / 16));
 
-  // Follow playhead if enabled
+  // Global drag listeners for moving notes
   useEffect(() => {
-    if (isPlaying && followPlayhead) {
-      const playingBar = Math.floor(currentStep / 16);
-      if (playingBar !== activeBar && playingBar < totalBars) {
-        setActiveBar(playingBar);
+    const handleMove = (e: MouseEvent) => {
+      if (!dragStartRef.current) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+      const cell = el?.closest('[data-pr-step][data-pr-note]') as HTMLElement | null;
+      if (cell) {
+        const step = parseInt(cell.getAttribute('data-pr-step') || '', 10);
+        const note = cell.getAttribute('data-pr-note') || '';
+        if (!isNaN(step) && note) {
+          if (step !== dragStartRef.current.step || note !== dragStartRef.current.note) {
+            didDragRef.current = true;
+          }
+          const t = { step, note };
+          dragTargetRef.current = t;
+          setDragTarget(t);
+          return;
+        }
       }
-    }
-  }, [isPlaying, currentStep, followPlayhead, activeBar, totalBars]);
+      dragTargetRef.current = null;
+      setDragTarget(null);
+    };
+
+    const handleUp = () => {
+      if (!dragStartRef.current) return;
+      const start = dragStartRef.current;
+      const target = dragTargetRef.current;
+      dragStartRef.current = null;
+      if (didDragRef.current && target && (target.step !== start.step || target.note !== start.note)) {
+        // Move: clear original, place at target
+        onSetNote(selectedTrackIndex, start.step, null);
+        onSetNote(selectedTrackIndex, target.step, target.note, start.duration);
+        if (currentTrack) {
+          audioEngine.triggerSound(currentTrack, target.note, 0.85);
+        }
+      }
+      didDragRef.current = false;
+      dragTargetRef.current = null;
+      setDragTarget(null);
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleUp);
+    };
+  }, [selectedTrackIndex, currentTrack, onSetNote]);
 
   // Build 2 octaves of notes from top to bottom (e.g. B4 down to C3)
   const displayNotes: string[] = [];
@@ -392,29 +435,49 @@ export const PianoRoll: React.FC<PianoRollProps> = ({
                     return (
                       <div
                         key={localStepIdx}
-                        onClick={() => handleCellClick(localStepIdx, note)}
+                        data-pr-step={globalStepIdx}
+                        data-pr-note={note}
+                        onClick={() => {
+                          if (didDragRef.current) {
+                            didDragRef.current = false;
+                            return;
+                          }
+                          handleCellClick(localStepIdx, note);
+                        }}
+                        onMouseDown={() => {
+                          if (isNoteHead && step) {
+                            dragStartRef.current = {
+                              step: globalStepIdx,
+                              note,
+                              duration: step.duration || 1
+                            };
+                            didDragRef.current = false;
+                          }
+                        }}
                         onContextMenu={(e) => isNoteHead && handleCycleDuration(e, globalStepIdx)}
                         className={`flex-1 h-7 border-r border-line/40 transition-colors relative flex items-center justify-between px-0.5 cursor-pointer ${
                           isCurrent ? 'bg-accent/[0.07]' : ''
                         } ${isBeatQuarter ? 'border-l border-line/70' : ''} ${
-                          isSustainedTail ? 'border-t border-b' : ''
-                        } ${
                           isNoteHead
-                            ? ''
+                            ? dragTarget && dragTarget.step === globalStepIdx && dragTarget.note === note
+                              ? 'ring-2 ring-accent'
+                              : ''
+                            : isSustainedTail
+                            ? 'border-t border-b'
                             : isInScale
                             ? 'hover:bg-raised/60'
                             : 'hover:bg-raised/30'
-                        }`}
+                        } ${dragTarget && dragTarget.step === globalStepIdx && dragTarget.note === note && !isNoteHead ? 'bg-accent/20 ring-1 ring-accent' : ''}`}
                         style={
                           isNoteHead
-                            ? { backgroundColor: currentTrack.color }
+                            ? { backgroundColor: currentTrack.color, opacity: dragStartRef.current?.step === globalStepIdx && dragStartRef.current?.note === note ? 0.6 : 1 }
                             : isSustainedTail
                             ? {
                                 backgroundColor: `${currentTrack.color}26`,
                                 borderTopColor: `${currentTrack.color}55`,
                                 borderBottomColor: `${currentTrack.color}55`
                               }
-                            : undefined
+                             : undefined
                         }
                         title={
                           isNoteHead
