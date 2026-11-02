@@ -267,7 +267,8 @@ export const Visualizer: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-16 sm:h-20 bg-well rounded-xl overflow-hidden border border-line select-none"
+      className="relative w-full h-20 sm:h-24 rounded-2xl overflow-hidden border border-line select-none glass-hover"
+      style={{ background: 'linear-gradient(180deg, rgba(12,14,24,0.8), rgba(6,8,14,0.9))', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 30px -10px rgba(34,211,238,0.15)' }}
     >
       <canvas
         ref={canvasRef}

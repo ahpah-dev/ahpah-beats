@@ -90,7 +90,8 @@ export const MobileView: React.FC<MobileViewProps> = ({
   onUndo,
   onRedo,
   canUndo = false,
-  canRedo = false
+  canRedo = false,
+  onClearAllNotes
 }) => {
   const [activeTab, setActiveTab] = useState<MobileTab>('pads');
   const [selectedSeqTrack, setSelectedSeqTrack] = useState<number>(0);

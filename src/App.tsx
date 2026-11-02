@@ -696,8 +696,13 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base text-ink flex flex-col antialiased">
-      {/* Toast Alert Notification */}
+    <div className="min-h-screen text-ink flex flex-col antialiased relative z-10">
+      {/* Ambient background orbs */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full blur-3xl opacity-30" style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.35), transparent 70%)' }} />
+        <div className="absolute top-20 -right-32 w-[480px] h-[480px] rounded-full blur-3xl opacity-25" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.4), transparent 70%)' }} />
+        <div className="absolute bottom-0 left-1/3 w-[600px] h-[400px] rounded-full blur-3xl opacity-20" style={{ background: 'radial-gradient(circle, rgba(244,114,182,0.35), transparent 70%)' }} />
+      </div>
       {toastMessage && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-panel/95 backdrop-blur-md border border-line text-ink px-4 py-2 rounded-xl shadow-overlay text-xs font-semibold animate-toast-in">
           <CheckCircle2 className="w-4 h-4 text-accent" />
@@ -867,7 +872,7 @@ export const App: React.FC = () => {
             <span>•</span>
             <span className="text-accent font-semibold">32-bit Float Precision</span>
             <span>•</span>
-            <span className="text-ink-3">v1.0.9</span>
+            <span className="text-ink-3">v1.1.0</span>
           </div>
           <div className="flex items-center gap-4 text-xs font-semibold">
             <button

@@ -93,21 +93,22 @@ export const Header: React.FC<HeaderProps> = ({
   const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-line bg-base/90 backdrop-blur-md">
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 px-3 sm:px-4 py-2">
+    <header className="sticky top-0 z-40 w-full border-b border-line bg-base/70 backdrop-blur-xl">
+      <div className="aurora-bar absolute top-0 left-0 right-0" />
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 px-3 sm:px-4 py-2 pt-2.5">
         {/* Brand */}
         <div className="flex items-center gap-2.5 mr-1">
-          <div className="w-9 h-9 rounded-lg bg-accent/10 border border-accent/25 flex items-center justify-center flex-shrink-0">
-            <Radio className="w-4 h-4 text-accent" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(34,211,238,0.25), rgba(139,92,246,0.2))', border: '1px solid rgba(34,211,238,0.4)', boxShadow: '0 0 18px -4px rgba(34,211,238,0.5)' }}>
+            <Radio className="w-5 h-5 text-accent" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-sm font-bold tracking-wide text-ink">
+              <h1 className="text-sm font-extrabold tracking-tight text-ink font-display">
                 AhPah Beats
               </h1>
-              <span className="badge">STUDIO</span>
+              <span className="badge text-accent border-accent/30">STUDIO</span>
             </div>
-            <p className="micro-label mt-0.5">DAW • v1.0.9</p>
+            <p className="micro-label mt-0.5 text-ink-2">DAW • v1.1.0 • Aurora Engine</p>
           </div>
         </div>
 
@@ -116,11 +117,12 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Play/Pause Button */}
           <button
             onClick={onPlayToggle}
-            className={`flex items-center justify-center w-9 h-9 rounded-md transition-colors duration-150 cursor-pointer font-bold ${
+            className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 cursor-pointer font-bold ${
               isPlaying
-                ? 'bg-amber-400 hover:bg-amber-300 text-zinc-950'
-                : 'bg-accent hover:bg-accent/85 text-[#052730]'
+                ? 'bg-amber-400 hover:bg-amber-300 text-zinc-950 shadow-glow'
+                : 'text-[#05060b] shadow-glow'
             }`}
+            style={isPlaying ? {} : { background: 'linear-gradient(135deg, #22d3ee, #8b5cf6)' }}
             title="Play / Pause (Space)"
           >
             {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
