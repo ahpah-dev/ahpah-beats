@@ -127,4 +127,3 @@ export const CustomInstrumentsModal: React.FC<CustomInstrumentsModalProps> = ({ 
 };
 
 export default CustomInstrumentsModal;
-EOF
