@@ -230,10 +230,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
           return (
             <div
               key={track.id}
-              className={`flex items-center gap-3 p-2 rounded-lg transition-colors border min-w-max ${
+              className={`group flex items-center gap-3 p-2 rounded-xl transition-all border min-w-max ${
                 isMuted
-                  ? 'bg-base/40 border-line opacity-50'
-                  : 'bg-well border-line'
+                  ? 'bg-base/50 border-line/60 opacity-45'
+                  : 'bg-raised/25 border-line hover:border-line-strong hover:bg-raised/40'
               }`}
             >
               {/* Channel Strip Header: Info, M/S, Volume */}
@@ -241,19 +241,19 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 {/* Track Audition & Info */}
                 <button
                   onClick={() => onPreviewSound(track)}
-                  className="flex items-center gap-2 group text-left flex-1 min-w-0 cursor-pointer"
+                  className="flex items-center gap-2.5 group/track text-left flex-1 min-w-0 cursor-pointer"
                   title="Click to audition track sound"
                 >
                   <div
-                    className="w-2.5 h-8 rounded-full flex-shrink-0 transition-transform group-hover:scale-110"
-                    style={{ backgroundColor: track.color }}
+                    className="w-1.5 h-9 rounded-full flex-shrink-0 transition-all group-hover/track:scale-y-110"
+                    style={{ backgroundColor: track.color, boxShadow: `0 0 10px -2px ${track.color}` }}
                   />
                   <div className="truncate">
-                    <div className="text-xs font-semibold text-ink group-hover:text-accent transition-colors truncate">
+                    <div className="text-xs font-semibold text-ink group-hover/track:text-accent transition-colors truncate">
                       {track.name}
                     </div>
-                    <div className="micro-label normal-case tracking-normal">
-                      {track.sound}
+                    <div className="micro-label normal-case tracking-normal text-[9px]">
+                      {track.type === 'sample' ? 'sample' : track.sound}
                     </div>
                   </div>
                 </button>
@@ -336,20 +336,23 @@ export const Sequencer: React.FC<SequencerProps> = ({
                         e.preventDefault();
                         onToggleRoll(trackIndex, globalStepIdx);
                       }}
-                      className={`relative h-11 w-8 sm:w-9 rounded-md flex flex-col items-center justify-between p-1 transition-colors duration-100 cursor-pointer border ${
+                      className={`relative h-12 w-8 sm:w-9 rounded-lg flex flex-col items-center justify-between p-1 transition-all duration-100 cursor-pointer border ${
                         isCurrent
-                          ? 'ring-1 ring-accent'
+                          ? 'ring-2 ring-accent/80 shadow-[0_0_16px_-4px_rgba(34,211,238,0.7)]'
                           : ''
                       } ${
                         isActive
-                          ? 'border-transparent'
+                          ? 'border-transparent hover:brightness-110'
                           : isBeatQuarter
-                          ? 'bg-raised border-line-strong hover:bg-panel'
-                          : 'bg-well border-line hover:bg-raised'
+                          ? 'bg-raised/70 border-line-strong hover:bg-raised'
+                          : 'bg-well border-line/70 hover:bg-raised/70'
                       }`}
                       style={
                         isActive
-                          ? { backgroundColor: track.color }
+                          ? {
+                              backgroundColor: track.color,
+                              boxShadow: `0 0 14px -3px ${track.color}`
+                            }
                           : undefined
                       }
                       title={`${track.name} • Step ${localIdx + 1}${

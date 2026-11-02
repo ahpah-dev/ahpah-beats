@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Track, SynthSoundType, SynthSettings } from '../types';
-import { OscillatorType } from '../types';
 import { Select } from './Select';
 import { SCALES } from '../audio/presets';
 import { audioEngine } from '../audio/AudioEngine';

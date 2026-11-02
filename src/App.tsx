@@ -10,6 +10,7 @@ import {
 } from './audio/presets';
 import { WavExporter } from './audio/WavExporter';
 import { Header } from './components/Header';
+import { SessionPanel } from './components/SessionPanel';
 import { Visualizer } from './components/Visualizer';
 import { Sequencer } from './components/Sequencer';
 import { PianoRoll } from './components/PianoRoll';
@@ -804,13 +805,9 @@ export const App: React.FC = () => {
           <Header
             project={project}
             isPlaying={isPlaying}
-            isRecording={isRecording}
             onPlayToggle={handlePlayToggle}
             onStop={handleStop}
             onBpmChange={handleBpmChange}
-            onSwingChange={handleSwingChange}
-            onMasterVolumeChange={handleMasterVolumeChange}
-            onSelectPreset={handleSelectPreset}
             onExportWav={handleExportWav}
             onSaveProject={handleSaveProject}
             onLoadProject={handleLoadProject}
@@ -819,35 +816,59 @@ export const App: React.FC = () => {
             onOpenCustomInstruments={() => setIsCustomInstrumentsOpen(true)}
             viewMode={viewMode}
             onToggleViewMode={() => setViewMode('mobile')}
-            onKeyScaleChange={handleKeyScaleChange}
-            onChangeStepCount={handleChangeStepCount}
             onUndo={handleUndo}
             onRedo={handleRedo}
             canUndo={undoStack.length > 0}
             canRedo={redoStack.length > 0}
           />
 
-          {/* Studio Workspace Content */}
-          <main className="flex-1 p-4 lg:p-6 max-w-7xl w-full mx-auto flex flex-col gap-3">
-            {/* Visualizer & Peak Strip */}
-            <Visualizer />
+          {/* Studio Workspace */}
+          <div className="flex-1 w-full max-w-[1680px] mx-auto flex items-start gap-4 px-3 sm:px-5 py-4">
+            {/* Session Sidebar */}
+            <SessionPanel
+              project={project}
+              onSelectPreset={handleSelectPreset}
+              onKeyScaleChange={handleKeyScaleChange}
+              onChangeStepCount={handleChangeStepCount}
+              onSwingChange={handleSwingChange}
+              onMasterVolumeChange={handleMasterVolumeChange}
+              onRandomizeBeat={handleRandomizeBeat}
+              onOpenCustomInstruments={() => setIsCustomInstrumentsOpen(true)}
+              onClearAllNotes={handleClearAllNotes}
+            />
 
-            {/* Workspace Tabs */}
-            <div className="seg self-start">
-              {[
-                { id: 'sequencer', label: 'Sequencer' },
-                { id: 'pianoroll', label: 'Piano Roll' },
-                { id: 'fx', label: 'FX Rack' }
-              ].map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setDesktopTab(t.id as 'sequencer' | 'pianoroll' | 'fx')}
-                  className={`seg-item ${desktopTab === t.id ? 'seg-item-active' : ''}`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
+            <main className="flex-1 min-w-0 flex flex-col gap-4">
+              {/* Visualizer & Peak Strip */}
+              <Visualizer />
+
+              {/* Workspace Tabs */}
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="seg">
+                  {[
+                    { id: 'sequencer', label: 'Sequencer' },
+                    { id: 'pianoroll', label: 'Piano Roll' },
+                    { id: 'fx', label: 'FX Rack' }
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setDesktopTab(t.id as 'sequencer' | 'pianoroll' | 'fx')}
+                      className={`seg-item ${desktopTab === t.id ? 'seg-item-active' : ''}`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-ink-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success" style={{ animation: 'pulseDot 2.4s ease-in-out infinite' }} />
+                  <span>Realtime Engine</span>
+                  <span className="text-line-strong">·</span>
+                  <span>{project.tracks.length} Tracks</span>
+                  <span className="text-line-strong">·</span>
+                  <span>{project.stepCount} Steps</span>
+                  <span className="text-line-strong">·</span>
+                  <span className="text-accent">{project.key} {project.scale}</span>
+                </div>
+              </div>
 
             {/* Active Workspace Panel */}
             {desktopTab === 'sequencer' && (
@@ -915,9 +936,10 @@ export const App: React.FC = () => {
               />
             )}
           </main>
+          </div>
 
           {/* Desktop Studio Footer */}
-        <footer className="w-full bg-panel border-t border-line px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-ink-3">
+        <footer className="w-full border-t border-line px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-ink-3 header-glass">
           <div className="flex items-center gap-2 font-mono text-[11px]">
             <span className="font-bold text-ink-2">AhPah Beats Studio</span>
             <span>•</span>
@@ -925,7 +947,7 @@ export const App: React.FC = () => {
             <span>•</span>
             <span className="text-accent font-semibold">32-bit Float Precision</span>
             <span>•</span>
-            <span className="text-ink-3">v1.2.0</span>
+            <span className="text-ink-3">v1.3.0</span>
           </div>
           <div className="flex items-center gap-4 text-xs font-semibold">
             <button

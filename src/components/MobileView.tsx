@@ -137,7 +137,8 @@ export const MobileView: React.FC<MobileViewProps> = ({
   return (
     <div className="w-full min-h-screen bg-base text-ink flex flex-col justify-between pb-24 select-none">
       {/* Mobile Top Header */}
-      <header className="w-full bg-panel/95 backdrop-blur-md border-b border-line px-3 py-2 flex items-center justify-between sticky top-0 z-40">
+      <header className="w-full header-glass border-b border-line px-3 py-2 flex items-center justify-between sticky top-0 z-40">
+        <div className="aurora-bar absolute top-0 left-0 right-0" />
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-md bg-accent/10 border border-accent/25 flex items-center justify-center">
             <Radio className="w-4 h-4 text-accent" />
@@ -169,11 +170,12 @@ export const MobileView: React.FC<MobileViewProps> = ({
         <div className="flex items-center gap-1.5">
           <button
             onClick={onPlayToggle}
-            className={`w-9 h-9 rounded-md flex items-center justify-center transition-colors cursor-pointer ${
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
               isPlaying
-                ? 'bg-amber-400 text-zinc-950'
-                : 'bg-accent text-[#052730]'
+                ? 'bg-amber-400 text-zinc-950 shadow-[0_0_18px_-4px_rgba(251,191,36,0.7)]'
+                : 'text-[#05060b] shadow-[0_0_18px_-4px_rgba(34,211,238,0.7)]'
             }`}
+            style={isPlaying ? {} : { background: 'linear-gradient(135deg, #22d3ee, #8b5cf6)' }}
             title="Play / Pause"
           >
             {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
@@ -461,7 +463,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
       </main>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-panel/95 backdrop-blur-md border-t border-line flex items-stretch justify-around px-1 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 h-16 header-glass border-t border-line flex items-stretch justify-around px-1 z-50">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -473,10 +475,12 @@ export const MobileView: React.FC<MobileViewProps> = ({
               }`}
             >
               {isActive && (
-                <span className="absolute top-0 w-8 h-0.5 rounded-b-full bg-accent" />
+                <span className="absolute top-0 w-10 h-[3px] rounded-b-full" style={{ background: 'linear-gradient(90deg, #22d3ee, #8b5cf6)', boxShadow: '0 0 14px rgba(34,211,238,0.7)' }} />
               )}
-              {tab.icon}
-              <span className="text-[10px] font-semibold">{tab.label}</span>
+              <span className={`transition-all ${isActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]' : ''}`}>
+                {tab.icon}
+              </span>
+              <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-semibold'}`}>{tab.label}</span>
             </button>
           );
         })}

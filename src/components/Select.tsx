@@ -62,7 +62,7 @@ export const Select: React.FC<SelectProps> = ({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`inline-flex items-center ${sizeCls} rounded-lg border transition-all duration-150 cursor-pointer select-none whitespace-nowrap font-semibold text-ink ${variantCls} ${open ? 'ring-2 ring-accent/40 border-accent/40' : ''}`}
+        className={`inline-flex items-center ${sizeCls} ${className.includes('w-full') ? 'w-full' : ''} rounded-lg border transition-all duration-150 cursor-pointer select-none whitespace-nowrap font-semibold text-ink ${variantCls} ${open ? 'ring-2 ring-accent/40 border-accent/40' : ''}`}
         aria-haspopup="listbox"
         aria-expanded={open}
       >

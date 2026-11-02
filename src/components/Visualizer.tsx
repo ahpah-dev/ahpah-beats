@@ -267,8 +267,8 @@ export const Visualizer: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-20 sm:h-24 rounded-2xl overflow-hidden border border-line select-none glass-hover"
-      style={{ background: 'linear-gradient(180deg, rgba(12,14,24,0.8), rgba(6,8,14,0.9))', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 30px -10px rgba(34,211,238,0.15)' }}
+      className="relative w-full h-24 sm:h-28 rounded-2xl overflow-hidden border border-line select-none glass-hover"
+      style={{ background: 'linear-gradient(180deg, rgba(12,15,24,0.92), rgba(5,7,12,0.96))', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px -14px rgba(34,211,238,0.18)' }}
     >
       <canvas
         ref={canvasRef}
@@ -276,28 +276,28 @@ export const Visualizer: React.FC = () => {
       />
 
       {/* Top Left Studio Telemetry */}
-      <div className="absolute left-3 top-2 flex items-center gap-2 pointer-events-none">
+      <div className="absolute left-3 top-2.5 flex items-center gap-2 pointer-events-none">
         <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isClipping ? 'bg-rose-500 animate-pulse' : 'bg-emerald-400'}`} />
-        <span className="text-[10px] font-mono tracking-wider text-ink-2 font-semibold uppercase">
-          MASTER {mode === 'spectrum' ? 'FFT ANALYZER' : mode === 'wave' ? 'OSCILLOSCOPE' : 'STEREO PHASE'}
+        <span className="text-[10px] font-mono tracking-[0.18em] text-ink-2 font-bold uppercase">
+          {mode === 'spectrum' ? 'Master FFT' : mode === 'wave' ? 'Oscilloscope' : 'Stereo Phase'}
         </span>
-        <span className="hidden sm:inline text-[9px] font-mono text-ink-3">
-          • 44.1 kHz • 32-bit Float
+        <span className="hidden sm:inline text-[9px] font-mono text-ink-3 tracking-wide">
+          44.1 kHz · 32-bit float
         </span>
       </div>
 
       {/* Right Controls & Peak DB readout */}
-      <div className="absolute right-2 top-2 flex items-center gap-2">
+      <div className="absolute right-2.5 top-2 flex items-center gap-2">
         {/* Peak dB Readout */}
-        <div className="hidden sm:flex items-center gap-1 bg-well border border-line px-2 py-0.5 rounded font-mono text-[10px]">
-          <span className="text-ink-3">PEAK:</span>
-          <span className={`font-bold ${isClipping ? 'text-rose-400' : 'text-accent'}`}>
+        <div className="hidden sm:flex items-center gap-1.5 bg-well/80 backdrop-blur border border-line px-2.5 py-1 rounded-lg font-mono text-[10px]">
+          <span className="text-ink-3 tracking-wider">PEAK</span>
+          <span className={`font-bold tabular-nums ${isClipping ? 'text-rose-400' : 'text-accent'}`}>
             {peakDb}
           </span>
         </div>
 
         {/* View mode toggle switches */}
-        <div className="seg text-xs">
+        <div className="seg">
           <button
             onClick={() => setMode('spectrum')}
             className={`seg-item ${mode === 'spectrum' ? 'seg-item-active' : ''}`}

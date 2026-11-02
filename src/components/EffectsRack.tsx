@@ -1,5 +1,5 @@
 import React from 'react';
-import { EffectsSettings, SynthSettings, Track, OscillatorType } from '../types';
+import { EffectsSettings, SynthSettings, Track } from '../types';
 import { Select } from './Select';
 import {
   Sliders,
@@ -47,7 +47,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
       {/* 4 Studio Rack Units Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Unit 1: Space Reverb */}
-        <div className="bg-well rounded-xl p-3.5 border border-line flex flex-col gap-3">
+        <div className="card p-4 flex flex-col gap-3.5 glass-hover">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
               <Waves className="w-4 h-4 text-accent" />
@@ -94,7 +94,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
         </div>
 
         {/* Unit 2: Stereo Echo Delay */}
-        <div className="bg-well rounded-xl p-3.5 border border-line flex flex-col gap-3">
+        <div className="card p-4 flex flex-col gap-3.5 glass-hover">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
               <Zap className="w-4 h-4 text-magenta" />
@@ -157,7 +157,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
         </div>
 
         {/* Unit 3: Tube Saturation & Resonant Filter */}
-        <div className="bg-well rounded-xl p-3.5 border border-line flex flex-col gap-3">
+        <div className="card p-4 flex flex-col gap-3.5 glass-hover">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
               <Activity className="w-4 h-4 text-amber-400" />
@@ -218,7 +218,7 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
         </div>
 
         {/* Unit 4: Synth Voice ADSR Shaper */}
-        <div className="bg-well rounded-xl p-3.5 border border-line flex flex-col gap-3">
+        <div className="card p-4 flex flex-col gap-3.5 glass-hover">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
               <Layers className="w-4 h-4 text-emerald-400" />
