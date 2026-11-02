@@ -16,6 +16,7 @@ import { PianoRoll } from './components/PianoRoll';
 import { EffectsRack } from './components/EffectsRack';
 import { MobileView } from './components/MobileView';
 import { DesktopModal } from './components/DesktopModal';
+import { CustomInstrumentsModal } from './components/CustomInstrumentsModal';
 import confetti from 'canvas-confetti';
 import { CheckCircle2 } from 'lucide-react';
 
@@ -55,6 +56,7 @@ export const App: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedTrackIndex, setSelectedTrackIndex] = useState<number>(5); // default to 808 sub or lead
   const [isDesktopModalOpen, setIsDesktopModalOpen] = useState<boolean>(false);
+  const [isCustomInstrumentsOpen, setIsCustomInstrumentsOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [desktopTab, setDesktopTab] = useState<'sequencer' | 'pianoroll' | 'fx'>('sequencer');
 
@@ -147,6 +149,18 @@ export const App: React.FC = () => {
     audioEngine.updateEffects(project.effects);
     audioEngine.synthSettings = project.synth;
   }, [project]);
+
+  // Restore imported samples into audio engine
+  useEffect(() => {
+    project.tracks.forEach((t) => {
+      if (t.type === 'sample' && t.sampleId && t.sampleData && !audioEngine.sampleBuffers.has(t.sampleId)) {
+        fetch(t.sampleData)
+          .then((r) => r.arrayBuffer())
+          .then((buf) => audioEngine.loadSample(t.sampleId!, buf))
+          .catch(() => {});
+      }
+    });
+  }, [project.tracks]);
 
   // Hook up step callback from audio scheduler
   useEffect(() => {
@@ -513,7 +527,43 @@ export const App: React.FC = () => {
     showToast(`Cleared track "${project.tracks[trackIndex]?.name}"`);
   };
 
-  // Add Track
+  // Import a custom audio sample as a new sample track
+  const handleImportSample = async (file: File) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const id = `sample-${Date.now()}`;
+    await audioEngine.loadSample(id, arrayBuffer);
+    // base64 for persistence
+    const base64 = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
+
+    pushToHistory();
+    setProject((prev) => {
+      const newTrack: Track = {
+        id: `track-${Date.now()}`,
+        name: file.name.replace(/\.[^.]+$/, ''),
+        type: 'sample',
+        sound: 'custom-sample',
+        color: '#f472b6',
+        volume: 0.8,
+        pan: 0,
+        muted: false,
+        solo: false,
+        steps: Array.from({ length: prev.stepCount }, () => ({
+          active: false,
+          velocity: 0.85,
+          pitchOffset: 0,
+          duration: 1
+        })),
+        sampleId: id,
+        sampleData: base64
+      };
+      return { ...prev, tracks: [...prev.tracks, newTrack] };
+    });
+    showToast(`Imported "${file.name}" as new track`);
+  };
   const handleAddTrack = (type: 'drum' | 'synth') => {
     pushToHistory();
     setProject((prev) => {
@@ -729,6 +779,7 @@ export const App: React.FC = () => {
           onSaveProject={handleSaveProject}
           onRandomizeBeat={handleRandomizeBeat}
           onOpenDesktopModal={() => setIsDesktopModalOpen(true)}
+          onOpenCustomInstruments={() => setIsCustomInstrumentsOpen(true)}
           onToggleViewMode={() => setViewMode('desktop')}
           onUpdateSynth={(syn) => {
             setProject((p) => ({ ...p, synth: { ...p.synth, ...syn } }));
@@ -765,6 +816,7 @@ export const App: React.FC = () => {
             onLoadProject={handleLoadProject}
             onRandomizeBeat={handleRandomizeBeat}
             onOpenDesktopModal={() => setIsDesktopModalOpen(true)}
+            onOpenCustomInstruments={() => setIsCustomInstrumentsOpen(true)}
             viewMode={viewMode}
             onToggleViewMode={() => setViewMode('mobile')}
             onKeyScaleChange={handleKeyScaleChange}
@@ -822,6 +874,7 @@ export const App: React.FC = () => {
                 canUndo={undoStack.length > 0}
                 canRedo={redoStack.length > 0}
                 onClearAllNotes={handleClearAllNotes}
+                onOpenCustomInstruments={() => setIsCustomInstrumentsOpen(true)}
               />
             )}
 
@@ -872,9 +925,15 @@ export const App: React.FC = () => {
             <span>•</span>
             <span className="text-accent font-semibold">32-bit Float Precision</span>
             <span>•</span>
-            <span className="text-ink-3">v1.1.0</span>
+            <span className="text-ink-3">v1.2.0</span>
           </div>
           <div className="flex items-center gap-4 text-xs font-semibold">
+            <button
+              onClick={() => setIsCustomInstrumentsOpen(true)}
+              className="hover:text-accent text-ink-3 transition-colors cursor-pointer"
+            >
+              Import Instruments
+            </button>
             <button
               onClick={() => setIsDesktopModalOpen(true)}
               className="hover:text-magenta text-ink-3 transition-colors cursor-pointer"
@@ -896,6 +955,13 @@ export const App: React.FC = () => {
       <DesktopModal
         isOpen={isDesktopModalOpen}
         onClose={() => setIsDesktopModalOpen(false)}
+      />
+
+      {/* Custom Instruments Import Modal */}
+      <CustomInstrumentsModal
+        isOpen={isCustomInstrumentsOpen}
+        onClose={() => setIsCustomInstrumentsOpen(false)}
+        onImportSample={handleImportSample}
       />
     </div>
   );

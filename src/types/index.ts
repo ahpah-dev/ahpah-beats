@@ -18,7 +18,7 @@ export type SynthSoundType =
   | 'retro-bass'
   | 'warm-pad';
 
-export type TrackType = 'drum' | 'synth';
+export type TrackType = 'drum' | 'synth' | 'sample';
 
 export interface NoteStep {
   active: boolean;
@@ -33,13 +33,15 @@ export interface Track {
   id: string;
   name: string;
   type: TrackType;
-  sound: DrumSoundType | SynthSoundType;
+  sound: DrumSoundType | SynthSoundType | 'custom-sample';
   color: string;
   volume: number; // 0 to 1
   pan: number; // -1 to 1
   muted: boolean;
   solo: boolean;
   steps: NoteStep[];
+  sampleId?: string;
+  sampleData?: string;
 }
 
 export interface SynthSettings {

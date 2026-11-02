@@ -31,6 +31,7 @@ interface SequencerProps {
   canUndo?: boolean;
   canRedo?: boolean;
   onClearAllNotes?: () => void;
+  onOpenCustomInstruments?: () => void;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -49,7 +50,8 @@ export const Sequencer: React.FC<SequencerProps> = ({
   onRemoveTrack,
   onAddBar,
   onDuplicateBar,
-  onClearAllNotes
+  onClearAllNotes,
+  onOpenCustomInstruments
 }) => {
   const [activeBar, setActiveBar] = useState<number>(0);
   const [followPlayhead, setFollowPlayhead] = useState<boolean>(false);
@@ -176,6 +178,16 @@ export const Sequencer: React.FC<SequencerProps> = ({
             <Plus className="w-3.5 h-3.5 text-magenta" />
             <span>Synth</span>
           </button>
+          {onOpenCustomInstruments && (
+            <button
+              onClick={onOpenCustomInstruments}
+              className="btn h-7"
+              title="Import custom instruments & find free samples"
+            >
+              <Plus className="w-3.5 h-3.5 text-amber-400" />
+              <span>Import</span>
+            </button>
+          )}
         </div>
       </div>
 

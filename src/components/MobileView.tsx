@@ -45,6 +45,7 @@ interface MobileViewProps {
   onSaveProject: () => void;
   onRandomizeBeat: () => void;
   onOpenDesktopModal: () => void;
+  onOpenCustomInstruments: () => void;
   onToggleViewMode: () => void;
   onUpdateSynth: (synth: Partial<SynthSettings>) => void;
   onAddTrack: (type: 'drum' | 'synth') => void;
@@ -78,6 +79,7 @@ export const MobileView: React.FC<MobileViewProps> = ({
   onSaveProject,
   onRandomizeBeat,
   onOpenDesktopModal,
+  onOpenCustomInstruments,
   onToggleViewMode,
   onUpdateSynth,
   onAddTrack,
@@ -203,6 +205,15 @@ export const MobileView: React.FC<MobileViewProps> = ({
             title="Redo"
           >
             <Redo2 className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Import Custom Instruments */}
+          <button
+            onClick={onOpenCustomInstruments}
+            className="btn-icon w-8 h-8"
+            title="Import Custom Instruments"
+          >
+            <Plus className="w-3.5 h-3.5 text-magenta" />
           </button>
 
           {/* Switch to Desktop */}

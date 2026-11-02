@@ -158,6 +158,29 @@ export class AudioEngine {
     this.masterAnalyser.connect(this.ctx.destination);
   }
 
+  // Sample buffers for imported custom instruments
+  public sampleBuffers: Map<string, AudioBuffer> = new Map();
+
+  public async loadSample(id: string, arrayBuffer: ArrayBuffer): Promise<AudioBuffer> {
+    const buf = await this.ctx.decodeAudioData(arrayBuffer.slice(0));
+    this.sampleBuffers.set(id, buf);
+    return buf;
+  }
+
+  public playSample(id: string | undefined, time: number, velocity: number, destination: AudioNode, pitchOffset: number = 0) {
+    if (!id) return;
+    const buf = this.sampleBuffers.get(id);
+    if (!buf) return;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = Math.pow(2, pitchOffset / 12);
+    const gain = this.ctx.createGain();
+    gain.gain.value = Math.max(0.01, Math.min(1.5, velocity));
+    src.connect(gain);
+    gain.connect(destination);
+    src.start(time);
+  }
+
   public ensureContextRunning() {
     if (this.ctx.state === 'suspended') {
       this.ctx.resume();
@@ -260,6 +283,8 @@ export class AudioEngine {
 
     if (track.type === 'drum') {
       this.drumSynth.playSound(track.sound as DrumSoundType, time, velocity, bus.gain, pitchOffset);
+    } else if (track.type === 'sample') {
+      this.playSample(track.sampleId, time, velocity, bus.gain, pitchOffset);
     } else {
       this.synthVoice.playNote(
         track.sound as SynthSoundType,
@@ -375,6 +400,8 @@ export class AudioEngine {
             const rollTime = time + (60.0 / this.bpm) * 0.125;
             this.drumSynth.playSound(track.sound as DrumSoundType, rollTime, vel * 0.7, bus.gain, pitch);
           }
+        } else if (track.type === 'sample') {
+          this.playSample(track.sampleId, time, vel, bus.gain, pitch);
         } else {
           const note = stepData.note || 'C4';
           const stepBase = (60.0 / this.bpm) * 0.25;

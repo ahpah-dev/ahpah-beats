@@ -1,6 +1,7 @@
 import { ProjectData, Track, DrumSoundType, SynthSoundType } from '../types';
 import { DrumSynthesizer } from './DrumSynthesizer';
 import { SynthVoice } from './SynthVoice';
+import { audioEngine } from './AudioEngine';
 
 /**
  * High quality WAV audio file exporter using OfflineAudioContext
@@ -102,6 +103,18 @@ export class WavExporter {
             if (step.isRoll) {
               const rollTime = stepTime + stepDuration * 0.5;
               drumSynth.playSound(track.sound as DrumSoundType, rollTime, vel * 0.7, trackGain, pitch);
+            }
+          } else if (track.type === 'sample') {
+            const buf = track.sampleId ? audioEngine.sampleBuffers.get(track.sampleId) : undefined;
+            if (buf) {
+              const src = offlineCtx.createBufferSource();
+              src.buffer = buf;
+              src.playbackRate.value = Math.pow(2, pitch / 12);
+              const gn = offlineCtx.createGain();
+              gn.gain.value = vel;
+              src.connect(gn);
+              gn.connect(trackGain);
+              src.start(stepTime);
             }
           } else {
             const note = step.note || 'C4';

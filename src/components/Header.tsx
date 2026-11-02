@@ -14,6 +14,8 @@ import {
   Layers,
   Undo2,
   Redo2,
+  Music,
+  Import,
   Minus,
   Plus
 } from 'lucide-react';
@@ -36,6 +38,7 @@ interface HeaderProps {
   onLoadProject: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRandomizeBeat: () => void;
   onOpenDesktopModal: () => void;
+  onOpenCustomInstruments: () => void;
   viewMode: 'desktop' | 'mobile';
   onToggleViewMode: () => void;
   onKeyScaleChange: (key: string, scale: string) => void;
@@ -61,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLoadProject,
   onRandomizeBeat,
   onOpenDesktopModal,
+  onOpenCustomInstruments,
   viewMode,
   onToggleViewMode,
   onKeyScaleChange,
@@ -109,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
               </h1>
               <span className="badge text-accent border-accent/30">STUDIO</span>
             </div>
-            <p className="micro-label mt-0.5 text-ink-2">DAW • v1.1.0 • Aurora Engine</p>
+            <p className="micro-label mt-0.5 text-ink-2">DAW • v1.2.0 • Aurora Engine</p>
           </div>
         </div>
 
@@ -291,6 +295,16 @@ export const Header: React.FC<HeaderProps> = ({
               ))}
             </div>
           )}
+
+          {/* Import Custom Instruments */}
+          <button
+            onClick={onOpenCustomInstruments}
+            className="btn"
+            title="Import custom instruments & find free samples"
+          >
+            <Import className="w-3.5 h-3.5 text-accent" />
+            <span className="hidden sm:inline">Instruments</span>
+          </button>
 
           {/* AI Beat Generator */}
           <button

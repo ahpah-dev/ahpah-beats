@@ -43,6 +43,17 @@
 - **Master Multi-Mode Filter**: Resonant lowpass/highpass filter with smooth frequency sweep.
 - **Master Compressor & Limiter**: Anti-clipping transparent dynamics processor.
 
+### 📥 Custom Instruments & Sample Import
+Bring your own sounds into the studio with the **Instruments** panel (header, footer, or Sequencer → Import):
+- **One-click audio import**: Load any `.wav`, `.mp3`, `.ogg`, `.flac`, or `.m4a` file and it instantly becomes a new playable sample track.
+- **Project-portable**: Imported samples are embedded in the saved `.ahpah` project file, so your instruments travel with your song.
+- **Built-in discovery links**: Jump straight to free, royalty-friendly sample libraries:
+  - [Freesound.org](https://freesound.org) — CC-licensed WAV one-shots and FX
+  - [Cymatics Free Vault](https://cymatics.fm/free-download-vault/) — pro drum kits and loops
+  - [Bedroom Producers Blog](https://bedroomproducersblog.com/free-samples/) — curated free sample packs
+  - [Splice](https://splice.com/sounds) — searchable sample catalog
+  - [SampleSwap](https://sampleswap.org) — royalty-free WAV loops
+
 ### 💾 Lossless Audio Export & Project Management
 - **Instant WAV Export**: Renders 32-bit floating point audio directly to uncompressed 16-bit PCM `.wav` audio files using `OfflineAudioContext`.
 - **Project Files**: Save and load `.ahpah` JSON project files.
