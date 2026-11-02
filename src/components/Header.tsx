@@ -17,6 +17,7 @@ import {
   Minus,
   Plus
 } from 'lucide-react';
+import { Select } from './Select';
 import { ProjectData } from '../types';
 import { PRESET_PROJECTS, SCALES } from '../audio/presets';
 
@@ -240,49 +241,34 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Musical Key, Scale, Presets & Studio Tools */}
         <div className="flex items-center gap-2 flex-wrap ml-auto">
           {/* Preset Selector */}
-          <div className="flex items-center gap-1.5 well px-2.5 py-1.5">
-            <Layers className="w-3.5 h-3.5 text-magenta flex-shrink-0" />
-            <select
-              value={Object.keys(PRESET_PROJECTS).find((k) => PRESET_PROJECTS[k].title === project.title) || ''}
-              onChange={(e) => onSelectPreset(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-ink focus:outline-none cursor-pointer"
-            >
-              <option value="" disabled className="bg-panel text-ink-3">
-                Demo Presets
-              </option>
-              {Object.keys(PRESET_PROJECTS).map((preset) => (
-                <option key={preset} value={preset} className="bg-panel text-ink">
-                  {preset}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            value={Object.keys(PRESET_PROJECTS).find((k) => PRESET_PROJECTS[k].title === project.title) || ''}
+            options={[
+              { value: '', label: 'Demo Presets', accent: '#f472b6' },
+              ...Object.keys(PRESET_PROJECTS).map((p) => ({ value: p, label: p, accent: '#22d3ee' }))
+            ]}
+            onChange={onSelectPreset}
+            placeholder="Demo Presets"
+            leadingIcon={<Layers className="w-3.5 h-3.5" />}
+          />
 
           {/* Key & Scale Selector */}
-          <div className="flex items-center gap-1 well px-2.5 py-1.5 text-xs">
+          <div className="flex items-center gap-1.5 well px-2.5 py-1.5 text-xs">
             <span className="micro-label mr-1">Key</span>
-            <select
+            <Select
               value={project.key}
-              onChange={(e) => onKeyScaleChange(e.target.value, project.scale)}
-              className="bg-transparent font-mono font-bold text-accent focus:outline-none cursor-pointer"
-            >
-              {keys.map((k) => (
-                <option key={k} value={k} className="bg-panel text-ink">
-                  {k}
-                </option>
-              ))}
-            </select>
-            <select
+              options={keys.map((k) => ({ value: k, label: k, accent: '#22d3ee' }))}
+              onChange={(v) => onKeyScaleChange(v, project.scale)}
+              size="sm"
+              variant="ghost"
+            />
+            <Select
               value={project.scale}
-              onChange={(e) => onKeyScaleChange(project.key, e.target.value)}
-              className="bg-transparent font-semibold text-ink focus:outline-none cursor-pointer"
-            >
-              {Object.keys(SCALES).map((s) => (
-                <option key={s} value={s} className="bg-panel text-ink">
-                  {s}
-                </option>
-              ))}
-            </select>
+              options={Object.keys(SCALES).map((s) => ({ value: s, label: s, accent: '#8b5cf6' }))}
+              onChange={(v) => onKeyScaleChange(project.key, v)}
+              size="sm"
+              variant="ghost"
+            />
           </div>
 
           {/* Song Length / Bars Selector */}

@@ -1,5 +1,6 @@
 import React from 'react';
-import { EffectsSettings, SynthSettings, Track } from '../types';
+import { EffectsSettings, SynthSettings, Track, OscillatorType } from '../types';
+import { Select } from './Select';
 import {
   Sliders,
   Waves,
@@ -223,16 +224,18 @@ export const EffectsRack: React.FC<EffectsRackProps> = ({
               <Layers className="w-4 h-4 text-emerald-400" />
               <span>Synth Voice (ADSR)</span>
             </div>
-            <select
+            <Select
               value={synth.waveform}
-              onChange={(e) => onUpdateSynth({ waveform: e.target.value as OscillatorType })}
-              className="bg-base text-[10px] font-mono font-bold text-emerald-400 border border-line rounded px-1.5 py-1 focus:outline-none cursor-pointer"
-            >
-              <option value="sawtooth">SAW</option>
-              <option value="square">SQUARE</option>
-              <option value="triangle">TRIANGLE</option>
-              <option value="sine">SINE</option>
-            </select>
+              options={[
+                { value: 'sawtooth', label: 'SAW', accent: '#34d399' },
+                { value: 'square', label: 'SQUARE', accent: '#34d399' },
+                { value: 'triangle', label: 'TRIANGLE', accent: '#34d399' },
+                { value: 'sine', label: 'SINE', accent: '#34d399' }
+              ]}
+              onChange={(v) => onUpdateSynth({ waveform: v as OscillatorType })}
+              size="sm"
+              variant="solid"
+            />
           </div>
 
           <div className="grid grid-cols-4 gap-1.5 text-center">

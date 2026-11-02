@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Track, SynthSoundType, SynthSettings } from '../types';
+import { OscillatorType } from '../types';
+import { Select } from './Select';
 import { SCALES } from '../audio/presets';
 import { audioEngine } from '../audio/AudioEngine';
 import {
@@ -297,16 +299,18 @@ export const MobileKeys: React.FC<MobileKeysProps> = ({
               <Layers className="w-4 h-4 text-accent" />
               <span>Sound Shaper</span>
             </div>
-            <select
+            <Select
               value={synthSettings.waveform}
-              onChange={(e) => onUpdateSynth({ waveform: e.target.value as OscillatorType })}
-              className="bg-base text-xs font-mono font-bold text-accent border border-line rounded px-2 py-1 focus:outline-none cursor-pointer"
-            >
-              <option value="sawtooth">SAW</option>
-              <option value="square">SQUARE</option>
-              <option value="triangle">TRIANGLE</option>
-              <option value="sine">SINE</option>
-            </select>
+              options={[
+                { value: 'sawtooth', label: 'SAW', accent: '#22d3ee' },
+                { value: 'square', label: 'SQUARE', accent: '#22d3ee' },
+                { value: 'triangle', label: 'TRIANGLE', accent: '#22d3ee' },
+                { value: 'sine', label: 'SINE', accent: '#22d3ee' }
+              ]}
+              onChange={(v) => onUpdateSynth({ waveform: v as OscillatorType })}
+              size="sm"
+              variant="solid"
+            />
           </div>
 
           {currentTrack && onChangeTrackSound && (
